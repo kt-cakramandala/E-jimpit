@@ -14,7 +14,7 @@
     <meta name="application-name" content="E-Jimpitan">
     
     <!-- Inline Web App Manifest with Standalone Display Mode -->
-    <link id="manifest-link" rel="manifest" href='data:application/manifest+json;charset=utf-8,{"id":"ejimpitan-pekon-pwa","name":"E-Jimpitan Pekon Panggungrejo Utara","short_name":"E-Jimpitan","start_url":"./","scope":"./","display":"standalone","orientation":"portrait","background_color":"#047857","theme_color":"#047857","description":"Aplikasi Pendataan Jimpitan Warga Pekon Panggungrejo Utara","icons":[{"src":"https://cdn-icons-png.flaticon.com/512/3135/3135715.png","sizes":"192x192","type":"image/png"},{"src":"https://cdn-icons-png.flaticon.com/512/3135/3135715.png","sizes":"512x512","type":"image/png"}]}'>
+    <link id="manifest-link" rel="manifest" href='data:application/manifest+json;charset=utf-8,{"id":"ejimpitan-pekon-pwa","name":"E-Jimpitan Pekon Panggungrejo Utara","short_name":"E-Jimpitan","start_url":"./","scope":"./","display":"standalone","display_override":["standalone","minimal-ui"],"orientation":"portrait","background_color":"#047857","theme_color":"#047857","description":"Aplikasi Pendataan Jimpitan Warga Pekon Panggungrejo Utara","icons":[{"src":"https://cdn-icons-png.flaticon.com/512/3135/3135715.png","sizes":"192x192","type":"image/png","purpose":"any maskable"},{"src":"https://cdn-icons-png.flaticon.com/512/3135/3135715.png","sizes":"512x512","type":"image/png","purpose":"any maskable"}]}'>
 
     <!-- Fonts & External Libraries -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -71,6 +71,7 @@
         /* Custom scrollbar hiding for smooth tabs */
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        #reader video { object-fit: cover !important; border-radius: 1rem; width: 100% !important; }
     </style>
 </head>
 <body class="h-full flex flex-col bg-slate-100 text-slate-800 antialiased selection:bg-brand-500 selection:text-white pb-20 md:pb-6">
@@ -183,14 +184,22 @@
                             <span class="text-xs bg-slate-100 text-slate-600 px-2.5 py-1 rounded-lg font-semibold" id="camera-status-badge">Kamera Nonaktif</span>
                         </div>
 
+                        <!-- Notice if unsecure protocol -->
+                        <div id="unsecure-origin-alert" class="hidden mb-3 p-3 bg-amber-50 border border-amber-300 rounded-xl text-amber-900 text-xs leading-relaxed space-y-1">
+                            <p class="font-bold flex items-center gap-1 text-amber-800">
+                                <i class="fa-solid fa-triangle-exclamation text-amber-600"></i> Browser Membatasi Izin Kamera
+                            </p>
+                            <p class="opacity-90">Izin kamera otomatis diblokir jika dibuka secara lokal (<code class="bg-amber-100 px-1 rounded font-mono">file://</code>) atau via Webview aplikasi lain. Buka link ini melalui <b>Google Chrome (HTTPS)</b> atau gunakan tombol <b>"Pindai Foto QR"</b> di bawah.</p>
+                        </div>
+
                         <!-- Scanner Window Frame -->
-                        <div id="reader-wrapper" class="relative bg-slate-950 rounded-2xl overflow-hidden min-h-[260px] flex items-center justify-center border-2 border-dashed border-slate-300 shadow-inner">
+                        <div id="reader-wrapper" class="relative bg-slate-950 rounded-2xl overflow-hidden min-h-[280px] flex items-center justify-center border-2 border-dashed border-slate-300 shadow-inner">
                             <div id="reader" class="w-full"></div>
                             
                             <!-- Laser Animation Layer -->
                             <div id="scanner-overlay" class="absolute inset-0 pointer-events-none hidden">
                                 <div class="w-full h-1 bg-gradient-to-r from-transparent via-brand-500 to-transparent absolute scan-laser shadow-lg"></div>
-                                <div class="absolute inset-8 border-2 border-brand-400/70 rounded-2xl"></div>
+                                <div class="absolute inset-6 border-2 border-brand-400/80 rounded-2xl"></div>
                             </div>
 
                             <!-- Placeholder initial UI -->
@@ -199,20 +208,32 @@
                                     <i class="fa-solid fa-qrcode"></i>
                                 </div>
                                 <p class="text-xs sm:text-sm font-bold text-slate-200 mb-1">Arahkan Kamera ke Kode QR Rumah Warga</p>
-                                <p class="text-[11px] text-slate-400">Tekan tombol nyalakan kamera di bawah ini</p>
+                                <p class="text-[11px] text-slate-400 mb-3">Tekan tombol nyalakan kamera di bawah ini</p>
                             </div>
                         </div>
                     </div>
 
                     <!-- Camera Control Bar -->
-                    <div class="mt-4 flex flex-wrap gap-2">
-                        <button id="btn-toggle-cam" onclick="toggleCamera()" class="flex-1 bg-brand-700 hover:bg-brand-800 text-white font-bold py-3 px-4 rounded-xl text-xs sm:text-sm transition flex items-center justify-center gap-2 shadow-sm active:scale-95">
-                            <i class="fa-solid fa-power-off text-base"></i>
-                            <span id="btn-cam-text">Nyalakan Kamera</span>
-                        </button>
-                        <button onclick="switchCameraFacing()" id="btn-flip-cam" class="hidden bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold p-3 rounded-xl text-xs sm:text-sm transition active:scale-95" title="Ganti Kamera Front/Back">
-                            <i class="fa-solid fa-camera-rotate text-base"></i>
-                        </button>
+                    <div class="mt-4 space-y-2">
+                        <div class="flex flex-wrap gap-2">
+                            <button id="btn-toggle-cam" onclick="toggleCamera()" class="flex-1 bg-brand-700 hover:bg-brand-800 text-white font-bold py-3 px-4 rounded-xl text-xs sm:text-sm transition flex items-center justify-center gap-2 shadow-sm active:scale-95">
+                                <i class="fa-solid fa-power-off text-base"></i>
+                                <span id="btn-cam-text">Nyalakan Kamera</span>
+                            </button>
+                            <button onclick="switchCameraFacing()" id="btn-flip-cam" class="hidden bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold p-3 rounded-xl text-xs sm:text-sm transition active:scale-95" title="Ganti Kamera Front/Back">
+                                <i class="fa-solid fa-camera-rotate text-base"></i>
+                            </button>
+                        </div>
+
+                        <!-- Fallback Option: Upload Image from Gallery -->
+                        <div class="pt-2 border-t border-slate-100 flex items-center justify-between gap-2">
+                            <span class="text-[11px] font-medium text-slate-500">Atau pindai gambar dari Galeri HP:</span>
+                            <label class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-3 py-2 rounded-xl text-xs transition cursor-pointer flex items-center gap-1.5 shrink-0 active:scale-95">
+                                <i class="fa-solid fa-image text-brand-600"></i>
+                                <span>Upload Foto QR</span>
+                                <input type="file" id="qr-file-input" accept="image/*" class="hidden" onchange="scanQRFromFile(this)">
+                            </label>
+                        </div>
                     </div>
                 </div>
 
@@ -423,19 +444,18 @@
                     <div class="flex items-center gap-2.5">
                         <i class="fa-solid fa-mobile-screen-button text-2xl text-emerald-300"></i>
                         <div>
-                            <h3 class="font-bold text-sm sm:text-base">Status Instalasi PWA</h3>
+                            <h3 class="font-bold text-sm sm:text-base">Status Mode Tampilan Fullscreen</h3>
                             <p class="text-xs text-brand-200" id="pwa-status-description">Mengecek status mode aplikasi...</p>
                         </div>
                     </div>
-                    <span id="pwa-standalone-badge" class="bg-amber-400 text-amber-950 text-xs font-black px-2.5 py-1 rounded-md uppercase">Mode Web</span>
+                    <span id="pwa-standalone-badge" class="bg-amber-400 text-amber-950 text-xs font-black px-2.5 py-1 rounded-md uppercase">Mode Browser</span>
                 </div>
-                <div class="text-xs text-brand-100 bg-black/20 p-3 rounded-xl border border-white/10 space-y-1.5">
-                    <p class="font-bold text-white"><i class="fa-solid fa-lightbulb text-amber-300 mr-1"></i> Agar Tidak Membuka Browser Chrome Terus:</p>
-                    <ol class="list-decimal pl-4 space-y-1 opacity-90">
-                        <li>Jangan buka dari link di dalam aplikasi WhatsApp/In-App. Buka via <b>Google Chrome</b>.</li>
-                        <li>Klik menu <b>Titik Tiga (⋮)</b> di pojok kanan atas Chrome HP Android.</li>
-                        <li>Pilih <b>"Instal Aplikasi"</b> atau <b>"Tambahkan ke Layar Utama"</b>.</li>
-                        <li>Buka ikon aplikasi E-Jimpitan di HP Anda. Aplikasi akan langsung terbuka fullscreen tanpa address bar Chrome.</li>
+                <div class="text-xs text-brand-100 bg-black/20 p-3 rounded-xl border border-white/10 space-y-2">
+                    <p class="font-bold text-amber-300 flex items-center gap-1.5"><i class="fa-solid fa-triangle-exclamation"></i> Kenapa Masih Ada Address Bar / Baris URL Chrome?</p>
+                    <p class="opacity-95 leading-relaxed">Chrome Android membutuhkan <b>2 Syarat Wajib</b> agar address bar hilang sepenuhnya:</p>
+                    <ol class="list-decimal pl-4 space-y-1.5 opacity-90 leading-relaxed">
+                        <li><b>Wajib Menggunakan HTTPS:</b> Aplikasi harus di-onlinekan ke hosting seperti Netlify/GitHub Pages (alamat <code class="bg-black/30 px-1 rounded text-amber-200">https://...</code>), bukan dibuka langsung dari file HP (<code class="bg-black/30 px-1 rounded text-amber-200">file:///...</code>).</li>
+                        <li><b>Pilih "Instal Aplikasi" (Bukan "Tambahkan Shortcut"):</b> Saat menekan titik tiga (⋮) Chrome, pilih opsi <b>"Instal aplikasi"</b> agar Android membuat paket WebAPK mandiri tanpa baris URL Chrome.</li>
                     </ol>
                 </div>
             </div>
@@ -585,6 +605,7 @@ function doPost(e) {
             loadInitialStorage();
             updateNetworkStatus();
             checkPWAStandaloneMode();
+            checkSecureOrigin();
             renderResidentDropdown();
             renderResidentList();
             renderTransactionHistory();
@@ -594,6 +615,16 @@ function doPost(e) {
             window.addEventListener('online', updateNetworkStatus);
             window.addEventListener('offline', updateNetworkStatus);
         });
+
+        function checkSecureOrigin() {
+            const isLocal = window.location.protocol === 'file:';
+            const isUnsecureHttp = window.location.protocol === 'http:' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
+            
+            if (isLocal || isUnsecureHttp || !window.isSecureContext) {
+                const alertEl = document.getElementById('unsecure-origin-alert');
+                if (alertEl) alertEl.classList.remove('hidden');
+            }
+        }
 
         function playBeepSound(type = 'success') {
             try {
@@ -664,7 +695,7 @@ function doPost(e) {
             }
         }
 
-        /* Camera Scanner Functions */
+        /* Camera Scanner Functions with Fixed QR Dynamic Box */
         function toggleCamera() {
             if (isScannerRunning) {
                 stopCamera();
@@ -677,9 +708,36 @@ function doPost(e) {
             document.getElementById('scanner-placeholder').classList.add('hidden');
             document.getElementById('scanner-overlay').classList.remove('hidden');
 
-            html5QrCodeScanner = new Html5Qrcode("reader");
-            const config = { fps: 10, qrbox: { width: 220, height: 220 } };
+            const readerElement = document.getElementById('reader');
+            readerElement.innerHTML = '';
 
+            html5QrCodeScanner = new Html5Qrcode("reader");
+
+            // Adaptive QR calculation box to prevent aspect-ratio error
+            const qrboxFunction = function(viewfinderWidth, viewfinderHeight) {
+                let minEdgePercentage = 0.68;
+                let minEdgeSize = Math.min(viewfinderWidth, viewfinderHeight);
+                let qrboxSize = Math.floor(minEdgeSize * minEdgePercentage);
+                return {
+                    width: Math.max(qrboxSize, 180),
+                    height: Math.max(qrboxSize, 180)
+                };
+            };
+
+            const config = { 
+                fps: 12, 
+                qrbox: qrboxFunction,
+                aspectRatio: 1.0,
+                experimentalFeatures: {
+                    useBarCodeDetectorIfSupported: true
+                }
+            };
+
+            const cameraConstraint = facingMode === "environment" 
+                ? { facingMode: { exact: "environment" } } 
+                : { facingMode: "user" };
+
+            // Fallback chain for cameras
             html5QrCodeScanner.start({ facingMode: facingMode }, config, onQrScanSuccess, onQrScanError)
                 .then(() => {
                     isScannerRunning = true;
@@ -689,9 +747,21 @@ function doPost(e) {
                     document.getElementById('camera-status-badge').className = "text-xs bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-lg font-bold";
                 })
                 .catch(err => {
-                    showToast("Gagal membuka kamera HP: " + err, "error");
-                    document.getElementById('scanner-placeholder').classList.remove('hidden');
-                    document.getElementById('scanner-overlay').classList.add('hidden');
+                    console.warn("First camera start attempt failed, trying fallback:", err);
+                    // Fallback attempt without exact constraint
+                    html5QrCodeScanner.start({ facingMode: "user" }, config, onQrScanSuccess, onQrScanError)
+                        .then(() => {
+                            isScannerRunning = true;
+                            document.getElementById('btn-cam-text').innerText = "Matikan Kamera";
+                            document.getElementById('btn-flip-cam').classList.remove('hidden');
+                            document.getElementById('camera-status-badge').innerText = "Kamera Aktif";
+                            document.getElementById('camera-status-badge').className = "text-xs bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-lg font-bold";
+                        })
+                        .catch(errFinal => {
+                            showToast("Gagal membuka kamera HP! Pastikan izin kamera aktif & disajikan lewat HTTPS.", "error");
+                            document.getElementById('scanner-placeholder').classList.remove('hidden');
+                            document.getElementById('scanner-overlay').classList.add('hidden');
+                        });
                 });
         }
 
@@ -706,6 +776,8 @@ function doPost(e) {
                     document.getElementById('camera-status-badge').className = "text-xs bg-slate-100 text-slate-600 px-2.5 py-1 rounded-lg font-semibold";
                     document.getElementById('scanner-placeholder').classList.remove('hidden');
                     document.getElementById('scanner-overlay').classList.add('hidden');
+                }).catch(err => {
+                    isScannerRunning = false;
                 });
             }
         }
@@ -716,6 +788,24 @@ function doPost(e) {
                 stopCamera();
                 setTimeout(startCamera, 300);
             }
+        }
+
+        function scanQRFromFile(fileInput) {
+            if (!fileInput.files || fileInput.files.length === 0) return;
+            const imageFile = fileInput.files[0];
+
+            showToast("Membaca kode QR dari gambar...", "info");
+
+            const tempScanner = new Html5Qrcode("reader");
+            tempScanner.scanFile(imageFile, true)
+                .then(decodedText => {
+                    onQrScanSuccess(decodedText);
+                    fileInput.value = "";
+                })
+                .catch(err => {
+                    showToast("Tidak dapat membaca QR Code pada gambar tersebut!", "error");
+                    fileInput.value = "";
+                });
         }
 
         function onQrScanSuccess(decodedText) {
@@ -732,7 +822,7 @@ function doPost(e) {
         }
 
         function onQrScanError(errorMessage) {
-            // Noise reduction for frame errors
+            // Noise reduction for frame scanning loops
         }
 
         function onResidentSelectedManual(wargaId) {
