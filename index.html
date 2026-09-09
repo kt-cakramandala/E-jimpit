@@ -469,9 +469,16 @@
                 </div>
 
                 <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">URL Web App Google Apps Script</label>
-                    <input type="url" id="input-script-url" placeholder="https://script.google.com/macros/s/AKfycbx.../exec" class="w-full bg-slate-50 border border-slate-300 text-xs sm:text-sm font-mono rounded-xl p-3 focus:ring-brand-500 focus:border-brand-500">
-                    <p class="text-[11px] text-slate-400 mt-1">Gunakan URL Web App dari Google Sheets Pekon (*Access: Anyone*)</p>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">URL Web App Google Apps Script <span class="text-rose-500">*</span></label>
+                    <input type="url" id="input-script-url" oninput="liveCheckUrlInput()" placeholder="https://script.google.com/macros/s/AKfycbx.../exec" class="w-full bg-slate-50 border border-slate-300 text-xs sm:text-sm font-mono rounded-xl p-3 focus:ring-brand-500 focus:border-brand-500">
+                    
+                    <!-- Realtime URL Validation Helper Message -->
+                    <div id="url-validation-alert" class="hidden mt-2 p-2.5 rounded-xl text-xs flex items-start gap-2"></div>
+                    
+                    <p class="text-[11px] text-slate-400 mt-1.5 leading-relaxed">
+                        <i class="fa-solid fa-circle-info mr-1 text-brand-600"></i>
+                        Pastikan URL berawalan <b>https://script.google.com/macros/s/</b> dan berakhiran <b>/exec</b>. Jangan memasukkan link Google Sheets atau link Editor Script!
+                    </p>
                 </div>
 
                 <div class="flex flex-wrap gap-2">
@@ -481,8 +488,8 @@
                     <button onclick="syncAllDataWithCloud()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-2.5 rounded-xl text-xs flex items-center gap-2 active:scale-95">
                         <i class="fa-solid fa-rotate"></i> Sync Data Sekarang
                     </button>
-                    <button onclick="testGoogleSheetsConnection()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-4 py-2.5 rounded-xl text-xs flex items-center gap-2 active:scale-95">
-                        <i class="fa-solid fa-network-wired"></i> Tes Koneksi
+                    <button onclick="testGoogleSheetsConnection()" class="bg-amber-500 hover:bg-amber-600 text-white font-bold px-4 py-2.5 rounded-xl text-xs flex items-center gap-2 active:scale-95">
+                        <i class="fa-solid fa-network-wired"></i> Tes & Diagnosa Koneksi
                     </button>
                 </div>
             </div>
@@ -491,93 +498,119 @@
             <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 space-y-3">
                 <div class="flex items-center justify-between">
                     <div>
-                        <h3 class="font-bold text-slate-800 text-xs sm:text-sm">Kode Google Apps Script Multi-HP Terbaru</h3>
-                        <p class="text-[11px] text-slate-500">Salin skrip ini ke Google Sheets agar data warga & transaksi otomatis tersinkron antar HP</p>
+                        <h3 class="font-bold text-slate-800 text-xs sm:text-sm">Kode Google Apps Script Anti-Gagal (Terbaru)</h3>
+                        <p class="text-[11px] text-slate-500">Ganti kode di Google Apps Script Anda dengan kode ini untuk menghindari error koneksi</p>
                     </div>
                     <button onclick="copyAppsScriptCode()" class="bg-brand-50 hover:bg-brand-100 text-brand-800 border border-brand-200 font-bold text-xs px-3 py-1.5 rounded-lg flex items-center gap-1 active:scale-95 shrink-0">
                         <i class="fa-solid fa-copy"></i> Salin Kode
                     </button>
                 </div>
                 <pre class="bg-slate-900 text-emerald-400 p-3.5 rounded-xl text-[11px] font-mono overflow-x-auto max-h-56 border border-slate-800 leading-relaxed" id="apps-script-code-block">
+// KODE GOOGLE APPS SCRIPT PEKON PANGGUNGREJO UTARA (ANTI-GAGAL)
 function doGet(e) {
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
-  
-  // Sheet 1: Transaksi
-  var sheetTrx = ss.getSheetByName("Transaksi") || ss.getSheets()[0];
-  var dataTrx = sheetTrx.getDataRange().getValues();
-  var transactions = [];
-  for (var i = 1; i < dataTrx.length; i++) {
-    if (dataTrx[i][0]) {
-      transactions.push({
-        timestamp: dataTrx[i][0],
-        id_transaksi: dataTrx[i][1],
-        id_warga: dataTrx[i][2],
-        nama_warga: dataTrx[i][3],
-        rt: dataTrx[i][4],
-        nominal: Number(dataTrx[i][5]),
-        petugas: dataTrx[i][6],
-        synced: true
-      });
+  try {
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    
+    // Auto-create Sheet Transaksi jika belum ada
+    var sheetTrx = ss.getSheetByName("Transaksi");
+    if (!sheetTrx) {
+      sheetTrx = ss.insertSheet("Transaksi");
+      sheetTrx.appendRow(["Tanggal Waktu", "ID Transaksi", "ID Warga", "Nama Warga", "RT", "Nominal", "Petugas"]);
     }
-  }
-
-  // Sheet 2: Warga
-  var sheetWarga = ss.getSheetByName("Warga");
-  var residents = [];
-  if (sheetWarga) {
-    var dataWarga = sheetWarga.getDataRange().getValues();
-    for (var j = 1; j < dataWarga.length; j++) {
-      if (dataWarga[j][0]) {
-        residents.push({
-          id_warga: dataWarga[j][0],
-          kode_qr: dataWarga[j][1],
-          nama: dataWarga[j][2],
-          rt: dataWarga[j][3],
-          no_rumah: dataWarga[j][4]
-        });
-      }
-    }
-  }
-
-  var result = JSON.stringify({ transactions: transactions, residents: residents });
-  return ContentService.createTextOutput(result).setMimeType(ContentService.MimeType.JSON);
-}
-
-function doPost(e) {
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var data = JSON.parse(e.postData.contents);
-  
-  if (data.action === "add_warga") {
+    
+    // Auto-create Sheet Warga jika belum ada
     var sheetWarga = ss.getSheetByName("Warga");
     if (!sheetWarga) {
       sheetWarga = ss.insertSheet("Warga");
       sheetWarga.appendRow(["ID Warga", "Kode QR", "Nama Warga", "RT", "No Rumah"]);
     }
-    sheetWarga.appendRow([
-      data.id_warga,
-      data.kode_qr,
-      data.nama,
-      data.rt,
-      data.no_rumah
-    ]);
-  } else {
-    var sheetTrx = ss.getSheetByName("Transaksi") || ss.getSheets()[0];
-    if (sheetTrx.getLastRow() === 0) {
-      sheetTrx.appendRow(["Tanggal Waktu", "ID Transaksi", "ID Warga", "Nama Warga", "RT", "Nominal", "Petugas"]);
+
+    // Ambil Data Transaksi
+    var dataTrx = sheetTrx.getDataRange().getValues();
+    var transactions = [];
+    for (var i = 1; i < dataTrx.length; i++) {
+      if (dataTrx[i][0] && dataTrx[i][1]) {
+        transactions.push({
+          timestamp: dataTrx[i][0] ? new Date(dataTrx[i][0]).toISOString() : new Date().toISOString(),
+          id_transaksi: String(dataTrx[i][1]),
+          id_warga: String(dataTrx[i][2]),
+          nama_warga: String(dataTrx[i][3]),
+          rt: String(dataTrx[i][4]),
+          nominal: Number(dataTrx[i][5]) || 0,
+          petugas: String(dataTrx[i][6]),
+          synced: true
+        });
+      }
     }
-    sheetTrx.appendRow([
-      new Date(),
-      data.id_transaksi,
-      data.id_warga,
-      data.nama_warga,
-      data.rt,
-      data.nominal,
-      data.petugas
-    ]);
+
+    // Ambil Data Warga
+    var dataWarga = sheetWarga.getDataRange().getValues();
+    var residents = [];
+    for (var j = 1; j < dataWarga.length; j++) {
+      if (dataWarga[j][0]) {
+        residents.push({
+          id_warga: String(dataWarga[j][0]),
+          kode_qr: String(dataWarga[j][1]),
+          nama: String(dataWarga[j][2]),
+          rt: String(dataWarga[j][3]),
+          no_rumah: String(dataWarga[j][4])
+        });
+      }
+    }
+
+    var result = JSON.stringify({ status: "success", transactions: transactions, residents: residents });
+    return ContentService.createTextOutput(result).setMimeType(ContentService.MimeType.JSON);
+  } catch (err) {
+    var errorResult = JSON.stringify({ status: "error", message: err.toString() });
+    return ContentService.createTextOutput(errorResult).setMimeType(ContentService.MimeType.JSON);
   }
-  
-  return ContentService.createTextOutput(JSON.stringify({"result": "success"}))
-    .setMimeType(ContentService.MimeType.JSON);
+}
+
+function doPost(e) {
+  try {
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var data = {};
+    
+    if (e && e.postData && e.postData.contents) {
+      data = JSON.parse(e.postData.contents);
+    } else if (e && e.parameter) {
+      data = e.parameter;
+    }
+
+    if (data.action === "add_warga") {
+      var sheetWarga = ss.getSheetByName("Warga") || ss.insertSheet("Warga");
+      if (sheetWarga.getLastRow() === 0) {
+        sheetWarga.appendRow(["ID Warga", "Kode QR", "Nama Warga", "RT", "No Rumah"]);
+      }
+      sheetWarga.appendRow([
+        data.id_warga || "",
+        data.kode_qr || "",
+        data.nama || "",
+        data.rt || "",
+        data.no_rumah || ""
+      ]);
+    } else {
+      var sheetTrx = ss.getSheetByName("Transaksi") || ss.insertSheet("Transaksi");
+      if (sheetTrx.getLastRow() === 0) {
+        sheetTrx.appendRow(["Tanggal Waktu", "ID Transaksi", "ID Warga", "Nama Warga", "RT", "Nominal", "Petugas"]);
+      }
+      sheetTrx.appendRow([
+        data.timestamp ? new Date(data.timestamp) : new Date(),
+        data.id_transaksi || ("TRX-" + Date.now()),
+        data.id_warga || "",
+        data.nama_warga || "",
+        data.rt || "",
+        Number(data.nominal) || 0,
+        data.petugas || ""
+      ]);
+    }
+    
+    return ContentService.createTextOutput(JSON.stringify({"status": "success"}))
+      .setMimeType(ContentService.MimeType.JSON);
+  } catch (err) {
+    return ContentService.createTextOutput(JSON.stringify({"status": "error", "message": err.toString()}))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
 }
                 </pre>
             </div>
@@ -667,32 +700,32 @@ function doPost(e) {
                 </div>
                 <p id="diag-reason-text" class="text-slate-300 leading-relaxed text-[11px]">Memeriksa koneksi GitHub Pages...</p>
             </div>
-
-            <div class="space-y-3 text-xs text-slate-700">
-                
-                <!-- GitHub Pages Step by Step Guide -->
-                <div class="bg-emerald-50 border border-emerald-300 p-3.5 rounded-xl text-emerald-950 space-y-2">
-                    <span class="font-black text-xs text-emerald-900 uppercase tracking-wider flex items-center gap-1.5">
-                        <i class="fa-solid fa-circle-check text-emerald-600"></i> Cara Memasang PWA dari GitHub Pages di Chrome HP
-                    </span>
-                    <ol class="list-decimal pl-4 space-y-1.5 font-medium text-emerald-950 leading-relaxed text-[11px]">
-                        <li>Buka link GitHub Pages Anda di browser <b>Google Chrome</b> HP Anda.</li>
-                        <li>Tekan tombol menu <b>Titik Tiga (⋮)</b> di pojok kanan atas Chrome.</li>
-                        <li>Pilih menu <b>"Instal aplikasi"</b> (atau <i>"Add to Home screen"</i>).</li>
-                        <li>Klik <b>Instal</b> pada pop-up konfirmasi Chrome.</li>
-                        <li>Buka aplikasi dari Layar Utama HP Anda, baris URL Chrome akan **hilang sepenuhnya** dan aplikasi berjalan Fullscreen!</li>
-                    </ol>
+    <!-- Modal: Diagnostic Cloud Connection Error Helper -->
+    <div id="modal-cloud-error" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-5 sm:p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+            <div class="flex items-start justify-between pb-3 border-b border-slate-100">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-10 h-10 rounded-xl bg-rose-100 text-rose-700 flex items-center justify-center font-bold text-lg shrink-0">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                    </div>
+                    <div>
+                        <h3 id="cloud-error-title" class="font-bold text-slate-800 text-sm sm:text-base leading-tight">Gagal Terhubung ke Google Sheets</h3>
+                        <p class="text-xs text-rose-600 font-semibold mt-0.5">Ditemukan kendala pada izin / URL Google Apps Script</p>
+                    </div>
                 </div>
-
-                <div class="pt-1 border-t border-slate-100 space-y-1">
-                    <p class="font-extrabold text-slate-800">Khusus pengguna iPhone (Safari):</p>
-                    <p class="text-[11px] leading-relaxed">Tekan tombol <b>Share</b> (kotak dengan panah atas) di Safari -> Gulir ke bawah -> Pilih <b>"Tambah ke Layar Utama"</b>.</p>
-                </div>
+                <button onclick="closeCloudErrorModal()" class="text-slate-400 hover:text-slate-600 p-1"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
 
-            <div class="pt-2">
-                <button onclick="triggerPWAInstall(true)" class="w-full bg-brand-700 hover:bg-brand-800 text-white font-bold py-3 rounded-xl text-xs sm:text-sm transition shadow active:scale-95 flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-download"></i> Coba Minta Prompt Instal Chrome
+            <div id="cloud-error-body" class="space-y-3 text-xs text-slate-700 leading-relaxed">
+                <!-- Content populated dynamically -->
+            </div>
+
+            <div class="pt-2 flex gap-2">
+                <button onclick="copyAppsScriptCode()" class="flex-1 bg-brand-50 hover:bg-brand-100 text-brand-800 border border-brand-200 font-bold py-2.5 rounded-xl text-xs transition active:scale-95 flex items-center justify-center gap-1.5">
+                    <i class="fa-solid fa-copy"></i> Salin Kode Script
+                </button>
+                <button onclick="closeCloudErrorModal()" class="flex-1 bg-slate-800 hover:bg-slate-900 text-white font-bold py-2.5 rounded-xl text-xs transition active:scale-95">
+                    Saya Paham, Tutup
                 </button>
             </div>
         </div>
@@ -711,55 +744,259 @@ function doPost(e) {
         let googleScriptUrl = "";
 
         // STRICT Debounce & QR Single Trigger Lock State
-        let lastScannedCode = "";
-        let lastScanTime = 0;
-        let isProcessingScan = false;
+        /* Validate Google Script URL Format */
+        function validateScriptUrl(url) {
+            if (!url) return { valid: false, message: "URL Google Apps Script tidak boleh kosong!" };
+            url = url.trim();
 
-        /* Register PWA Install Event Listener immediately */
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPWAInstallPrompt = e;
-            const banner = document.getElementById('pwa-install-banner');
-            if (banner) banner.classList.remove('hidden');
-        });
-
-        /* Default Pekon Panggungrejo Utara Sample Residents */
-        const defaultSampleResidents = [
-            { id_warga: "W-001", kode_qr: "QR-PGR-RT01-001", nama: "Pak Supriyadi", rt: "RT 01", no_rumah: "No. 01" },
-            { id_warga: "W-002", kode_qr: "QR-PGR-RT01-002", nama: "Pak Handoko", rt: "RT 01", no_rumah: "No. 05" },
-            { id_warga: "W-003", kode_qr: "QR-PGR-RT02-001", nama: "Ibu Maryati", rt: "RT 02", no_rumah: "No. 12" },
-            { id_warga: "W-004", kode_qr: "QR-PGR-RT03-001", nama: "Pak Bambang S.", rt: "RT 03", no_rumah: "No. 08" },
-            { id_warga: "W-005", kode_qr: "QR-PGR-RT04-001", nama: "Pak Sugeng", rt: "RT 04", no_rumah: "No. 20" },
-            { id_warga: "W-006", kode_qr: "QR-PGR-RT05-001", nama: "Pak Slamet", rt: "RT 05", no_rumah: "No. 03" }
-        ];
-
-        window.addEventListener('DOMContentLoaded', () => {
-            registerServiceWorkerSafely();
-            loadInitialStorage();
-            updateNetworkStatus();
-            checkPWAStandaloneMode();
-            checkSecureOrigin();
-            renderResidentDropdown();
-            renderResidentList();
-            renderTransactionHistory();
-            renderPrintableCards();
-
-            window.addEventListener('online', updateNetworkStatus);
-            window.addEventListener('offline', updateNetworkStatus);
-
-            // Auto-fetch data from cloud if script URL is available
-            if (googleScriptUrl && navigator.onLine) {
-                fetchDataFromCloud(true);
+            if (url.includes("docs.google.com/spreadsheets")) {
+                return { 
+                    valid: false, 
+                    type: "WRONG_URL_TYPE",
+                    message: "URL yang Anda masukkan adalah link Google Sheets! Harus URL Web App dari Google Apps Script.",
+                    solution: "Buka Google Sheets -> Ekstensi -> Apps Script -> Terapkan (Deploy) -> Penerapan Baru -> Salin URL Web App (yang berakhiran /exec)."
+                };
             }
-        });
 
-        /* Safe Service Worker Registration for GitHub Pages */
-        function registerServiceWorkerSafely() {
-            if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.register('./sw.js').catch(err => {
-                    // Fallback when sw.js is not present as a separate file
+            if (url.includes("script.google.com") && url.includes("/edit")) {
+                return { 
+                    valid: false, 
+                    type: "WRONG_URL_TYPE",
+                    message: "URL yang Anda masukkan adalah halaman Editor Script! Bukan URL Web App terpublikasi.",
+                    solution: "Klik tombol 'Terapkan' (Deploy) di kanan atas editor -> Penerapan Baru -> Pilih jenis 'Aplikasi Web' -> Salin URL Web App."
+                };
+            }
+
+            if (!url.startsWith("https://script.google.com/macros/s/") || !url.endsWith("/exec")) {
+                return { 
+                    valid: false, 
+                    type: "INVALID_FORMAT",
+                    message: "Format URL Web App kurang pas.",
+                    solution: "URL Web App yang valid harus berawalan 'https://script.google.com/macros/s/' dan diakhiri dengan '/exec'."
+                };
+            }
+
+            return { valid: true, url: url };
+        }
+
+        /* Realtime URL Helper Display */
+        function liveCheckUrlInput() {
+            const input = document.getElementById('input-script-url');
+            const alertBox = document.getElementById('url-validation-alert');
+            if (!input || !alertBox) return;
+
+            const val = input.value.trim();
+            if (!val) {
+                alertBox.classList.add('hidden');
+                return;
+            }
+
+            const check = validateScriptUrl(val);
+            alertBox.classList.remove('hidden');
+
+            if (check.valid) {
+                alertBox.className = "mt-2 p-2.5 rounded-xl text-xs bg-emerald-50 border border-emerald-300 text-emerald-900 flex items-start gap-2 font-medium";
+                alertBox.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-600 text-sm mt-0.5"></i> <span>Format URL Web App Google Script sudah benar!</span>`;
+            } else {
+                alertBox.className = "mt-2 p-2.5 rounded-xl text-xs bg-amber-50 border border-amber-300 text-amber-900 flex items-start gap-2 font-medium";
+                alertBox.innerHTML = `<i class="fa-solid fa-triangle-exclamation text-amber-600 text-sm mt-0.5"></i> <div><b>Peringatan:</b> ${check.message}<p class="mt-1 opacity-90 text-[11px]">${check.solution}</p></div>`;
+            }
+        }
+
+        /* Transactions Cloud Sync (POST) with CORS compatibility */
+        function postTransactionToCloud(trxObj) {
+            const check = validateScriptUrl(googleScriptUrl);
+            if (!check.valid) return;
+
+            // Use text/plain;charset=utf-8 to ensure CORS simple-request compliance for Google Apps Script
+            fetch(check.url, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify(trxObj)
+            }).then(() => {
+                trxObj.synced = true;
+                saveTrxToStorage();
+                renderTransactionHistory();
+            }).catch(err => {
+                console.log("Cloud sync delayed:", err);
+            });
+        }
+
+        /* Resident Cloud Sync (POST) */
+        function postWargaToCloud(wargaObj) {
+            const check = validateScriptUrl(googleScriptUrl);
+            if (!check.valid) return;
+
+            const payload = {
+                action: "add_warga",
+                id_warga: wargaObj.id_warga,
+                kode_qr: wargaObj.kode_qr,
+                nama: wargaObj.nama,
+                rt: wargaObj.rt,
+                no_rumah: wargaObj.no_rumah
+            };
+
+            fetch(check.url, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify(payload)
+            }).then(() => {
+                console.log("Warga baru tersimpan ke Google Sheets");
+            }).catch(err => console.log("Gagal sync warga ke cloud:", err));
+        }
+
+        /* Multi-Device Data Sync (Fetch & Merge Residents and Transactions) */
+        function fetchDataFromCloud(silent = false) {
+            const check = validateScriptUrl(googleScriptUrl);
+            if (!check.valid) {
+                if (!silent) {
+                    showCloudErrorModal("URL Google Script Belum Valid", check.message, check.solution);
+                }
+                return;
+            }
+
+            if (!navigator.onLine) {
+                if (!silent) showToast("HP Anda sedang offline!", "error");
+                return;
+            }
+
+            if (!silent) showToast("Menarik data terbaru dari Google Sheets...", "info");
+
+            fetch(check.url, { method: "GET", cache: "no-cache" })
+                .then(res => res.text())
+                .then(textData => {
+                    let data;
+                    try {
+                        data = JSON.parse(textData);
+                    } catch (e) {
+                        // If output is HTML, Google Script required login because "Who has access" is not set to "Anyone"
+                        if (textData.includes("<!DOCTYPE") || textData.includes("<html")) {
+                            showCloudErrorModal(
+                                "Izin Akses Google Script Ditolak (Minta Login)",
+                                "Google Script menolak akses anonim dan meminta login Google. Ini terjadi karena setelan hak akses Web App belum diubah menjadi 'Anyone' (Siapa saja).",
+                                "<b>Cara Memperbaiki (Hanya 1 Menit):</b><br>" +
+                                "1. Buka Google Sheets tempat Anda memasang skrip.<br>" +
+                                "2. Pilih menu <b>Ekstensi</b> -> <b>Apps Script</b>.<br>" +
+                                "3. Klik tombol biru <b>Terapkan (Deploy)</b> di pojok kanan atas -> pilih <b>Kelola Penerapan (Manage deployments)</b>.<br>" +
+                                "4. Klik ikon **Pensil (Edit)** pada versi Web App saat ini.<br>" +
+                                "5. Ubah <b>'Yang memiliki akses' (Who has access)</b> menjadi <b>'Siapa Saja' (Anyone)</b>.<br>" +
+                                "6. Ubah Versi menjadi <b>'Versi Baru' (New Version)</b> lalu klik <b>Terapkan</b>."
+                            );
+                        } else {
+                            showToast("Respon dari Google Sheets bukan JSON yang valid.", "error");
+                        }
+                        return;
+                    }
+
+                    if (data.status === "error") {
+                        showToast("Error dari Google Script: " + data.message, "error");
+                        return;
+                    }
+
+                    // 1. Merge Cloud Residents
+                    if (data.residents && Array.isArray(data.residents) && data.residents.length > 0) {
+                        data.residents.forEach(cloudWarga => {
+                            const exists = residentsData.some(r => r.id_warga === cloudWarga.id_warga || r.kode_qr === cloudWarga.kode_qr);
+                            if (!exists) {
+                                residentsData.push(cloudWarga);
+                            }
+                        });
+                        saveWargaToStorage();
+                        renderResidentDropdown();
+                        renderResidentList();
+                        renderPrintableCards();
+                    }
+
+                    // 2. Merge Cloud Transactions
+                    if (data.transactions && Array.isArray(data.transactions) && data.transactions.length > 0) {
+                        data.transactions.forEach(cloudTrx => {
+                            const localIndex = transactionsData.findIndex(t => t.id_transaksi === cloudTrx.id_transaksi);
+                            if (localIndex === -1) {
+                                transactionsData.push(cloudTrx);
+                            } else {
+                                transactionsData[localIndex].synced = true;
+                            }
+                        });
+                        // Sort transactions descending by time
+                        transactionsData.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+                        saveTrxToStorage();
+                        renderTransactionHistory();
+                    }
+
+                    if (!silent) {
+                        showToast("Koneksi Sukses! Data Warga & Kas Google Sheets Terhubung.", "success");
+                    }
+                })
+                .catch(err => {
+                    console.log("Error fetching cloud data:", err);
+                    if (!silent) {
+                        showToast("Gagal terhubung ke Google Sheets. Periksa koneksi internet.", "error");
+                    }
                 });
+        }
+
+        function saveSettings() {
+            const input = document.getElementById('input-script-url');
+            const url = input ? input.value.trim() : "";
+            const check = validateScriptUrl(url);
+
+            if (!check.valid) {
+                showCloudErrorModal("URL Google Script Belum Sesuai", check.message, check.solution);
+                return;
             }
+
+            googleScriptUrl = check.url;
+            localStorage.setItem('ejimpitan_script_url', check.url);
+            showToast("URL Google Apps Script berhasil disimpan!", "success");
+
+            if (navigator.onLine) {
+                fetchDataFromCloud(false);
+            }
+        }
+
+        function testGoogleSheetsConnection() {
+            const input = document.getElementById('input-script-url');
+            const url = input ? input.value.trim() : "";
+            
+            if (!url) {
+                showToast("Masukkan URL Apps Script terlebih dahulu!", "error");
+                return;
+            }
+
+            const check = validateScriptUrl(url);
+            if (!check.valid) {
+                showCloudErrorModal("URL Tidak Valid", check.message, check.solution);
+                return;
+            }
+
+            googleScriptUrl = check.url;
+            localStorage.setItem('ejimpitan_script_url', check.url);
+
+            showToast("Menguji koneksi ke Google Sheets...", "info");
+            fetchDataFromCloud(false);
+        }
+
+        function showCloudErrorModal(title, message, solutionHtml) {
+            document.getElementById('cloud-error-title').innerText = title;
+            const body = document.getElementById('cloud-error-body');
+            body.innerHTML = `
+                <div class="bg-rose-50 border border-rose-200 p-3 rounded-xl text-rose-950 font-medium">
+                    ${message}
+                </div>
+                <div class="bg-slate-50 border border-slate-200 p-3 rounded-xl text-slate-800 space-y-1.5">
+                    <p class="font-bold text-slate-900 border-b border-slate-200 pb-1 flex items-center gap-1.5">
+                        <i class="fa-solid fa-wrench text-brand-600"></i> Solusi Perbaikan
+                    </p>
+                    <div class="text-[11px] leading-relaxed pt-1">${solutionHtml}</div>
+                </div>
+            `;
+            document.getElementById('modal-cloud-error').classList.remove('hidden');
+        }
+
+        function closeCloudErrorModal() {
+            document.getElementById('modal-cloud-error').classList.add('hidden');
         }
 
         function checkSecureOrigin() {
