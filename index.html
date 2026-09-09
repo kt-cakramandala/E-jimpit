@@ -603,7 +603,7 @@ function doPost(e) {
             </div>
 
             <div class="pt-2">
-                <button onclick="triggerPWAInstall(); closePWAHelpModal();" class="w-full bg-brand-700 hover:bg-brand-800 text-white font-bold py-3 rounded-xl text-xs sm:text-sm transition shadow active:scale-95 flex items-center justify-center gap-2">
+                <button onclick="triggerPWAInstall(true)" class="w-full bg-brand-700 hover:bg-brand-800 text-white font-bold py-3 rounded-xl text-xs sm:text-sm transition shadow active:scale-95 flex items-center justify-center gap-2">
                     <i class="fa-solid fa-download"></i> Coba Instal Otomatis Sekarang
                 </button>
             </div>
@@ -658,17 +658,18 @@ function doPost(e) {
         function registerInlineServiceWorker() {
             if ('serviceWorker' in navigator) {
                 try {
-                    const swScript = `
-                        const CACHE_NAME = 'ejimpitan-v1';
-                        self.addEventListener('install', (e) => self.skipWaiting());
-                        self.addEventListener('activate', (e) => e.waitUntil(clients.claim()));
-                        self.addEventListener('fetch', (e) => {
-                            e.respondWith(fetch(e.request).catch(() => new Response('Offline')));
-                        });
-                    `;
-                    const blob = new Blob([swScript], { type: 'application/javascript' });
-                    const blobUrl = URL.createObjectURL(blob);
-                    navigator.serviceWorker.register(blobUrl).catch(() => {});
+                    navigator.serviceWorker.register('./sw.js').catch(() => {
+                        const swScript = `
+                            const CACHE_NAME = 'ejimpitan-v1';
+                            self.addEventListener('install', (e) => self.skipWaiting());
+                            self.addEventListener('activate', (e) => e.waitUntil(clients.claim()));
+                            self.addEventListener('fetch', (e) => {
+                                e.respondWith(fetch(e.request).catch(() => new Response('Offline')));
+                            });
+                        `;
+                        const blob = new Blob([swScript], { type: 'application/javascript' });
+                        navigator.serviceWorker.register(URL.createObjectURL(blob)).catch(() => {});
+                    });
                 } catch(e) {}
             }
         }
@@ -1334,7 +1335,7 @@ function doPost(e) {
             });
         }
 
-        function triggerPWAInstall() {
+        function triggerPWAInstall(fromModal = false) {
             if (deferredPWAInstallPrompt) {
                 deferredPWAInstallPrompt.prompt();
                 deferredPWAInstallPrompt.userChoice.then((choiceResult) => {
@@ -1343,9 +1344,14 @@ function doPost(e) {
                     }
                     deferredPWAInstallPrompt = null;
                     dismissPWABanner();
+                    if (fromModal) closePWAHelpModal();
                 });
             } else {
-                openPWAHelpModal();
+                if (fromModal) {
+                    showToast("Fitur instal otomatis tidak didukung langsung di browser ini. Ikuti panduan manual di atas.", "info");
+                } else {
+                    openPWAHelpModal();
+                }
             }
         }
 
