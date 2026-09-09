@@ -1,1817 +1,1325 @@
 <!DOCTYPE html>
-<html lang="id" class="h-full bg-slate-100">
+<html lang="id" class="dark">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>E-JIMPITAN Panggungrejo Utara</title>
-    
-    <!-- PWA & Mobile Standalone Tags -->
-    <meta name="theme-color" content="#047857">
-    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-JIMPITAN Pekon Panggungrejo Utara</title>
+
+    <!-- PWA Web App Meta Tags -->
+    <meta name="theme-color" content="#070b14">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="E-Jimpitan">
-    <meta name="application-name" content="E-Jimpitan">
-    
-    <!-- Web App Manifest for Fullscreen PWA -->
-    <link id="manifest-link" rel="manifest" href='data:application/manifest+json;charset=utf-8,{"id":"ejimpitan-panggungrejo-utara","name":"E-JIMPITAN Panggungrejo Utara","short_name":"E-Jimpitan","start_url":"./","scope":"./","display":"standalone","display_override":["standalone","minimal-ui"],"orientation":"portrait","background_color":"#047857","theme_color":"#047857","description":"Aplikasi Pendataan Jimpitan Warga Pekon Panggungrejo Utara","icons":[{"src":"https://cdn-icons-png.flaticon.com/512/3135/3135715.png","sizes":"192x192","type":"image/png","purpose":"any maskable"},{"src":"https://cdn-icons-png.flaticon.com/512/3135/3135715.png","sizes":"512x512","type":"image/png","purpose":"any maskable"}]}'>
+    <meta name="apple-mobile-web-app-title" content="E-JIMPITAN Pekon">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3135/3135715.png">
 
-    <!-- Fonts & External Libraries -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-    
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
+            darkMode: 'class',
             theme: {
                 extend: {
-                    fontFamily: {
-                        sans: ['Plus Jakarta Sans', 'sans-serif'],
-                    },
                     colors: {
                         brand: {
-                            50: '#ecfdf5',
-                            100: '#d1fae5',
-                            200: '#a7f3d0',
-                            500: '#10b981',
-                            600: '#059669',
-                            700: '#047857',
-                            800: '#065f46',
-                            900: '#064e3b',
-                        }
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            400: '#60a5fa',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            800: '#1e40af',
+                            900: '#1e3a8a',
+                            950: '#0b1329',
+                        },
+                        darkbg: '#070b14',
+                        cardbg: '#0f172a',
+                        cardborder: '#1e293b'
                     }
                 }
             }
         }
     </script>
 
-    <!-- Font Awesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-
-    <!-- HTML5 QR Code Reader Library -->
-    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
-
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Chart.js for Visual Reports -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
     <!-- QRCode Generator Library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
+    <!-- HTML5 QR Code Camera Scanner -->
+    <script src="https://unpkg.com/html5-qrcode"></script>
+
     <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
-        .scan-laser { animation: scanAnimation 2s infinite ease-in-out; }
+        body {
+            background-color: #070b14;
+            color: #f1f5f9;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #070b14;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1e293b;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #3b82f6;
+        }
+
+        /* Glowing Effects */
+        .glow-blue {
+            box-shadow: 0 0 25px -5px rgba(59, 130, 246, 0.35);
+        }
+        .glow-border {
+            border-color: rgba(59, 130, 246, 0.4);
+            box-shadow: inset 0 0 10px rgba(59, 130, 246, 0.1);
+        }
+
+        /* Scanner Line Animation */
         @keyframes scanAnimation {
-            0% { top: 5%; opacity: 0.8; }
-            50% { top: 90%; opacity: 1; }
-            100% { top: 5%; opacity: 0.8; }
+            0% { top: 0%; }
+            50% { top: 90%; }
+            100% { top: 0%; }
         }
-        @media print {
-            .no-print { display: none !important; }
-            .print-only { display: block !important; }
-            body { background: white; color: black; padding: 0; margin: 0; }
+        .scanner-laser {
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #3b82f6, #60a5fa, #3b82f6, transparent);
+            box-shadow: 0 0 12px #3b82f6;
+            animation: scanAnimation 2.2s ease-in-out infinite;
         }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        #reader video { object-fit: cover !important; border-radius: 1rem; width: 100% !important; }
     </style>
 </head>
-<body class="h-full flex flex-col bg-slate-100 text-slate-800 antialiased selection:bg-brand-500 selection:text-white pb-20 md:pb-6">
+<body class="min-h-screen flex flex-col justify-between selection:bg-brand-500 selection:text-white">
 
-    <!-- PWA Install Banner Header -->
-    <div id="pwa-install-banner" class="bg-gradient-to-r from-amber-500 via-amber-600 to-amber-500 text-white px-4 py-2.5 shadow-md sticky top-0 z-50">
-        <div class="max-w-5xl mx-auto flex items-center justify-between gap-3 text-sm">
-            <div class="flex items-center gap-2">
-                <i class="fa-solid fa-mobile-screen-button text-xl animate-bounce shrink-0"></i>
-                <div class="leading-tight">
-                    <span class="font-black block text-xs sm:text-sm">Pasang E-Jimpitan ke Layar Utama HP</span>
-                    <span class="text-[10px] sm:text-xs opacity-95">Aplikasi PWA Full-Screen tanpa baris URL Chrome</span>
+    <!-- Top Header Navigation -->
+    <header class="bg-slate-900/90 backdrop-blur-md border-b border-slate-800 sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <!-- Branding (Version badge removed) -->
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-700 via-brand-500 to-cyan-400 flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-brand-500/30">
+                        <i class="fa-solid fa-qrcode"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center space-x-2">
+                            <h1 class="font-bold text-lg text-white tracking-wide">E-JIMPITAN</h1>
+                        </div>
+                        <p class="text-xs text-slate-400 font-medium">Pekon Panggungrejo Utara</p>
+                    </div>
                 </div>
-            </div>
-            <div class="flex items-center gap-1.5 shrink-0">
-                <button onclick="triggerPWAInstall()" class="bg-white text-amber-900 font-extrabold px-3 py-1.5 rounded-lg text-xs hover:bg-amber-50 transition shadow flex items-center gap-1 active:scale-95">
-                    <i class="fa-solid fa-download"></i> Instal
-                </button>
-                <button onclick="dismissPWABanner()" class="text-white opacity-80 hover:opacity-100 p-1">
-                    <i class="fa-solid fa-xmark text-base"></i>
-                </button>
-            </div>
-        </div>
-    </div>
 
-    <!-- Clean Modern Main Header -->
-    <header class="bg-gradient-to-r from-brand-900 via-brand-800 to-brand-900 text-white shadow-md sticky top-0 z-40 border-b border-brand-700/50">
-        <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
-            <!-- Brand Logo and Title -->
-            <div class="flex items-center space-x-3">
-                <div class="w-10 h-10 sm:w-11 sm:h-11 bg-white rounded-2xl flex items-center justify-center shadow-md border-2 border-brand-200 p-1 shrink-0">
-                    <svg viewBox="0 0 100 100" class="w-full h-full text-brand-700">
-                        <path d="M50 8 L85 22 V46 C85 68 50 90 50 90 C50 90 15 68 15 46 V22 L50 8 Z" fill="#047857"/>
-                        <circle cx="50" cy="42" r="16" fill="#FACC15"/>
-                        <text x="50" y="47" font-size="16" font-weight="900" fill="#064E3B" text-anchor="middle">Rp</text>
-                        <path d="M32 66 C32 60 68 60 68 66 L70 78 C70 82 30 82 30 78 Z" fill="#FFFFFF"/>
-                        <ellipse cx="50" cy="66" rx="15" ry="3" fill="#CBD5E1"/>
-                        <line x1="42" y1="72" x2="58" y2="72" stroke="#047857" stroke-width="2.5" stroke-linecap="round"/>
-                    </svg>
-                </div>
-                <div>
-                    <h1 class="text-base sm:text-lg font-black tracking-wide leading-none text-white flex items-center gap-1.5">
-                        E-JIMPITAN
-                    </h1>
-                    <p class="text-xs text-brand-200 font-bold tracking-tight mt-0.5">Panggungrejo Utara</p>
-                </div>
-            </div>
+                <!-- Active Role & System Quick Status -->
+                <div class="flex items-center space-x-2 sm:space-x-3">
+                    <!-- Google Sheets Sync Config Button -->
+                    <button id="sheetConfigBtn" onclick="openSheetsModal()" class="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs text-brand-400 font-medium transition">
+                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" id="sheetSyncDot"></span>
+                        <i class="fa-solid fa-file-csv"></i>
+                        <span class="hidden md:inline" id="sheetStatusText">Koneksi Sheets</span>
+                    </button>
 
-            <!-- Header Controls -->
-            <div class="flex items-center space-x-2">
-                <button onclick="syncAllDataWithCloud()" class="bg-emerald-700 hover:bg-emerald-600 text-white border border-emerald-400/50 text-xs font-bold px-2.5 py-1.5 rounded-xl flex items-center gap-1.5 transition active:scale-95" title="Sinkronkan Warga & Kas dari Cloud">
-                    <i class="fa-solid fa-rotate text-xs animate-spin-hover"></i>
-                    <span class="hidden sm:inline">Sync Cloud</span>
-                </button>
-                <button onclick="openPWAHelpModal()" class="bg-amber-400/20 hover:bg-amber-400/30 text-amber-200 border border-amber-400/40 text-xs font-bold px-2.5 py-1.5 rounded-xl flex items-center gap-1.5 transition active:scale-95" title="Petunjuk Mode Fullscreen App">
-                    <i class="fa-solid fa-mobile-screen text-xs"></i>
-                    <span class="hidden sm:inline">Mode App</span>
-                </button>
-                <div id="connection-status" class="flex items-center gap-1 bg-emerald-950/70 text-emerald-200 text-xs px-2.5 py-1.5 rounded-xl border border-emerald-500/40 font-bold">
-                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                    <span id="status-text" class="hidden sm:inline">Online</span>
+                    <!-- PWA Install Smartphone Button -->
+                    <button id="installPwaBtn" onclick="triggerPwaInstall()" class="flex items-center space-x-1.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold shadow-lg transition duration-200">
+                        <i class="fa-solid fa-mobile-screen-button"></i>
+                        <span class="hidden sm:inline">Instal App HP</span>
+                    </button>
+
+                    <!-- User Switcher Dropdown Button -->
+                    <button id="userSwitchBtn" onclick="openUserSwitchModal()" class="flex items-center space-x-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 px-3 py-1.5 rounded-xl transition duration-200 text-xs sm:text-sm">
+                        <div class="w-6 h-6 rounded-full bg-brand-600 flex items-center justify-center text-xs font-bold text-white" id="currentAvatar">
+                            A
+                        </div>
+                        <div class="text-left hidden sm:block">
+                            <p class="font-semibold text-xs text-white leading-none" id="currentUserName">Admin Utama</p>
+                            <p class="text-[10px] text-brand-400 leading-none mt-1" id="currentUserRole">Superadmin</p>
+                        </div>
+                        <i class="fa-solid fa-chevron-down text-slate-400 text-xs pl-1"></i>
+                    </button>
                 </div>
             </div>
         </div>
     </header>
 
-    <!-- Main Content Area -->
-    <main class="flex-1 max-w-5xl w-full mx-auto p-3 sm:p-5">
+    <!-- Main Content Layout -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1 w-full">
 
-        <!-- Responsive Navigation Bar -->
-        <nav class="flex bg-white p-1.5 rounded-2xl shadow-sm border border-slate-200/80 mb-4 overflow-x-auto no-scrollbar no-print gap-1">
-            <button id="tab-btn-scan" onclick="switchTab('scan')" class="tab-btn flex-1 min-w-[85px] py-2.5 px-3 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition bg-brand-700 text-white shadow">
-                <i class="fa-solid fa-qrcode text-base"></i>
-                <span>Scan QR</span>
+        <!-- Navigation Tabs -->
+        <div class="flex overflow-x-auto space-x-2 pb-3 mb-6 scrollbar-none border-b border-slate-800">
+            <button onclick="switchTab('scan')" id="tab-scan" class="nav-tab active flex items-center space-x-2 px-4 py-2.5 rounded-xl font-medium text-sm transition duration-200 whitespace-nowrap bg-brand-600 text-white shadow-lg shadow-brand-600/30">
+                <i class="fa-solid fa-barcode"></i>
+                <span>Scan & Input Uang</span>
             </button>
-            <button id="tab-btn-warga" onclick="switchTab('warga')" class="tab-btn flex-1 min-w-[85px] py-2.5 px-3 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition text-slate-600 hover:bg-slate-100">
-                <i class="fa-solid fa-users text-base"></i>
-                <span>Data Warga</span>
+            <button onclick="switchTab('dashboard')" id="tab-dashboard" class="nav-tab flex items-center space-x-2 px-4 py-2.5 rounded-xl font-medium text-sm transition duration-200 whitespace-nowrap bg-slate-900 text-slate-400 hover:text-white border border-slate-800">
+                <i class="fa-solid fa-chart-pie"></i>
+                <span>Dashboard & Laporan</span>
             </button>
-            <button id="tab-btn-rekap" onclick="switchTab('rekap')" class="tab-btn flex-1 min-w-[85px] py-2.5 px-3 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition text-slate-600 hover:bg-slate-100">
-                <i class="fa-solid fa-chart-pie text-base"></i>
-                <span>Rekap Kas</span>
+            <button onclick="switchTab('history')" id="tab-history" class="nav-tab flex items-center space-x-2 px-4 py-2.5 rounded-xl font-medium text-sm transition duration-200 whitespace-nowrap bg-slate-900 text-slate-400 hover:text-white border border-slate-800">
+                <i class="fa-solid fa-receipt"></i>
+                <span>Riwayat Penarikan</span>
             </button>
-            <button id="tab-btn-cetak" onclick="switchTab('cetak')" class="tab-btn flex-1 min-w-[85px] py-2.5 px-3 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition text-slate-600 hover:bg-slate-100">
-                <i class="fa-solid fa-print text-base"></i>
-                <span>Cetak QR</span>
+            <button onclick="switchTab('qrgene')" id="tab-qrgene" class="nav-tab flex items-center space-x-2 px-4 py-2.5 rounded-xl font-medium text-sm transition duration-200 whitespace-nowrap bg-slate-900 text-slate-400 hover:text-white border border-slate-800">
+                <i class="fa-solid fa-print"></i>
+                <span>Cetak QR Warga</span>
             </button>
-            <button id="tab-btn-settings" onclick="switchTab('settings')" class="tab-btn flex-1 min-w-[85px] py-2.5 px-3 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition text-slate-600 hover:bg-slate-100">
-                <i class="fa-solid fa-gear text-base"></i>
-                <span>Pengaturan</span>
+            <button onclick="switchTab('users')" id="tab-users" class="nav-tab flex items-center space-x-2 px-4 py-2.5 rounded-xl font-medium text-sm transition duration-200 whitespace-nowrap bg-slate-900 text-slate-400 hover:text-white border border-slate-800">
+                <i class="fa-solid fa-users-gear"></i>
+                <span>Akses 7 User (1 Admin + 6 Petugas)</span>
             </button>
-        </nav>
+        </div>
 
-        <!-- TAB 1: SCANNER & INPUT JIMPITAN -->
-        <div id="tab-scan" class="tab-content space-y-4">
-            
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+        <!-- ================= TAB 1: SCANNER & INPUT JIMPITAN ================= -->
+        <section id="view-scan" class="tab-view space-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
                 
-                <!-- Camera Scanner Window -->
-                <div class="lg:col-span-6 bg-white p-4 sm:p-5 rounded-2xl shadow-sm border border-slate-200/80 flex flex-col justify-between">
+                <!-- Left Column: Barcode / QR Scanner Viewport -->
+                <div class="lg:col-span-6 bg-slate-900 border border-slate-800 rounded-2xl p-5 relative glow-border">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center space-x-2">
+                            <span class="w-3 h-3 rounded-full bg-brand-500 animate-ping"></span>
+                            <h2 class="font-bold text-white text-base">Pemindai Barcode / QR Code</h2>
+                        </div>
+                        <span class="text-xs text-slate-400 bg-slate-800 px-2.5 py-1 rounded-md">Petugas: <strong id="scanOfficerBadge" class="text-brand-400">Pak Ahmad (RT 01)</strong></span>
+                    </div>
+
+                    <!-- Mode Switcher: Camera vs Fast Simulator -->
+                    <div class="flex items-center bg-slate-950 p-1 rounded-xl border border-slate-800 mb-4 text-xs font-semibold">
+                        <button id="modeSimBtn" onclick="toggleScanMode('sim')" class="flex-1 py-1.5 rounded-lg text-center bg-brand-600 text-white shadow-sm">
+                            <i class="fa-solid fa-bolt mr-1"></i> Simulator Cepat (Pilih Warga)
+                        </button>
+                        <button id="modeCamBtn" onclick="toggleScanMode('cam')" class="flex-1 py-1.5 rounded-lg text-center text-slate-400 hover:text-white">
+                            <i class="fa-solid fa-camera mr-1"></i> Gunakan Kamera HP
+                        </button>
+                    </div>
+
+                    <!-- Simulator Box -->
+                    <div id="scannerSimBox" class="bg-slate-950 border border-slate-800 rounded-xl p-6 text-center space-y-4">
+                        <div class="w-20 h-20 mx-auto rounded-2xl bg-brand-950/60 border border-brand-500/30 flex items-center justify-center text-brand-400 text-3xl shadow-inner">
+                            <i class="fa-solid fa-qrcode"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-sm font-semibold text-slate-200">Uji Coba Pemindaian Cepat Warga</h3>
+                            <p class="text-xs text-slate-400 mt-1">Pilih salah satu warga Pekon Panggungrejo Utara untuk mensimulasikan hasil pemindaian stiker QR di rumah warga.</p>
+                        </div>
+
+                        <!-- Dropdown Mock Warga Selector -->
+                        <div class="text-left">
+                            <label class="block text-xs font-medium text-slate-400 mb-1">Pilih Warga Terdaftar:</label>
+                            <select id="simWargaSelect" onchange="onSimulateScanSelect()" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-brand-500">
+                                <option value="">-- Sentuh untuk memilih Warga --</option>
+                                <option value="W-101">W-101 - Pak Supriyadi (Blok A1 / RT 01)</option>
+                                <option value="W-102">W-102 - Pak Bambang Suryono (Blok A2 / RT 01)</option>
+                                <option value="W-103">W-103 - Ibu Warsini (Blok B1 / RT 02)</option>
+                                <option value="W-104">W-104 - Pak Sugeng R. (Blok B3 / RT 02)</option>
+                                <option value="W-105">W-105 - Ibu Tuminah (Blok C1 / RT 03)</option>
+                                <option value="W-106">W-106 - Pak Joko Santoso (Blok D2 / RT 04)</option>
+                                <option value="W-107">W-107 - Pak Hendra Setiawan (Blok E1 / RT 05)</option>
+                                <option value="W-108">W-108 - Ibu Sumarti (Blok F2 / RT 06)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Live Camera Viewport Box (Hidden by default) -->
+                    <div id="scannerCamBox" class="hidden relative bg-black rounded-xl overflow-hidden border border-slate-800 min-h-[260px] flex items-center justify-center">
+                        <div id="reader" class="w-full"></div>
+                        <div class="scanner-laser"></div>
+                        <p class="absolute bottom-2 left-0 right-0 text-center text-[11px] text-slate-400 bg-black/60 py-1">Arahkan kamera ke QR Code/Barcode stiker warga</p>
+                    </div>
+
+                    <div class="mt-4 p-3 bg-slate-950/70 rounded-xl border border-slate-800/80 flex items-center space-x-3 text-xs text-slate-400">
+                        <i class="fa-solid fa-circle-info text-brand-400 text-base"></i>
+                        <span>Sistem otomatis mencocokkan ID Warga dengan database Google Sheets Pekon Panggungrejo Utara.</span>
+                    </div>
+                </div>
+
+                <!-- Right Column: Warga Data Card & Input Form -->
+                <div class="lg:col-span-6 bg-slate-900 border border-slate-800 rounded-2xl p-5 glow-border flex flex-col justify-between">
                     <div>
-                        <div class="flex items-center justify-between mb-3">
-                            <h2 class="font-bold text-slate-800 text-sm sm:text-base flex items-center gap-2">
-                                <i class="fa-solid fa-camera text-brand-600"></i> Kamera Scanner QR Warga
+                        <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
+                            <h2 class="font-bold text-white text-base flex items-center">
+                                <i class="fa-solid fa-user-check text-brand-400 mr-2"></i>
+                                Data Warga Terpindai
                             </h2>
-                            <span class="text-xs bg-slate-100 text-slate-600 px-2.5 py-1 rounded-lg font-semibold" id="camera-status-badge">Kamera Nonaktif</span>
+                            <span id="scanStatusBadge" class="text-xs bg-slate-800 text-slate-400 font-semibold px-2.5 py-1 rounded-full border border-slate-700">
+                                Menunggu Scan...
+                            </span>
                         </div>
 
-                        <!-- Browser camera boundary alert -->
-                        <div id="unsecure-origin-alert" class="hidden mb-3 p-3 bg-amber-50 border border-amber-300 rounded-xl text-amber-900 text-xs leading-relaxed space-y-1">
-                            <p class="font-bold flex items-center gap-1 text-amber-800">
-                                <i class="fa-solid fa-triangle-exclamation text-amber-600"></i> Izin Kamera Dibatasi
-                            </p>
-                            <p class="opacity-90">Kamera membutuhkan akses <b>HTTPS</b>. Jika bermasalah di browser, gunakan tombol <b>"Upload Foto QR"</b> di bawah.</p>
-                        </div>
-
-                        <!-- Scanner Viewport Frame -->
-                        <div id="reader-wrapper" class="relative bg-slate-950 rounded-2xl overflow-hidden min-h-[270px] flex items-center justify-center border-2 border-dashed border-slate-300 shadow-inner">
-                            <div id="reader" class="w-full"></div>
-                            
-                            <!-- Laser Overlay -->
-                            <div id="scanner-overlay" class="absolute inset-0 pointer-events-none hidden">
-                                <div class="w-full h-1 bg-gradient-to-r from-transparent via-brand-500 to-transparent absolute scan-laser shadow-lg"></div>
-                                <div class="absolute inset-6 border-2 border-brand-400/80 rounded-2xl"></div>
-                            </div>
-
-                            <!-- Initial Placeholder UI -->
-                            <div id="scanner-placeholder" class="text-center p-6 text-slate-400">
-                                <div class="w-16 h-16 bg-slate-800/80 rounded-2xl flex items-center justify-center mx-auto mb-3 text-brand-400 text-3xl shadow-md border border-slate-700">
-                                    <i class="fa-solid fa-qrcode"></i>
+                        <!-- Scanned Profile Card Display -->
+                        <div id="wargaDetailsCard" class="bg-slate-950 rounded-xl p-4 border border-slate-800/80 mb-5 relative overflow-hidden">
+                            <div class="flex items-start space-x-4">
+                                <div class="w-14 h-14 rounded-2xl bg-brand-900/40 border border-brand-500/30 flex items-center justify-center text-brand-400 text-2xl font-bold">
+                                    <i class="fa-solid fa-house-chimney"></i>
                                 </div>
-                                <p class="text-xs sm:text-sm font-bold text-slate-200 mb-1">Arahkan Kamera ke Kode QR Rumah Warga</p>
-                                <p class="text-[11px] text-slate-400 mb-3">Tekan tombol nyalakan kamera di bawah ini</p>
+                                <div class="flex-1">
+                                    <div class="flex items-center justify-between">
+                                        <span id="cardWargaId" class="text-xs font-mono font-bold text-brand-400 bg-brand-950 px-2 py-0.5 rounded border border-brand-800">
+                                            - ID WARGA -
+                                        </span>
+                                        <span id="cardWargaRt" class="text-xs font-semibold text-slate-400">
+                                            RT -- / RW 01
+                                        </span>
+                                    </div>
+                                    <h3 id="cardWargaName" class="text-lg font-bold text-white mt-1">Belum Ada Data Pemindaian</h3>
+                                    <p id="cardWargaAddress" class="text-xs text-slate-400 mt-0.5">Silakan scan stiker warga atau gunakan selector simulator di samping.</p>
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <!-- Camera Action Controls -->
-                    <div class="mt-4 space-y-2">
-                        <div class="flex flex-wrap gap-2">
-                            <button id="btn-toggle-cam" onclick="toggleCamera()" class="flex-1 bg-brand-700 hover:bg-brand-800 text-white font-bold py-3 px-4 rounded-xl text-xs sm:text-sm transition flex items-center justify-center gap-2 shadow-sm active:scale-95">
-                                <i class="fa-solid fa-power-off text-base"></i>
-                                <span id="btn-cam-text">Nyalakan Kamera</span>
+                        <!-- Nominal Money Input Form -->
+                        <form id="jimpitanForm" onsubmit="handleFormSubmit(event)" class="space-y-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">
+                                    Nominal Uang Jimpitan (Rp)
+                                </label>
+                                
+                                <!-- Preset Buttons -->
+                                <div class="grid grid-cols-4 gap-2 mb-3">
+                                    <button type="button" onclick="setNominal(1000)" class="py-2 bg-slate-800 hover:bg-brand-600/30 border border-slate-700 hover:border-brand-500 rounded-xl text-xs font-bold text-slate-200 hover:text-brand-300 transition">
+                                        + 1.000
+                                    </button>
+                                    <button type="button" onclick="setNominal(2000)" class="py-2 bg-slate-800 hover:bg-brand-600/30 border border-slate-700 hover:border-brand-500 rounded-xl text-xs font-bold text-slate-200 hover:text-brand-300 transition">
+                                        + 2.000
+                                    </button>
+                                    <button type="button" onclick="setNominal(5000)" class="py-2 bg-slate-800 hover:bg-brand-600/30 border border-slate-700 hover:border-brand-500 rounded-xl text-xs font-bold text-slate-200 hover:text-brand-300 transition">
+                                        + 5.000
+                                    </button>
+                                    <button type="button" onclick="setNominal(10000)" class="py-2 bg-slate-800 hover:bg-brand-600/30 border border-slate-700 hover:border-brand-500 rounded-xl text-xs font-bold text-slate-200 hover:text-brand-300 transition">
+                                        + 10.000
+                                    </button>
+                                </div>
+
+                                <!-- Input Box -->
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-brand-400 font-bold text-base">
+                                        Rp
+                                    </div>
+                                    <input type="number" id="inputNominal" required placeholder="0" min="500" step="500"
+                                        class="w-full bg-slate-950 border-2 border-slate-800 focus:border-brand-500 rounded-xl pl-12 pr-4 py-3 text-white text-xl font-bold focus:outline-none transition">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-300 mb-1">Catatan Transaksi (Opsional):</label>
+                                <input type="text" id="inputCatatan" placeholder="Misal: Titip 2 malam / Rumah kosong"
+                                    class="w-full bg-slate-950 border border-slate-800 focus:border-brand-500 rounded-xl px-3.5 py-2 text-xs text-slate-200 focus:outline-none">
+                            </div>
+
+                            <button type="submit" id="submitBtn" disabled
+                                class="w-full bg-slate-800 text-slate-500 font-bold py-3.5 rounded-xl transition duration-200 flex items-center justify-center space-x-2 shadow-lg cursor-not-allowed">
+                                <i class="fa-solid fa-cloud-arrow-up"></i>
+                                <span>Simpan & Sync ke Google Sheets</span>
                             </button>
-                            <button onclick="switchCameraFacing()" id="btn-flip-cam" class="hidden bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold p-3 rounded-xl text-xs sm:text-sm transition active:scale-95" title="Ganti Kamera">
-                                <i class="fa-solid fa-camera-rotate text-base"></i>
-                            </button>
-                        </div>
-
-                        <!-- Gallery Fallback -->
-                        <div class="pt-2 border-t border-slate-100 flex items-center justify-between gap-2">
-                            <span class="text-[11px] font-medium text-slate-500">Pindai foto dari Galeri HP:</span>
-                            <label class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-3 py-2 rounded-xl text-xs transition cursor-pointer flex items-center gap-1.5 shrink-0 active:scale-95">
-                                <i class="fa-solid fa-image text-brand-600"></i>
-                                <span>Upload Foto QR</span>
-                                <input type="file" id="qr-file-input" accept="image/*" class="hidden" onchange="scanQRFromFile(this)">
-                            </label>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Input Nominal & Form -->
-                <div class="lg:col-span-6 bg-white p-4 sm:p-5 rounded-2xl shadow-sm border border-slate-200/80" id="section-form-jimpitan">
-                    
-                    <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-100">
-                        <h2 class="font-bold text-slate-800 text-sm sm:text-base flex items-center gap-2">
-                            <i class="fa-solid fa-hand-holding-dollar text-brand-600"></i> Form Input Nominal Jimpitan
-                        </h2>
-                        <span class="text-xs font-bold text-brand-700 bg-brand-50 px-2.5 py-1 rounded-lg border border-brand-200">Isi Nominal</span>
+                        </form>
                     </div>
 
-                    <form id="form-jimpitan" onsubmit="handleSaveTransaction(event)" class="space-y-4">
-                        
-                        <!-- Resident Selector -->
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1.5">Pilih / Pindai Warga <span class="text-rose-500">*</span></label>
-                            <div class="relative">
-                                <select id="input-warga-id" required onchange="onResidentSelectedManual(this.value)" class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-xs sm:text-sm rounded-xl focus:ring-brand-500 focus:border-brand-500 p-3 pr-10 font-semibold appearance-none">
-                                    <option value="">-- Cari atau Pilih Nama Warga --</option>
-                                </select>
-                                <div class="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none text-slate-400">
-                                    <i class="fa-solid fa-chevron-down text-xs"></i>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Scanned Resident Card Preview -->
-                        <div id="resident-info-card" class="bg-gradient-to-br from-brand-50 to-emerald-50 border border-brand-200 rounded-2xl p-3.5 flex items-center justify-between shadow-sm transition-all duration-300">
-                            <div class="flex items-center space-x-3">
-                                <div class="w-10 h-10 rounded-xl bg-brand-700 text-white flex items-center justify-center font-black text-sm shadow shrink-0">
-                                    <i class="fa-solid fa-house-user"></i>
-                                </div>
-                                <div class="min-w-0">
-                                    <h3 id="card-warga-nama" class="font-bold text-slate-800 text-xs sm:text-sm truncate">Belum Ada Warga Terpilih</h3>
-                                    <p id="card-warga-sub" class="text-[11px] text-slate-500 truncate">Scan QR atau pilih nama dari dropdown di atas</p>
-                                </div>
-                            </div>
-                            <span id="card-warga-rt" class="text-xs font-bold bg-brand-700 text-white px-2.5 py-1 rounded-lg shrink-0">RT -</span>
-                        </div>
-
-                        <!-- Nominal Buttons -->
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1.5">Pilih Nominal Uang Jimpitan <span class="text-rose-500">*</span></label>
-                            <div class="grid grid-cols-3 gap-2 mb-2.5">
-                                <button type="button" onclick="setNominal(500)" class="btn-nominal py-2.5 px-2 bg-slate-100 hover:bg-brand-100 hover:text-brand-800 text-slate-700 font-bold rounded-xl text-xs border border-slate-200 transition active:scale-95">Rp 500</button>
-                                <button type="button" onclick="setNominal(1000)" class="btn-nominal py-2.5 px-2 bg-brand-100 text-brand-900 font-black rounded-xl text-xs border border-brand-300 transition active:scale-95 shadow-sm">Rp 1.000</button>
-                                <button type="button" onclick="setNominal(2000)" class="btn-nominal py-2.5 px-2 bg-slate-100 hover:bg-brand-100 hover:text-brand-800 text-slate-700 font-bold rounded-xl text-xs border border-slate-200 transition active:scale-95">Rp 2.000</button>
-                                <button type="button" onclick="setNominal(5000)" class="btn-nominal py-2.5 px-2 bg-slate-100 hover:bg-brand-100 hover:text-brand-800 text-slate-700 font-bold rounded-xl text-xs border border-slate-200 transition active:scale-95">Rp 5.000</button>
-                                <button type="button" onclick="setNominal(10000)" class="btn-nominal py-2.5 px-2 bg-slate-100 hover:bg-brand-100 hover:text-brand-800 text-slate-700 font-bold rounded-xl text-xs border border-slate-200 transition active:scale-95">Rp 10.000</button>
-                                <button type="button" onclick="focusCustomNominal()" class="py-2.5 px-2 bg-amber-50 hover:bg-amber-100 text-amber-800 font-bold rounded-xl text-xs border border-amber-300 transition active:scale-95">Kustom</button>
-                            </div>
-                            
-                            <!-- Direct Nominal Input -->
-                            <div class="relative">
-                                <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-xs font-bold text-slate-400">Rp</span>
-                                <input type="number" id="input-nominal" required min="100" step="100" placeholder="Masukkan Nominal" class="w-full bg-slate-50 border border-slate-300 text-slate-900 font-black text-base sm:text-lg rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500 pl-10 p-3 shadow-inner">
-                            </div>
-                        </div>
-
-                        <!-- Officer Name Input -->
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1.5">Nama Petugas Ronda <span class="text-rose-500">*</span></label>
-                            <input type="text" id="input-petugas" required placeholder="Contoh: Pak Budi / Regu A" class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-xs sm:text-sm font-semibold rounded-xl p-3 focus:ring-brand-500 focus:border-brand-500">
-                        </div>
-
-                        <!-- Save Submit Button -->
-                        <button type="submit" id="btn-submit-transaksi" class="w-full bg-gradient-to-r from-brand-600 via-brand-700 to-brand-800 hover:from-brand-700 hover:to-brand-900 text-white font-bold py-3.5 px-4 rounded-xl text-sm transition shadow-md shadow-brand-600/20 flex items-center justify-center gap-2 active:scale-98">
-                            <i class="fa-solid fa-floppy-disk text-base"></i>
-                            <span>Simpan Transaksi Jimpitan</span>
-                        </button>
-                    </form>
+                    <!-- Sync status info -->
+                    <div class="mt-4 pt-3 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-400">
+                        <span>Database Target: <strong class="text-slate-300">Spreadsheet_Jimpitan_PanggungrejoUtara</strong></span>
+                        <span class="text-emerald-400 flex items-center"><i class="fa-solid fa-lock mr-1"></i> HTTPS Safe</span>
+                    </div>
                 </div>
 
             </div>
+        </section>
 
-        </div>
-
-        <!-- TAB 2: DATA WARGA PEKON -->
-        <div id="tab-warga" class="tab-content hidden space-y-4">
+        <!-- ================= TAB 2: DASHBOARD & REPORTS ================= -->
+        <section id="view-dashboard" class="tab-view hidden space-y-6">
             
-            <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200/80 flex flex-col sm:flex-row gap-3 items-center justify-between">
-                <div class="flex-1 w-full sm:w-auto flex items-center gap-2">
-                    <div class="relative flex-1">
-                        <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3.5 text-slate-400 text-xs"></i>
-                        <input type="text" id="search-warga" oninput="renderResidentList()" placeholder="Cari nama warga, RT, atau no rumah..." class="w-full bg-slate-50 border border-slate-300 text-xs sm:text-sm rounded-xl pl-9 p-2.5 focus:ring-brand-500 focus:border-brand-500">
+            <!-- Key Metric Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 glow-border">
+                    <div class="flex items-center justify-between text-slate-400 text-xs font-medium mb-2">
+                        <span>Total Penarikan Malam Ini</span>
+                        <i class="fa-solid fa-calendar-day text-brand-400 text-base"></i>
                     </div>
-                    <select id="filter-rt-warga" onchange="renderResidentList()" class="bg-slate-50 border border-slate-300 text-xs sm:text-sm rounded-xl p-2.5 font-bold text-slate-700">
-                        <option value="">Semua RT</option>
-                        <option value="RT 01">RT 01</option>
-                        <option value="RT 02">RT 02</option>
-                        <option value="RT 03">RT 03</option>
-                        <option value="RT 04">RT 04</option>
-                        <option value="RT 05">RT 05</option>
-                    </select>
-                </div>
-                
-                <div class="flex gap-2 w-full sm:w-auto">
-                    <button onclick="syncAllDataWithCloud()" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 font-bold px-3 py-2.5 rounded-xl text-xs sm:text-sm flex items-center justify-center gap-1.5 transition active:scale-95" title="Tarik Data Warga Terbaru dari Cloud HP lain">
-                        <i class="fa-solid fa-cloud-arrow-down text-emerald-600"></i>
-                        <span>Tarik Data Cloud</span>
-                    </button>
-                    <button onclick="openModalAddWarga()" class="bg-brand-700 hover:bg-brand-800 text-white font-bold px-4 py-2.5 rounded-xl text-xs sm:text-sm flex items-center justify-center gap-2 transition shadow-sm active:scale-95">
-                        <i class="fa-solid fa-user-plus"></i>
-                        <span>Tambah Warga Baru</span>
-                    </button>
-                </div>
-            </div>
-
-            <div id="resident-cards-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                <!-- Dynamically Populated -->
-            </div>
-
-        </div>
-
-        <!-- TAB 3: REKAPITULASI KAS JIMPITAN -->
-        <div id="tab-rekap" class="tab-content hidden space-y-4">
-            
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm">
-                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Total Hari Ini</span>
-                    <h3 id="stat-hari-ini" class="text-base sm:text-lg font-black text-brand-700">Rp 0</h3>
-                </div>
-                <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm">
-                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Total Bulan Ini</span>
-                    <h3 id="stat-bulan-ini" class="text-base sm:text-lg font-black text-slate-800">Rp 0</h3>
-                </div>
-                <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm">
-                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Total Transaksi</span>
-                    <h3 id="stat-total-trx" class="text-base sm:text-lg font-black text-slate-800">0</h3>
-                </div>
-                <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm">
-                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Status Sync Cloud</span>
-                    <h3 id="stat-pending-sync" class="text-base sm:text-lg font-black text-amber-600">0 Pending</h3>
-                </div>
-            </div>
-
-            <div class="bg-white p-4 sm:p-5 rounded-2xl shadow-sm border border-slate-200/80">
-                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4 pb-3 border-b border-slate-100">
-                    <div>
-                        <h2 class="font-bold text-slate-800 text-sm sm:text-base">Riwayat Kas Jimpitan Pekon</h2>
-                        <p class="text-xs text-slate-500">Catatan masuk kas jimpitan dari ronda warga</p>
-                    </div>
-                    
-                    <div class="flex flex-wrap gap-2 w-full sm:w-auto">
-                        <button onclick="syncAllDataWithCloud()" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 font-bold text-xs px-3 py-2 rounded-xl flex items-center gap-1.5 transition active:scale-95">
-                            <i class="fa-solid fa-rotate"></i> Sync Cloud
-                        </button>
-                        <button onclick="exportToCSV()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs px-3 py-2 rounded-xl flex items-center gap-1.5 transition active:scale-95">
-                            <i class="fa-solid fa-file-excel text-emerald-600"></i> Ekspor CSV
-                        </button>
-                    </div>
-                </div>
-
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse">
-                        <thead>
-                            <tr class="border-b border-slate-200 text-[11px] font-bold uppercase text-slate-400 bg-slate-50">
-                                <th class="p-3">Waktu</th>
-                                <th class="p-3">Warga / Rumah</th>
-                                <th class="p-3">RT</th>
-                                <th class="p-3">Nominal</th>
-                                <th class="p-3">Petugas</th>
-                                <th class="p-3">Status</th>
-                            </tr>
-                        </thead>
-                        <tbody id="table-history-body" class="text-xs font-medium text-slate-700 divide-y divide-slate-100">
-                            <!-- Populated Dynamically -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-        </div>
-
-        <!-- TAB 4: CETAK KARTU QR WARGA -->
-        <div id="tab-cetak" class="tab-content hidden space-y-4">
-            
-            <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200/80 flex flex-col sm:flex-row items-center justify-between gap-3 no-print">
-                <div>
-                    <h2 class="font-bold text-slate-800 text-sm sm:text-base">Cetak Kartu QR Jimpitan Rumah</h2>
-                    <p class="text-xs text-slate-500">Tempelkan kartu ini di depan pintu/tiang rumah warga untuk di-scan petugas</p>
-                </div>
-                <div class="flex gap-2 w-full sm:w-auto">
-                    <select id="select-print-rt" onchange="renderPrintableCards()" class="bg-slate-50 border border-slate-300 text-xs rounded-xl p-2.5 font-bold text-slate-700 flex-1 sm:flex-none">
-                        <option value="">Semua RT</option>
-                        <option value="RT 01">RT 01</option>
-                        <option value="RT 02">RT 02</option>
-                        <option value="RT 03">RT 03</option>
-                        <option value="RT 04">RT 04</option>
-                        <option value="RT 05">RT 05</option>
-                    </select>
-                    <button onclick="window.print()" class="bg-brand-700 hover:bg-brand-800 text-white font-bold px-4 py-2.5 rounded-xl text-xs flex items-center justify-center gap-2 shadow active:scale-95">
-                        <i class="fa-solid fa-print"></i> Cetak / Print PDF
-                    </button>
-                </div>
-            </div>
-
-            <div id="printable-cards-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                <!-- Dynamically generated Badges -->
-            </div>
-
-        </div>
-
-        <!-- TAB 5: PENGATURAN & INTEGRASI GOOGLE SHEETS -->
-        <div id="tab-settings" class="tab-content hidden space-y-5">
-
-            <!-- PWA Standalone Mode Info Card -->
-            <div class="bg-gradient-to-r from-emerald-800 to-brand-900 text-white p-5 rounded-2xl shadow-sm space-y-3">
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-2.5">
-                        <i class="fa-solid fa-mobile-screen-button text-2xl text-emerald-300"></i>
-                        <div>
-                            <h3 class="font-bold text-sm sm:text-base">Status Mode Tampilan Fullscreen</h3>
-                            <p class="text-xs text-brand-200" id="pwa-status-description">Mengecek status mode aplikasi...</p>
-                        </div>
-                    </div>
-                    <span id="pwa-standalone-badge" class="bg-amber-400 text-amber-950 text-xs font-black px-2.5 py-1 rounded-md uppercase">Mode Browser</span>
-                </div>
-                
-                <button onclick="openPWAHelpModal()" class="w-full bg-white/10 hover:bg-white/20 text-white font-bold py-2.5 px-3 rounded-xl text-xs border border-white/20 flex items-center justify-center gap-2 transition active:scale-95">
-                    <i class="fa-solid fa-circle-info text-amber-300"></i> Panduan Instalasi PWA GitHub Pages di HP
-                </button>
-            </div>
-            
-            <!-- Google Sheets Integration -->
-            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 space-y-4">
-                <div class="flex items-center space-x-3 pb-3 border-b border-slate-100">
-                    <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-lg">
-                        <i class="fa-solid fa-file-csv"></i>
-                    </div>
-                    <div>
-                        <h2 class="font-bold text-slate-800 text-sm sm:text-base">Koneksi Database Google Sheets (Multi-HP Sync)</h2>
-                        <p class="text-xs text-slate-500">Menghubungkan data warga & kas dari semua HP ke satu Google Sheets</p>
-                    </div>
-                </div>
-
-                <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">URL Web App Google Apps Script <span class="text-rose-500">*</span></label>
-                    <input type="url" id="input-script-url" oninput="liveCheckUrlInput()" placeholder="https://script.google.com/macros/s/AKfycbx.../exec" class="w-full bg-slate-50 border border-slate-300 text-xs sm:text-sm font-mono rounded-xl p-3 focus:ring-brand-500 focus:border-brand-500">
-                    
-                    <!-- Realtime URL Validation Helper Message -->
-                    <div id="url-validation-alert" class="hidden mt-2 p-2.5 rounded-xl text-xs flex items-start gap-2"></div>
-                    
-                    <p class="text-[11px] text-slate-400 mt-1.5 leading-relaxed">
-                        <i class="fa-solid fa-circle-info mr-1 text-brand-600"></i>
-                        Pastikan URL berawalan <b>https://script.google.com/macros/s/</b> dan berakhiran <b>/exec</b>. Jangan memasukkan link Google Sheets atau link Editor Script!
+                    <p class="text-2xl font-bold text-white" id="statTodayTotal">Rp 0</p>
+                    <p class="text-[11px] text-emerald-400 mt-1 font-medium flex items-center">
+                        <i class="fa-solid fa-arrow-trend-up mr-1"></i> Transaksi Aktif Pekon
                     </p>
                 </div>
 
-                <div class="flex flex-wrap gap-2">
-                    <button onclick="saveSettings()" class="bg-brand-700 hover:bg-brand-800 text-white font-bold px-4 py-2.5 rounded-xl text-xs flex items-center gap-2 active:scale-95">
-                        <i class="fa-solid fa-floppy-disk"></i> Simpan URL
-                    </button>
-                    <button onclick="syncAllDataWithCloud()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-2.5 rounded-xl text-xs flex items-center gap-2 active:scale-95">
-                        <i class="fa-solid fa-rotate"></i> Sync Data Sekarang
-                    </button>
-                    <button onclick="testGoogleSheetsConnection()" class="bg-amber-500 hover:bg-amber-600 text-white font-bold px-4 py-2.5 rounded-xl text-xs flex items-center gap-2 active:scale-95">
-                        <i class="fa-solid fa-network-wired"></i> Tes & Diagnosa Koneksi
-                    </button>
-                </div>
-            </div>
-
-            <!-- Apps Script Helper Code -->
-            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 space-y-3">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <h3 class="font-bold text-slate-800 text-xs sm:text-sm">Kode Google Apps Script Anti-Gagal (Terbaru)</h3>
-                        <p class="text-[11px] text-slate-500">Ganti kode di Google Apps Script Anda dengan kode ini untuk menghindari error koneksi</p>
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 glow-border">
+                    <div class="flex items-center justify-between text-slate-400 text-xs font-medium mb-2">
+                        <span>Total Akumulasi Bulan Ini</span>
+                        <i class="fa-solid fa-vault text-cyan-400 text-base"></i>
                     </div>
-                    <button onclick="copyAppsScriptCode()" class="bg-brand-50 hover:bg-brand-100 text-brand-800 border border-brand-200 font-bold text-xs px-3 py-1.5 rounded-lg flex items-center gap-1 active:scale-95 shrink-0">
-                        <i class="fa-solid fa-copy"></i> Salin Kode
-                    </button>
+                    <p class="text-2xl font-bold text-white" id="statMonthTotal">Rp 1.485.000</p>
+                    <p class="text-[11px] text-brand-400 mt-1 font-medium">
+                        Target Bulan Ini: Rp 2.500.000
+                    </p>
                 </div>
-                <pre class="bg-slate-900 text-emerald-400 p-3.5 rounded-xl text-[11px] font-mono overflow-x-auto max-h-56 border border-slate-800 leading-relaxed" id="apps-script-code-block">
-// KODE GOOGLE APPS SCRIPT PEKON PANGGUNGREJO UTARA (ANTI-GAGAL)
-function doGet(e) {
-  try {
-    var ss = SpreadsheetApp.getActiveSpreadsheet();
-    
-    // Auto-create Sheet Transaksi jika belum ada
-    var sheetTrx = ss.getSheetByName("Transaksi");
-    if (!sheetTrx) {
-      sheetTrx = ss.insertSheet("Transaksi");
-      sheetTrx.appendRow(["Tanggal Waktu", "ID Transaksi", "ID Warga", "Nama Warga", "RT", "Nominal", "Petugas"]);
-    }
-    
-    // Auto-create Sheet Warga jika belum ada
-    var sheetWarga = ss.getSheetByName("Warga");
-    if (!sheetWarga) {
-      sheetWarga = ss.insertSheet("Warga");
-      sheetWarga.appendRow(["ID Warga", "Kode QR", "Nama Warga", "RT", "No Rumah"]);
-    }
 
-    // Ambil Data Transaksi
-    var dataTrx = sheetTrx.getDataRange().getValues();
-    var transactions = [];
-    for (var i = 1; i < dataTrx.length; i++) {
-      if (dataTrx[i][0] && dataTrx[i][1]) {
-        transactions.push({
-          timestamp: dataTrx[i][0] ? new Date(dataTrx[i][0]).toISOString() : new Date().toISOString(),
-          id_transaksi: String(dataTrx[i][1]),
-          id_warga: String(dataTrx[i][2]),
-          nama_warga: String(dataTrx[i][3]),
-          rt: String(dataTrx[i][4]),
-          nominal: Number(dataTrx[i][5]) || 0,
-          petugas: String(dataTrx[i][6]),
-          synced: true
-        });
-      }
-    }
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 glow-border">
+                    <div class="flex items-center justify-between text-slate-400 text-xs font-medium mb-2">
+                        <span>Rumah Terdatangi (Malam Ini)</span>
+                        <i class="fa-solid fa-house-circle-check text-emerald-400 text-base"></i>
+                    </div>
+                    <p class="text-2xl font-bold text-white" id="statHouseCount">0 / 120 Warga</p>
+                    <div class="w-full bg-slate-800 h-1.5 rounded-full mt-2 overflow-hidden">
+                        <div id="statHouseBar" class="bg-emerald-500 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+                    </div>
+                </div>
 
-    // Ambil Data Warga
-    var dataWarga = sheetWarga.getDataRange().getValues();
-    var residents = [];
-    for (var j = 1; j < dataWarga.length; j++) {
-      if (dataWarga[j][0]) {
-        residents.push({
-          id_warga: String(dataWarga[j][0]),
-          kode_qr: String(dataWarga[j][1]),
-          nama: String(dataWarga[j][2]),
-          rt: String(dataWarga[j][3]),
-          no_rumah: String(dataWarga[j][4])
-        });
-      }
-    }
-
-    var result = JSON.stringify({ status: "success", transactions: transactions, residents: residents });
-    return ContentService.createTextOutput(result).setMimeType(ContentService.MimeType.JSON);
-  } catch (err) {
-    var errorResult = JSON.stringify({ status: "error", message: err.toString() });
-    return ContentService.createTextOutput(errorResult).setMimeType(ContentService.MimeType.JSON);
-  }
-}
-
-function doPost(e) {
-  try {
-    var ss = SpreadsheetApp.getActiveSpreadsheet();
-    var data = {};
-    
-    if (e && e.postData && e.postData.contents) {
-      data = JSON.parse(e.postData.contents);
-    } else if (e && e.parameter) {
-      data = e.parameter;
-    }
-
-    if (data.action === "add_warga") {
-      var sheetWarga = ss.getSheetByName("Warga") || ss.insertSheet("Warga");
-      if (sheetWarga.getLastRow() === 0) {
-        sheetWarga.appendRow(["ID Warga", "Kode QR", "Nama Warga", "RT", "No Rumah"]);
-      }
-      sheetWarga.appendRow([
-        data.id_warga || "",
-        data.kode_qr || "",
-        data.nama || "",
-        data.rt || "",
-        data.no_rumah || ""
-      ]);
-    } else {
-      var sheetTrx = ss.getSheetByName("Transaksi") || ss.insertSheet("Transaksi");
-      if (sheetTrx.getLastRow() === 0) {
-        sheetTrx.appendRow(["Tanggal Waktu", "ID Transaksi", "ID Warga", "Nama Warga", "RT", "Nominal", "Petugas"]);
-      }
-      sheetTrx.appendRow([
-        data.timestamp ? new Date(data.timestamp) : new Date(),
-        data.id_transaksi || ("TRX-" + Date.now()),
-        data.id_warga || "",
-        data.nama_warga || "",
-        data.rt || "",
-        Number(data.nominal) || 0,
-        data.petugas || ""
-      ]);
-    }
-    
-    return ContentService.createTextOutput(JSON.stringify({"status": "success"}))
-      .setMimeType(ContentService.MimeType.JSON);
-  } catch (err) {
-    return ContentService.createTextOutput(JSON.stringify({"status": "error", "message": err.toString()}))
-      .setMimeType(ContentService.MimeType.JSON);
-  }
-}
-                </pre>
-            </div>
-
-            <!-- Local Data Reset -->
-            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 space-y-3">
-                <h3 class="font-bold text-slate-800 text-xs sm:text-sm">Pemeliharaan Data Lokal</h3>
-                <div class="flex flex-wrap gap-2">
-                    <button onclick="loadSampleData()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-3.5 py-2 rounded-xl text-xs active:scale-95">
-                        <i class="fa-solid fa-database mr-1"></i> Muat Data Contoh Pekon
-                    </button>
-                    <button onclick="confirmResetData()" class="bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 font-bold px-3.5 py-2 rounded-xl text-xs active:scale-95">
-                        <i class="fa-solid fa-trash mr-1"></i> Reset Semua Data Lokal
-                    </button>
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 glow-border">
+                    <div class="flex items-center justify-between text-slate-400 text-xs font-medium mb-2">
+                        <span>Petugas Teraktif Malam Ini</span>
+                        <i class="fa-solid fa-award text-amber-400 text-base"></i>
+                    </div>
+                    <p class="text-lg font-bold text-white truncate" id="statTopOfficer">Pak Ahmad (RT 01)</p>
+                    <p class="text-[11px] text-slate-400 mt-1" id="statTopOfficerCount">0 Transaksi Sukses</p>
                 </div>
             </div>
 
-        </div>
-
-    </main>
-
-    <!-- Modal: Add Resident -->
-    <div id="modal-add-warga" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl max-w-md w-full p-5 shadow-2xl space-y-4">
-            <div class="flex items-center justify-between pb-2 border-b border-slate-100">
-                <h3 class="font-bold text-slate-800 text-base">Tambah Warga Pekon Baru</h3>
-                <button onclick="closeModalAddWarga()" class="text-slate-400 hover:text-slate-600 p-1"><i class="fa-solid fa-xmark text-lg"></i></button>
-            </div>
-            <form onsubmit="handleSaveNewWarga(event)" class="space-y-3">
-                <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">Nama Kepala Keluarga / Warga</label>
-                    <input type="text" id="add-nama" required placeholder="Contoh: Pak Supriyadi" class="w-full bg-slate-50 border border-slate-300 text-xs sm:text-sm rounded-xl p-2.5">
+            <!-- Charts Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- Bar Chart RT Breakdown -->
+                <div class="lg:col-span-7 bg-slate-900 border border-slate-800 rounded-2xl p-5">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="font-bold text-white text-sm flex items-center">
+                            <i class="fa-solid fa-chart-column text-brand-400 mr-2"></i>
+                            Perolehan Jimpitan Per RT (Pekon Panggungrejo Utara)
+                        </h3>
+                        <span class="text-xs text-slate-400 bg-slate-800 px-2 py-1 rounded">RT 01 - RT 06</span>
+                    </div>
+                    <div class="h-64 relative">
+                        <canvas id="rtChart"></canvas>
+                    </div>
                 </div>
-                <div class="grid grid-cols-2 gap-2">
+
+                <!-- Petugas Collection Leaderboard -->
+                <div class="lg:col-span-5 bg-slate-900 border border-slate-800 rounded-2xl p-5">
+                    <h3 class="font-bold text-white text-sm flex items-center mb-4">
+                        <i class="fa-solid fa-users text-cyan-400 mr-2"></i>
+                        Aktivitas 6 Petugas Lapangan
+                    </h3>
+                    <div class="space-y-3" id="petugasPerformanceList">
+                        <!-- Rendered via JS -->
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- ================= TAB 3: HISTORY & GOOGLE SHEETS TABLE ================= -->
+        <section id="view-history" class="tab-view hidden space-y-4">
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5">
+                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-5">
                     <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1">Rukun Tetangga (RT)</label>
-                        <select id="add-rt" required class="w-full bg-slate-50 border border-slate-300 text-xs sm:text-sm rounded-xl p-2.5 font-bold">
+                        <h2 class="font-bold text-white text-base flex items-center">
+                            <i class="fa-solid fa-table-list text-brand-400 mr-2"></i>
+                            Jurnal Real-Time Transaksi Jimpitan
+                        </h2>
+                        <p class="text-xs text-slate-400">Data ini secara otomatis tersinkronkan dengan Google Sheets</p>
+                    </div>
+
+                    <!-- Filter Controls -->
+                    <div class="flex items-center space-x-2 w-full sm:w-auto">
+                        <select id="filterRtSelect" onchange="renderHistoryTable()" class="bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5 text-xs text-slate-200">
+                            <option value="ALL">Semua RT</option>
                             <option value="RT 01">RT 01</option>
                             <option value="RT 02">RT 02</option>
                             <option value="RT 03">RT 03</option>
                             <option value="RT 04">RT 04</option>
                             <option value="RT 05">RT 05</option>
+                            <option value="RT 06">RT 06</option>
                         </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1">Nomor / Blok Rumah</label>
-                        <input type="text" id="add-rumah" required placeholder="No. 12 B" class="w-full bg-slate-50 border border-slate-300 text-xs sm:text-sm rounded-xl p-2.5">
+                        <button onclick="exportToCSV()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold px-3 py-1.5 rounded-xl text-xs flex items-center space-x-1.5 transition">
+                            <i class="fa-solid fa-file-excel"></i>
+                            <span>Export CSV</span>
+                        </button>
                     </div>
                 </div>
-                <p class="text-[11px] text-emerald-700 bg-emerald-50 p-2 rounded-lg border border-emerald-200">
-                    <i class="fa-solid fa-cloud-arrow-up mr-1"></i> Data warga baru ini akan otomatis tersinkron ke semua HP petugas ronda jika Google Sheets terhubung.
-                </p>
-                <button type="submit" class="w-full bg-brand-700 hover:bg-brand-800 text-white font-bold py-3 rounded-xl text-xs sm:text-sm transition shadow-md active:scale-95">
-                    Simpan Data Warga Baru
-                </button>
-            </form>
-        </div>
-    </div>
 
-    <!-- Modal: View Resident QR Code -->
-    <div id="modal-qr-preview" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl max-w-sm w-full p-6 text-center shadow-2xl space-y-4">
-            <h3 id="modal-qr-title" class="font-black text-slate-800 text-base">QR Code Warga</h3>
-            <p id="modal-qr-sub" class="text-xs text-slate-500">Pekon Panggungrejo Utara</p>
-            <div id="qrcode-modal-container" class="flex justify-center p-3 bg-slate-50 rounded-xl border border-slate-200 my-2"></div>
-            <button onclick="closeModalQRPreview()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold py-2.5 rounded-xl text-xs active:scale-95">Tutup</button>
-        </div>
-    </div>
-
-    <!-- Modal: PWA Fullscreen Installation Help Guide -->
-    <div id="modal-pwa-help" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl max-w-md w-full p-5 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
-            <div class="flex items-center justify-between pb-2 border-b border-slate-100">
-                <h3 class="font-bold text-slate-800 text-sm sm:text-base flex items-center gap-2">
-                    <i class="fa-solid fa-mobile-screen text-brand-600"></i> Panduan Instalasi PWA GitHub Pages
-                </h3>
-                <button onclick="closePWAHelpModal()" class="text-slate-400 hover:text-slate-600 p-1"><i class="fa-solid fa-xmark text-lg"></i></button>
+                <!-- Data Table -->
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs text-slate-300">
+                        <thead class="bg-slate-950 text-slate-400 uppercase font-semibold border-b border-slate-800">
+                            <tr>
+                                <th class="p-3">Waktu Sync</th>
+                                <th class="p-3">ID Warga</th>
+                                <th class="p-3">Nama Warga</th>
+                                <th class="p-3">RT</th>
+                                <th class="p-3">Nominal</th>
+                                <th class="p-3">Petugas Penarik</th>
+                                <th class="p-3">Catatan</th>
+                            </tr>
+                        </thead>
+                        <tbody id="historyTableBody" class="divide-y divide-slate-800/60">
+                            <!-- Populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
+        </section>
 
-            <!-- Live Diagnostic Card -->
-            <div id="pwa-diagnostic-card" class="bg-slate-900 text-white p-3.5 rounded-xl text-xs space-y-2 border border-slate-700">
-                <div class="flex items-center justify-between border-b border-slate-800 pb-1.5">
-                    <span class="font-bold text-amber-400 flex items-center gap-1.5">
-                        <i class="fa-solid fa-stethoscope"></i> Status Kesiapan PWA
+        <!-- ================= TAB 4: PRINTABLE QR CODE GENERATOR ================= -->
+        <section id="view-qrgene" class="tab-view hidden space-y-4">
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5">
+                <div class="flex items-center justify-between mb-4 border-b border-slate-800 pb-3">
+                    <div>
+                        <h2 class="font-bold text-white text-base flex items-center">
+                            <i class="fa-solid fa-qrcode text-brand-400 mr-2"></i>
+                            Cetak Kartu / Stiker Barcode QR Warga Pekon
+                        </h2>
+                        <p class="text-xs text-slate-400">Pilih warga untuk mempratinjau stiker QR code yang dapat dicetak dan ditempel pada rumah atau kotak jimpitan.</p>
+                    </div>
+                    <button onclick="window.print()" class="bg-brand-600 hover:bg-brand-500 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center space-x-2">
+                        <i class="fa-solid fa-print"></i>
+                        <span>Cetak Stiker</span>
+                    </button>
+                </div>
+
+                <!-- Printable Warga Cards Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" id="qrCardsContainer">
+                    <!-- Dynamic Cards Rendered Here -->
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= TAB 5: ACCESS MANAGEMENT (1 Admin + 6 Officers) ================= -->
+        <section id="view-users" class="tab-view hidden space-y-6">
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5">
+                <div class="flex items-center justify-between mb-4 border-b border-slate-800 pb-3">
+                    <div>
+                        <h2 class="font-bold text-white text-base flex items-center">
+                            <i class="fa-solid fa-user-shield text-brand-400 mr-2"></i>
+                            Manajemen Hak Akses Sistem (7 Pengguna Terdaftar)
+                        </h2>
+                        <p class="text-xs text-slate-400">Sistem ini dikonfigurasi untuk 1 Superadmin Utama Pekon dan 6 Petugas Lapangan per RT.</p>
+                    </div>
+                    <span class="bg-brand-950 text-brand-400 text-xs font-bold border border-brand-800 px-3 py-1 rounded-full">
+                        Lisensi Aktif Pekon
                     </span>
-                    <span id="diag-protocol-badge" class="px-2 py-0.5 rounded text-[10px] font-black uppercase bg-slate-800 text-slate-300">Checking...</span>
                 </div>
-                <p id="diag-reason-text" class="text-slate-300 leading-relaxed text-[11px]">Memeriksa koneksi GitHub Pages...</p>
-            </div>
-    <!-- Modal: Diagnostic Cloud Connection Error Helper -->
-    <div id="modal-cloud-error" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl max-w-lg w-full p-5 sm:p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
-            <div class="flex items-start justify-between pb-3 border-b border-slate-100">
-                <div class="flex items-center gap-2.5">
-                    <div class="w-10 h-10 rounded-xl bg-rose-100 text-rose-700 flex items-center justify-center font-bold text-lg shrink-0">
-                        <i class="fa-solid fa-triangle-exclamation"></i>
-                    </div>
-                    <div>
-                        <h3 id="cloud-error-title" class="font-bold text-slate-800 text-sm sm:text-base leading-tight">Gagal Terhubung ke Google Sheets</h3>
-                        <p class="text-xs text-rose-600 font-semibold mt-0.5">Ditemukan kendala pada izin / URL Google Apps Script</p>
-                    </div>
+
+                <!-- User List Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="usersListGrid">
+                    <!-- Populated by JS -->
                 </div>
-                <button onclick="closeCloudErrorModal()" class="text-slate-400 hover:text-slate-600 p-1"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
+        </section>
 
-            <div id="cloud-error-body" class="space-y-3 text-xs text-slate-700 leading-relaxed">
-                <!-- Content populated dynamically -->
-            </div>
+    </main>
 
-            <div class="pt-2 flex gap-2">
-                <button onclick="copyAppsScriptCode()" class="flex-1 bg-brand-50 hover:bg-brand-100 text-brand-800 border border-brand-200 font-bold py-2.5 rounded-xl text-xs transition active:scale-95 flex items-center justify-center gap-1.5">
-                    <i class="fa-solid fa-copy"></i> Salin Kode Script
+    <!-- Modal: User Account Switcher -->
+    <div id="userSwitchModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl glow-border">
+            <div class="flex items-center justify-between mb-4 border-b border-slate-800 pb-3">
+                <h3 class="font-bold text-white text-base flex items-center">
+                    <i class="fa-solid fa-user-gear text-brand-400 mr-2"></i>
+                    Ganti Sesi Pengguna App
+                </h3>
+                <button onclick="closeUserSwitchModal()" class="text-slate-400 hover:text-white">
+                    <i class="fa-solid fa-xmark text-lg"></i>
                 </button>
-                <button onclick="closeCloudErrorModal()" class="flex-1 bg-slate-800 hover:bg-slate-900 text-white font-bold py-2.5 rounded-xl text-xs transition active:scale-95">
-                    Saya Paham, Tutup
+            </div>
+            
+            <p class="text-xs text-slate-400 mb-4">Pilih akun petugas atau admin yang sedang memegang perangkat ini:</p>
+
+            <div class="space-y-2 max-h-80 overflow-y-auto pr-1" id="modalUsersList">
+                <!-- Populated dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Google Sheets Connection Setup -->
+    <div id="sheetsModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-xl w-full p-6 shadow-2xl glow-border max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between mb-4 border-b border-slate-800 pb-3">
+                <h3 class="font-bold text-white text-base flex items-center">
+                    <i class="fa-solid fa-file-excel text-emerald-400 mr-2"></i>
+                    Konfigurasi Google Sheets (Real-time Sync)
+                </h3>
+                <button onclick="closeSheetsModal()" class="text-slate-400 hover:text-white">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            
+            <div class="space-y-4 text-xs text-slate-300">
+                <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800">
+                    <label class="block font-bold text-white mb-1">URL Google Apps Script Web App:</label>
+                    <input type="text" id="sheetsWebUrlInput" placeholder="https://script.google.com/macros/s/.../exec"
+                        class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500 font-mono">
+                    <p class="text-[11px] text-slate-400 mt-1">Masukkan URL Web App hasil deploy Apps Script Google Sheets Pekon Anda.</p>
+                </div>
+
+                <div class="flex items-center space-x-2">
+                    <button onclick="saveSheetsUrl()" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 rounded-xl transition text-center">
+                        Simpan Koneksi
+                    </button>
+                    <button onclick="testSheetsConnection()" class="bg-slate-800 hover:bg-slate-700 text-brand-400 font-bold px-4 py-2.5 rounded-xl transition border border-slate-700">
+                        Uji Coba Kirim
+                    </button>
+                </div>
+
+                <div class="border-t border-slate-800 pt-3">
+                    <h4 class="font-bold text-white mb-1 flex items-center">
+                        <i class="fa-solid fa-code text-amber-400 mr-1.5"></i> Skrip Google Apps Script (Copy Paste ke Google Sheets):
+                    </h4>
+                    <p class="text-[11px] text-slate-400 mb-2">Di Google Sheets Anda, buka menu <strong class="text-slate-200">Ekstensi > Apps Script</strong>, hapus kode lama, lalu paste skrip di bawah ini:</p>
+
+                    <div class="relative bg-slate-950 p-3 rounded-xl border border-slate-800 font-mono text-[10px] text-slate-300 overflow-x-auto max-h-40">
+                        <button onclick="copyAppsScriptCode()" class="absolute top-2 right-2 bg-slate-800 hover:bg-slate-700 text-xs text-white px-2 py-1 rounded border border-slate-600">
+                            <i class="fa-solid fa-copy mr-1"></i>Salin Skrip
+                        </button>
+                        <pre id="appsScriptCodeText">function doPost(e) {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  var data = JSON.parse(e.postData.contents);
+  sheet.appendRow([
+    data.timestamp,
+    data.idWarga,
+    data.namaWarga,
+    data.rt,
+    data.nominal,
+    data.petugas,
+    data.catatan
+  ]);
+  return ContentService.createTextOutput(JSON.stringify({status: "success"}))
+    .setMimeType(ContentService.MimeType.JSON);
+}</pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-5 pt-3 border-t border-slate-800 text-right">
+                <button onclick="closeSheetsModal()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold px-4 py-2 rounded-xl text-xs">
+                    Tutup
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- Custom Toast Notification Container -->
-    <div id="toast-container" class="fixed bottom-20 left-1/2 -translate-x-1/2 z-50 flex flex-col gap-2 pointer-events-none w-11/12 max-w-md"></div>
+    <!-- Modal: Smartphone App Installation Guide -->
+    <div id="pwaModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl glow-border">
+            <div class="flex items-center justify-between mb-4 border-b border-slate-800 pb-3">
+                <h3 class="font-bold text-white text-base flex items-center">
+                    <i class="fa-solid fa-mobile-screen text-brand-400 mr-2"></i>
+                    Instal Aplikasi E-JIMPITAN
+                </h3>
+                <button onclick="closePwaModal()" class="text-slate-400 hover:text-white">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            
+            <div class="space-y-4 text-xs text-slate-300">
+                <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800 space-y-2">
+                    <div class="flex items-center space-x-2 text-emerald-400 font-bold">
+                        <i class="fa-brands fa-android text-base"></i>
+                        <span>Petunjuk Android (Google Chrome):</span>
+                    </div>
+                    <ol class="list-decimal list-inside space-y-1 text-slate-400 pl-1">
+                        <li>Ketuk ikon titik tiga <strong class="text-slate-200">(⋮)</strong> di pojok kanan atas browser Chrome.</li>
+                        <li>Pilih menu <strong class="text-slate-200">"Tambahkan ke Layar Utama"</strong> atau <strong class="text-slate-200">"Instal Aplikasi"</strong>.</li>
+                        <li>Aplikasi akan terpasang di HP seperti aplikasi resmi Play Store.</li>
+                    </ol>
+                </div>
+
+                <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800 space-y-2">
+                    <div class="flex items-center space-x-2 text-cyan-400 font-bold">
+                        <i class="fa-brands fa-apple text-base"></i>
+                        <span>Petunjuk iPhone / iPad (Safari):</span>
+                    </div>
+                    <ol class="list-decimal list-inside space-y-1 text-slate-400 pl-1">
+                        <li>Buka aplikasi menggunakan browser <strong class="text-slate-200">Safari</strong>.</li>
+                        <li>Ketuk tombol <strong class="text-slate-200">Bagikan / Share</strong> <i class="fa-solid fa-arrow-up-from-bracket mx-0.5"></i> di bagian bawah layar.</li>
+                        <li>Pilih <strong class="text-slate-200">"Tambah ke Layar Utama" (Add to Home Screen)</strong>.</li>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="mt-5 pt-3 border-t border-slate-800 text-right">
+                <button onclick="closePwaModal()" class="bg-brand-600 hover:bg-brand-500 text-white font-semibold px-4 py-2 rounded-xl text-xs">
+                    Mengerti
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Toast Box -->
+    <div id="toastNotification" class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
+        <div class="bg-slate-900 border-2 border-emerald-500 text-white px-4 py-3 rounded-2xl shadow-2xl flex items-center space-x-3">
+            <div class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold">
+                <i class="fa-solid fa-check"></i>
+            </div>
+            <div>
+                <h4 id="toastTitle" class="font-bold text-xs text-white">Berhasil!</h4>
+                <p id="toastMessage" class="text-xs text-slate-300">Data telah tersimpan ke Google Sheets.</p>
+            </div>
+        </div>
+    </div>
 
     <script>
-        let residentsData = [];
-        let transactionsData = [];
-        let html5QrCodeScanner = null;
-        let isScannerRunning = false;
-        let facingMode = "environment";
-        let deferredPWAInstallPrompt = null;
-        let googleScriptUrl = "";
+        let rtChartInstance = null;
 
-        // STRICT Debounce & QR Single Trigger Lock State
-        /* Validate Google Script URL Format */
-        function validateScriptUrl(url) {
-            if (!url) return { valid: false, message: "URL Google Apps Script tidak boleh kosong!" };
-            url = url.trim();
+        const APP_STATE = {
+            currentUser: null,
+            scannedWarga: null,
+            scanMode: 'sim', // 'sim' or 'cam'
+            html5QrCode: null,
+            sheetsUrl: localStorage.getItem('ejimpitan_sheets_url') || '',
+            deferredPrompt: null,
 
-            if (url.includes("docs.google.com/spreadsheets")) {
-                return { 
-                    valid: false, 
-                    type: "WRONG_URL_TYPE",
-                    message: "URL yang Anda masukkan adalah link Google Sheets! Harus URL Web App dari Google Apps Script.",
-                    solution: "Buka Google Sheets -> Ekstensi -> Apps Script -> Terapkan (Deploy) -> Penerapan Baru -> Salin URL Web App (yang berakhiran /exec)."
-                };
-            }
+            // Registered Access System: 1 Superadmin + 6 Officers
+            users: [
+                { id: 'usr-00', name: 'Bapak Kepala Pekon / Admin', role: 'Superadmin', code: 'ADMIN-01', avatar: 'A', status: 'Online', rtScope: 'Semua RT' },
+                { id: 'usr-01', name: 'Pak Ahmad', role: 'Petugas 1', code: 'PTG-01', avatar: '1', status: 'Aktif', rtScope: 'RT 01' },
+                { id: 'usr-02', name: 'Pak Bambang', role: 'Petugas 2', code: 'PTG-02', avatar: '2', status: 'Aktif', rtScope: 'RT 02' },
+                { id: 'usr-03', name: 'Pak Candra', role: 'Petugas 3', code: 'PTG-03', avatar: '3', status: 'Aktif', rtScope: 'RT 03' },
+                { id: 'usr-04', name: 'Pak Dedi', role: 'Petugas 4', code: 'PTG-04', avatar: '4', status: 'Aktif', rtScope: 'RT 04' },
+                { id: 'usr-05', name: 'Pak Endang', role: 'Petugas 5', code: 'PTG-05', avatar: '5', status: 'Aktif', rtScope: 'RT 05' },
+                { id: 'usr-06', name: 'Pak Firman', role: 'Petugas 6', code: 'PTG-06', avatar: '6', status: 'Aktif', rtScope: 'RT 06' }
+            ],
 
-            if (url.includes("script.google.com") && url.includes("/edit")) {
-                return { 
-                    valid: false, 
-                    type: "WRONG_URL_TYPE",
-                    message: "URL yang Anda masukkan adalah halaman Editor Script! Bukan URL Web App terpublikasi.",
-                    solution: "Klik tombol 'Terapkan' (Deploy) di kanan atas editor -> Penerapan Baru -> Pilih jenis 'Aplikasi Web' -> Salin URL Web App."
-                };
-            }
+            // Master Database Warga Pekon Panggungrejo Utara
+            wargaList: [
+                { id: 'W-101', name: 'Supriyadi', address: 'Blok A1 No. 04', rt: 'RT 01' },
+                { id: 'W-102', name: 'Bambang Suryono', address: 'Blok A2 No. 12', rt: 'RT 01' },
+                { id: 'W-103', name: 'Ibu Warsini', address: 'Blok B1 No. 08', rt: 'RT 02' },
+                { id: 'W-104', name: 'Sugeng R.', address: 'Blok B3 No. 15', rt: 'RT 02' },
+                { id: 'W-105', name: 'Ibu Tuminah', address: 'Blok C1 No. 02', rt: 'RT 03' },
+                { id: 'W-106', name: 'Joko Santoso', address: 'Blok D2 No. 09', rt: 'RT 04' },
+                { id: 'W-107', name: 'Hendra Setiawan', address: 'Blok E1 No. 11', rt: 'RT 05' },
+                { id: 'W-108', name: 'Ibu Sumarti', address: 'Blok F2 No. 03', rt: 'RT 06' }
+            ],
 
-            if (!url.startsWith("https://script.google.com/macros/s/") || !url.endsWith("/exec")) {
-                return { 
-                    valid: false, 
-                    type: "INVALID_FORMAT",
-                    message: "Format URL Web App kurang pas.",
-                    solution: "URL Web App yang valid harus berawalan 'https://script.google.com/macros/s/' dan diakhiri dengan '/exec'."
-                };
-            }
+            // Persistent Local Transactions Store
+            transactions: JSON.parse(localStorage.getItem('ejimpitan_tx') || 'null') || [
+                { timestamp: '2026-09-09 19:30:12', idWarga: 'W-101', namaWarga: 'Supriyadi', rt: 'RT 01', nominal: 2000, petugas: 'Pak Ahmad (RT 01)', catatan: 'Lunas' },
+                { timestamp: '2026-09-09 19:35:44', idWarga: 'W-103', namaWarga: 'Ibu Warsini', rt: 'RT 02', nominal: 5000, petugas: 'Pak Bambang (RT 02)', catatan: 'Titip 2 Hari' }
+            ]
+        };
 
-            return { valid: true, url: url };
+        // On Page Load Initialization
+        window.addEventListener('DOMContentLoaded', () => {
+            initPWA();
+            APP_STATE.currentUser = APP_STATE.users[1]; 
+            updateUserHeaderUI();
+            renderUsersAccessTab();
+            renderQrCards();
+            renderHistoryTable();
+            initRtChart();
+            updateDashboardMetrics();
+            updateSheetsUIStatus();
+        });
+
+        function updateUserHeaderUI() {
+            if (!APP_STATE.currentUser) return;
+            document.getElementById('currentAvatar').innerText = APP_STATE.currentUser.avatar;
+            document.getElementById('currentUserName').innerText = APP_STATE.currentUser.name;
+            document.getElementById('currentUserRole').innerText = APP_STATE.currentUser.role;
+            document.getElementById('scanOfficerBadge').innerText = `${APP_STATE.currentUser.name} (${APP_STATE.currentUser.rtScope})`;
         }
 
-        /* Realtime URL Helper Display */
-        function liveCheckUrlInput() {
-            const input = document.getElementById('input-script-url');
-            const alertBox = document.getElementById('url-validation-alert');
-            if (!input || !alertBox) return;
-
-            const val = input.value.trim();
-            if (!val) {
-                alertBox.classList.add('hidden');
-                return;
-            }
-
-            const check = validateScriptUrl(val);
-            alertBox.classList.remove('hidden');
-
-            if (check.valid) {
-                alertBox.className = "mt-2 p-2.5 rounded-xl text-xs bg-emerald-50 border border-emerald-300 text-emerald-900 flex items-start gap-2 font-medium";
-                alertBox.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-600 text-sm mt-0.5"></i> <span>Format URL Web App Google Script sudah benar!</span>`;
-            } else {
-                alertBox.className = "mt-2 p-2.5 rounded-xl text-xs bg-amber-50 border border-amber-300 text-amber-900 flex items-start gap-2 font-medium";
-                alertBox.innerHTML = `<i class="fa-solid fa-triangle-exclamation text-amber-600 text-sm mt-0.5"></i> <div><b>Peringatan:</b> ${check.message}<p class="mt-1 opacity-90 text-[11px]">${check.solution}</p></div>`;
-            }
-        }
-
-        /* Transactions Cloud Sync (POST) with CORS compatibility */
-        function postTransactionToCloud(trxObj) {
-            const check = validateScriptUrl(googleScriptUrl);
-            if (!check.valid) return;
-
-            // Use text/plain;charset=utf-8 to ensure CORS simple-request compliance for Google Apps Script
-            fetch(check.url, {
-                method: 'POST',
-                mode: 'no-cors',
-                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                body: JSON.stringify(trxObj)
-            }).then(() => {
-                trxObj.synced = true;
-                saveTrxToStorage();
-                renderTransactionHistory();
-            }).catch(err => {
-                console.log("Cloud sync delayed:", err);
+        function openUserSwitchModal() {
+            const container = document.getElementById('modalUsersList');
+            container.innerHTML = '';
+            APP_STATE.users.forEach(u => {
+                const isSelected = APP_STATE.currentUser && APP_STATE.currentUser.id === u.id;
+                const btn = document.createElement('button');
+                btn.className = `w-full text-left p-3 rounded-xl border flex items-center justify-between transition ${
+                    isSelected 
+                        ? 'bg-brand-950/80 border-brand-500 text-white' 
+                        : 'bg-slate-950 border-slate-800 text-slate-300 hover:bg-slate-800'
+                }`;
+                btn.onclick = () => selectUser(u.id);
+                btn.innerHTML = `
+                    <div class="flex items-center space-x-3">
+                        <div class="w-8 h-8 rounded-lg ${u.role.includes('Superadmin') ? 'bg-amber-500' : 'bg-brand-600'} text-white font-bold flex items-center justify-center text-xs">
+                            ${u.avatar}
+                        </div>
+                        <div>
+                            <p class="font-bold text-xs text-white">${u.name}</p>
+                            <p class="text-[10px] text-slate-400">${u.role} - ${u.rtScope}</p>
+                        </div>
+                    </div>
+                    ${isSelected ? '<i class="fa-solid fa-circle-check text-brand-400 text-sm"></i>' : ''}
+                `;
+                container.appendChild(btn);
             });
+            document.getElementById('userSwitchModal').classList.remove('hidden');
         }
 
-        /* Resident Cloud Sync (POST) */
-        function postWargaToCloud(wargaObj) {
-            const check = validateScriptUrl(googleScriptUrl);
-            if (!check.valid) return;
-
-            const payload = {
-                action: "add_warga",
-                id_warga: wargaObj.id_warga,
-                kode_qr: wargaObj.kode_qr,
-                nama: wargaObj.nama,
-                rt: wargaObj.rt,
-                no_rumah: wargaObj.no_rumah
-            };
-
-            fetch(check.url, {
-                method: 'POST',
-                mode: 'no-cors',
-                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                body: JSON.stringify(payload)
-            }).then(() => {
-                console.log("Warga baru tersimpan ke Google Sheets");
-            }).catch(err => console.log("Gagal sync warga ke cloud:", err));
+        function closeUserSwitchModal() {
+            document.getElementById('userSwitchModal').classList.add('hidden');
         }
 
-        /* Multi-Device Data Sync (Fetch & Merge Residents and Transactions) */
-        function fetchDataFromCloud(silent = false) {
-            const check = validateScriptUrl(googleScriptUrl);
-            if (!check.valid) {
-                if (!silent) {
-                    showCloudErrorModal("URL Google Script Belum Valid", check.message, check.solution);
-                }
-                return;
+        function selectUser(userId) {
+            const user = APP_STATE.users.find(u => u.id === userId);
+            if (user) {
+                APP_STATE.currentUser = user;
+                updateUserHeaderUI();
+                closeUserSwitchModal();
+                showToast("Sesi Diperbarui", `Sesi aktif berpindah ke ${user.name}`);
             }
-
-            if (!navigator.onLine) {
-                if (!silent) showToast("HP Anda sedang offline!", "error");
-                return;
-            }
-
-            if (!silent) showToast("Menarik data terbaru dari Google Sheets...", "info");
-
-            fetch(check.url, { method: "GET", cache: "no-cache" })
-                .then(res => res.text())
-                .then(textData => {
-                    let data;
-                    try {
-                        data = JSON.parse(textData);
-                    } catch (e) {
-                        // If output is HTML, Google Script required login because "Who has access" is not set to "Anyone"
-                        if (textData.includes("<!DOCTYPE") || textData.includes("<html")) {
-                            showCloudErrorModal(
-                                "Izin Akses Google Script Ditolak (Minta Login)",
-                                "Google Script menolak akses anonim dan meminta login Google. Ini terjadi karena setelan hak akses Web App belum diubah menjadi 'Anyone' (Siapa saja).",
-                                "<b>Cara Memperbaiki (Hanya 1 Menit):</b><br>" +
-                                "1. Buka Google Sheets tempat Anda memasang skrip.<br>" +
-                                "2. Pilih menu <b>Ekstensi</b> -> <b>Apps Script</b>.<br>" +
-                                "3. Klik tombol biru <b>Terapkan (Deploy)</b> di pojok kanan atas -> pilih <b>Kelola Penerapan (Manage deployments)</b>.<br>" +
-                                "4. Klik ikon **Pensil (Edit)** pada versi Web App saat ini.<br>" +
-                                "5. Ubah <b>'Yang memiliki akses' (Who has access)</b> menjadi <b>'Siapa Saja' (Anyone)</b>.<br>" +
-                                "6. Ubah Versi menjadi <b>'Versi Baru' (New Version)</b> lalu klik <b>Terapkan</b>."
-                            );
-                        } else {
-                            showToast("Respon dari Google Sheets bukan JSON yang valid.", "error");
-                        }
-                        return;
-                    }
-
-                    if (data.status === "error") {
-                        showToast("Error dari Google Script: " + data.message, "error");
-                        return;
-                    }
-
-                    // 1. Merge Cloud Residents
-                    if (data.residents && Array.isArray(data.residents) && data.residents.length > 0) {
-                        data.residents.forEach(cloudWarga => {
-                            const exists = residentsData.some(r => r.id_warga === cloudWarga.id_warga || r.kode_qr === cloudWarga.kode_qr);
-                            if (!exists) {
-                                residentsData.push(cloudWarga);
-                            }
-                        });
-                        saveWargaToStorage();
-                        renderResidentDropdown();
-                        renderResidentList();
-                        renderPrintableCards();
-                    }
-
-                    // 2. Merge Cloud Transactions
-                    if (data.transactions && Array.isArray(data.transactions) && data.transactions.length > 0) {
-                        data.transactions.forEach(cloudTrx => {
-                            const localIndex = transactionsData.findIndex(t => t.id_transaksi === cloudTrx.id_transaksi);
-                            if (localIndex === -1) {
-                                transactionsData.push(cloudTrx);
-                            } else {
-                                transactionsData[localIndex].synced = true;
-                            }
-                        });
-                        // Sort transactions descending by time
-                        transactionsData.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-                        saveTrxToStorage();
-                        renderTransactionHistory();
-                    }
-
-                    if (!silent) {
-                        showToast("Koneksi Sukses! Data Warga & Kas Google Sheets Terhubung.", "success");
-                    }
-                })
-                .catch(err => {
-                    console.log("Error fetching cloud data:", err);
-                    if (!silent) {
-                        showToast("Gagal terhubung ke Google Sheets. Periksa koneksi internet.", "error");
-                    }
-                });
-        }
-
-        function saveSettings() {
-            const input = document.getElementById('input-script-url');
-            const url = input ? input.value.trim() : "";
-            const check = validateScriptUrl(url);
-
-            if (!check.valid) {
-                showCloudErrorModal("URL Google Script Belum Sesuai", check.message, check.solution);
-                return;
-            }
-
-            googleScriptUrl = check.url;
-            localStorage.setItem('ejimpitan_script_url', check.url);
-            showToast("URL Google Apps Script berhasil disimpan!", "success");
-
-            if (navigator.onLine) {
-                fetchDataFromCloud(false);
-            }
-        }
-
-        function testGoogleSheetsConnection() {
-            const input = document.getElementById('input-script-url');
-            const url = input ? input.value.trim() : "";
-            
-            if (!url) {
-                showToast("Masukkan URL Apps Script terlebih dahulu!", "error");
-                return;
-            }
-
-            const check = validateScriptUrl(url);
-            if (!check.valid) {
-                showCloudErrorModal("URL Tidak Valid", check.message, check.solution);
-                return;
-            }
-
-            googleScriptUrl = check.url;
-            localStorage.setItem('ejimpitan_script_url', check.url);
-
-            showToast("Menguji koneksi ke Google Sheets...", "info");
-            fetchDataFromCloud(false);
-        }
-
-        function showCloudErrorModal(title, message, solutionHtml) {
-            document.getElementById('cloud-error-title').innerText = title;
-            const body = document.getElementById('cloud-error-body');
-            body.innerHTML = `
-                <div class="bg-rose-50 border border-rose-200 p-3 rounded-xl text-rose-950 font-medium">
-                    ${message}
-                </div>
-                <div class="bg-slate-50 border border-slate-200 p-3 rounded-xl text-slate-800 space-y-1.5">
-                    <p class="font-bold text-slate-900 border-b border-slate-200 pb-1 flex items-center gap-1.5">
-                        <i class="fa-solid fa-wrench text-brand-600"></i> Solusi Perbaikan
-                    </p>
-                    <div class="text-[11px] leading-relaxed pt-1">${solutionHtml}</div>
-                </div>
-            `;
-            document.getElementById('modal-cloud-error').classList.remove('hidden');
-        }
-
-        function closeCloudErrorModal() {
-            document.getElementById('modal-cloud-error').classList.add('hidden');
-        }
-
-        function checkSecureOrigin() {
-            const isLocal = window.location.protocol === 'file:';
-            const isUnsecureHttp = window.location.protocol === 'http:' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
-            if (isLocal || isUnsecureHttp || !window.isSecureContext) {
-                const alertEl = document.getElementById('unsecure-origin-alert');
-                if (alertEl) alertEl.classList.remove('hidden');
-            }
-        }
-
-        /* Web Audio Synthesizer Beep */
-        function playBeepSound(type = 'success') {
-            try {
-                const ctx = new (window.AudioContext || window.webkitAudioContext)();
-                const osc = ctx.createOscillator();
-                const gain = ctx.createGain();
-                osc.connect(gain);
-                gain.connect(ctx.destination);
-
-                if (type === 'success') {
-                    osc.frequency.setValueAtTime(880, ctx.currentTime);
-                    osc.frequency.exponentialRampToValueAtTime(1200, ctx.currentTime + 0.1);
-                    gain.gain.setValueAtTime(0.3, ctx.currentTime);
-                    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.15);
-                    osc.start();
-                    osc.stop(ctx.currentTime + 0.15);
-                } else if (type === 'chime') {
-                    osc.frequency.setValueAtTime(523.25, ctx.currentTime);
-                    osc.frequency.setValueAtTime(659.25, ctx.currentTime + 0.1);
-                    gain.gain.setValueAtTime(0.25, ctx.currentTime);
-                    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
-                    osc.start();
-                    osc.stop(ctx.currentTime + 0.3);
-                } else if (type === 'error') {
-                    osc.frequency.setValueAtTime(300, ctx.currentTime);
-                    osc.frequency.setValueAtTime(200, ctx.currentTime + 0.1);
-                    gain.gain.setValueAtTime(0.3, ctx.currentTime);
-                    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.2);
-                    osc.start();
-                    osc.stop(ctx.currentTime + 0.2);
-                }
-            } catch (e) { console.log('Audio error:', e); }
-        }
-
-        /* Local Storage Management */
-        function loadInitialStorage() {
-            const storedWarga = localStorage.getItem('ejimpitan_warga');
-            residentsData = storedWarga ? JSON.parse(storedWarga) : defaultSampleResidents;
-            if (!storedWarga) localStorage.setItem('ejimpitan_warga', JSON.stringify(residentsData));
-
-            const storedTrx = localStorage.getItem('ejimpitan_transactions');
-            transactionsData = storedTrx ? JSON.parse(storedTrx) : [];
-
-            googleScriptUrl = localStorage.getItem('ejimpitan_script_url') || "";
-            document.getElementById('input-script-url').value = googleScriptUrl;
-
-            const lastPetugas = localStorage.getItem('ejimpitan_last_petugas');
-            if (lastPetugas) document.getElementById('input-petugas').value = lastPetugas;
-        }
-
-        function saveWargaToStorage() {
-            localStorage.setItem('ejimpitan_warga', JSON.stringify(residentsData));
-        }
-
-        function saveTrxToStorage() {
-            localStorage.setItem('ejimpitan_transactions', JSON.stringify(transactionsData));
         }
 
         function switchTab(tabId) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.classList.remove('bg-brand-700', 'text-white', 'shadow');
-                btn.classList.add('text-slate-600');
-            });
-
-            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
-            const activeBtn = document.getElementById(`tab-btn-${tabId}`);
-            if (activeBtn) {
-                activeBtn.classList.add('bg-brand-700', 'text-white', 'shadow');
-                activeBtn.classList.remove('text-slate-600');
-            }
-
-            if (tabId !== 'scan' && isScannerRunning) {
-                stopCamera();
-            }
-        }
-
-        function toggleCamera() {
-            if (isScannerRunning) {
-                stopCamera();
-            } else {
-                startCamera();
-            }
-        }
-
-        function startCamera() {
-            document.getElementById('scanner-placeholder').classList.add('hidden');
-            document.getElementById('scanner-overlay').classList.remove('hidden');
-
-            const readerElement = document.getElementById('reader');
-            readerElement.innerHTML = '';
-
-            html5QrCodeScanner = new Html5Qrcode("reader");
-
-            const qrboxFunction = function(viewfinderWidth, viewfinderHeight) {
-                let minEdgePercentage = 0.68;
-                let minEdgeSize = Math.min(viewfinderWidth, viewfinderHeight);
-                let qrboxSize = Math.floor(minEdgeSize * minEdgePercentage);
-                return {
-                    width: Math.max(qrboxSize, 180),
-                    height: Math.max(qrboxSize, 180)
-                };
-            };
-
-            const config = { 
-                fps: 10, 
-                qrbox: qrboxFunction,
-                aspectRatio: 1.0,
-                experimentalFeatures: { useBarCodeDetectorIfSupported: true }
-            };
-
-            html5QrCodeScanner.start({ facingMode: facingMode }, config, onQrScanSuccess, onQrScanError)
-                .then(() => {
-                    isScannerRunning = true;
-                    document.getElementById('btn-cam-text').innerText = "Matikan Kamera";
-                    document.getElementById('btn-flip-cam').classList.remove('hidden');
-                    document.getElementById('camera-status-badge').innerText = "Kamera Aktif";
-                    document.getElementById('camera-status-badge').className = "text-xs bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-lg font-bold";
-                })
-                .catch(err => {
-                    html5QrCodeScanner.start({ facingMode: "user" }, config, onQrScanSuccess, onQrScanError)
-                        .then(() => {
-                            isScannerRunning = true;
-                            document.getElementById('btn-cam-text').innerText = "Matikan Kamera";
-                            document.getElementById('btn-flip-cam').classList.remove('hidden');
-                            document.getElementById('camera-status-badge').innerText = "Kamera Aktif";
-                            document.getElementById('camera-status-badge').className = "text-xs bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-lg font-bold";
-                        })
-                        .catch(() => {
-                            showToast("Gagal membuka kamera! Gunakan fitur Upload Foto QR.", "error");
-                            document.getElementById('scanner-placeholder').classList.remove('hidden');
-                            document.getElementById('scanner-overlay').classList.add('hidden');
-                        });
-                });
-        }
-
-        function stopCamera() {
-            if (html5QrCodeScanner && isScannerRunning) {
-                html5QrCodeScanner.stop().then(() => {
-                    html5QrCodeScanner.clear();
-                    isScannerRunning = false;
-                    document.getElementById('btn-cam-text').innerText = "Nyalakan Kamera";
-                    document.getElementById('btn-flip-cam').classList.add('hidden');
-                    document.getElementById('camera-status-badge').innerText = "Kamera Nonaktif";
-                    document.getElementById('camera-status-badge').className = "text-xs bg-slate-100 text-slate-600 px-2.5 py-1 rounded-lg font-semibold";
-                    document.getElementById('scanner-placeholder').classList.remove('hidden');
-                    document.getElementById('scanner-overlay').classList.add('hidden');
-                }).catch(() => {
-                    isScannerRunning = false;
-                });
-            }
-        }
-
-        function switchCameraFacing() {
-            facingMode = (facingMode === "environment") ? "user" : "environment";
-            if (isScannerRunning) {
-                stopCamera();
-                setTimeout(startCamera, 300);
-            }
-        }
-
-        function scanQRFromFile(fileInput) {
-            if (!fileInput.files || fileInput.files.length === 0) return;
-            const imageFile = fileInput.files[0];
-
-            showToast("Membaca kode QR dari foto...", "info");
-
-            const tempScanner = new Html5Qrcode("reader");
-            tempScanner.scanFile(imageFile, true)
-                .then(decodedText => {
-                    onQrScanSuccess(decodedText);
-                    fileInput.value = "";
-                })
-                .catch(() => {
-                    showToast("Tidak dapat membaca QR Code pada gambar tersebut!", "error");
-                    fileInput.value = "";
-                });
-        }
-
-        /* QR SCAN HANDLER - Single Notification & Lock Guard */
-        function onQrScanSuccess(decodedText) {
-            // Guard 1: Ignore scan if process is currently locked
-            if (isProcessingScan) return;
-
-            const now = Date.now();
-            // Guard 2: Ignore duplicate code within 5 seconds
-            if (decodedText === lastScannedCode && (now - lastScanTime < 5000)) {
-                return;
-            }
-
-            // Lock scanner process immediately
-            isProcessingScan = true;
-            lastScannedCode = decodedText;
-            lastScanTime = now;
-
-            // Pause camera loop to prevent duplicate callbacks
-            if (html5QrCodeScanner) {
-                try { html5QrCodeScanner.pause(true); } catch(e){}
-            }
-
-            const resident = residentsData.find(r => r.kode_qr === decodedText || r.id_warga === decodedText);
+            document.querySelectorAll('.tab-view').forEach(el => el.classList.add('hidden'));
             
-            if (resident) {
-                // Play single audio beep
-                playBeepSound('success');
-                
-                // Show single toast notification
-                showToast(`Scan Berhasil: ${resident.nama}`, "success");
+            const target = document.getElementById(`view-${tabId}`);
+            if (target) target.classList.remove('hidden');
 
-                // Auto select resident in input form
-                document.getElementById('input-warga-id').value = resident.id_warga;
-                updateResidentInfoCard(resident);
+            document.querySelectorAll('.nav-tab').forEach(btn => {
+                btn.className = "nav-tab flex items-center space-x-2 px-4 py-2.5 rounded-xl font-medium text-sm transition duration-200 whitespace-nowrap bg-slate-900 text-slate-400 hover:text-white border border-slate-800";
+            });
 
-                // Update visual badge indicator
-                const statusBadge = document.getElementById('camera-status-badge');
-                if (statusBadge) {
-                    statusBadge.innerText = `Terpindai: ${resident.nama}`;
-                    statusBadge.className = "text-xs bg-emerald-600 text-white px-2.5 py-1 rounded-lg font-black animate-pulse";
-                }
+            const activeBtn = document.getElementById(`tab-${tabId}`);
+            if (activeBtn) {
+                activeBtn.className = "nav-tab active flex items-center space-x-2 px-4 py-2.5 rounded-xl font-medium text-sm transition duration-200 whitespace-nowrap bg-brand-600 text-white shadow-lg shadow-brand-600/30";
+            }
 
-                // Smooth scroll directly to form & focus on nominal input
-                const formSection = document.getElementById('section-form-jimpitan');
-                if (formSection) {
-                    formSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }
-
-                setTimeout(() => {
-                    const nominalInput = document.getElementById('input-nominal');
-                    if (nominalInput) {
-                        nominalInput.focus();
-                        nominalInput.select();
-                    }
-                }, 350);
-
-                // Unlock process & resume camera scanning after 5 seconds delay
-                setTimeout(() => {
-                    isProcessingScan = false;
-                    if (statusBadge && isScannerRunning) {
-                        statusBadge.innerText = "Kamera Aktif";
-                        statusBadge.className = "text-xs bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-lg font-bold";
-                    }
-                    if (html5QrCodeScanner && isScannerRunning) {
-                        try { html5QrCodeScanner.resume(); } catch(e){}
-                    }
-                }, 5000);
-
-            } else {
-                playBeepSound('error');
-                showToast("Kode QR tidak terdaftar di Pekon Panggungrejo Utara!", "error");
-                setTimeout(() => {
-                    isProcessingScan = false;
-                    if (html5QrCodeScanner && isScannerRunning) {
-                        try { html5QrCodeScanner.resume(); } catch(e){}
-                    }
-                }, 3000);
+            if (tabId !== 'scan' && APP_STATE.html5QrCode) {
+                try {
+                    APP_STATE.html5QrCode.stop().catch(() => {});
+                } catch (e) {}
             }
         }
 
-        function onQrScanError(errorMessage) {
-            // Scanner frame noise suppression
-        }
+        function toggleScanMode(mode) {
+            APP_STATE.scanMode = mode;
+            const simBox = document.getElementById('scannerSimBox');
+            const camBox = document.getElementById('scannerCamBox');
+            const simBtn = document.getElementById('modeSimBtn');
+            const camBtn = document.getElementById('modeCamBtn');
 
-        function onResidentSelectedManual(wargaId) {
-            const resident = residentsData.find(r => r.id_warga === wargaId);
-            if (resident) {
-                updateResidentInfoCard(resident);
+            if (mode === 'sim') {
+                simBox.classList.remove('hidden');
+                camBox.classList.add('hidden');
+                simBtn.className = "flex-1 py-1.5 rounded-lg text-center bg-brand-600 text-white shadow-sm";
+                camBtn.className = "flex-1 py-1.5 rounded-lg text-center text-slate-400 hover:text-white";
+
+                if (APP_STATE.html5QrCode) {
+                    try {
+                        APP_STATE.html5QrCode.stop().catch(() => {});
+                    } catch (e) {}
+                }
             } else {
-                resetResidentInfoCard();
+                simBox.classList.add('hidden');
+                camBox.classList.remove('hidden');
+                camBtn.className = "flex-1 py-1.5 rounded-lg text-center bg-brand-600 text-white shadow-sm";
+                simBtn.className = "flex-1 py-1.5 rounded-lg text-center text-slate-400 hover:text-white";
+
+                startCameraScanner();
             }
         }
 
-        function updateResidentInfoCard(r) {
-            document.getElementById('card-warga-nama').innerText = r.nama;
-            document.getElementById('card-warga-sub').innerText = `Rumah: ${r.no_rumah} | QR: ${r.kode_qr}`;
-            document.getElementById('card-warga-rt').innerText = r.rt;
-        }
-
-        function resetResidentInfoCard() {
-            document.getElementById('card-warga-nama').innerText = "Belum Ada Warga Terpilih";
-            document.getElementById('card-warga-sub').innerText = "Scan QR atau pilih nama dari dropdown di atas";
-            document.getElementById('card-warga-rt').innerText = "RT -";
-        }
-
-        function setNominal(val) {
-            document.getElementById('input-nominal').value = val;
-        }
-
-        function focusCustomNominal() {
-            const inp = document.getElementById('input-nominal');
-            inp.value = '';
-            inp.focus();
-        }
-
-        /* Transaction Form Submission */
-        function handleSaveTransaction(e) {
-            e.preventDefault();
-
-            const wargaId = document.getElementById('input-warga-id').value;
-            const nominal = parseInt(document.getElementById('input-nominal').value);
-            const petugas = document.getElementById('input-petugas').value.trim();
-
-            if (!wargaId || !nominal || !petugas) {
-                showToast("Mohon isi semua data form jimpitan!", "error");
+        function startCameraScanner() {
+            if (typeof Html5Qrcode === 'undefined') {
+                showToast("Scanner Error", "Library QR Camera belum dimuat.");
                 return;
             }
 
-            const resident = residentsData.find(r => r.id_warga === wargaId);
-            if (!resident) return;
-
-            const newTrx = {
-                id_transaksi: "TRX-" + Date.now(),
-                timestamp: new Date().toISOString(),
-                id_warga: resident.id_warga,
-                nama_warga: resident.nama,
-                rt: resident.rt,
-                no_rumah: resident.no_rumah,
-                nominal: nominal,
-                petugas: petugas,
-                synced: false
-            };
-
-            transactionsData.unshift(newTrx);
-            saveTrxToStorage();
-            localStorage.setItem('ejimpitan_last_petugas', petugas);
-
-            playBeepSound('chime');
-            showToast(`Uang Jimpitan Rp ${nominal.toLocaleString('id-ID')} tersimpan!`, "success");
-
-            if (googleScriptUrl && navigator.onLine) {
-                postTransactionToCloud(newTrx);
+            if (!APP_STATE.html5QrCode) {
+                APP_STATE.html5QrCode = new Html5Qrcode("reader");
             }
 
-            document.getElementById('input-nominal').value = '';
-            document.getElementById('input-warga-id').value = '';
-            resetResidentInfoCard();
-            renderTransactionHistory();
-
-            // Resume scanner ready for next scan
-            isProcessingScan = false;
-            if (html5QrCodeScanner && isScannerRunning) {
-                try { html5QrCodeScanner.resume(); } catch(err){}
-            }
-        }
-
-        function postTransactionToCloud(trxObj) {
-            if (!googleScriptUrl) return;
-
-            fetch(googleScriptUrl, {
-                method: 'POST',
-                mode: 'no-cors',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(trxObj)
-            }).then(() => {
-                trxObj.synced = true;
-                saveTrxToStorage();
-                renderTransactionHistory();
-            }).catch(err => {
-                console.log("Cloud sync delayed:", err);
+            const config = { fps: 10, qrbox: { width: 200, height: 200 } };
+            
+            APP_STATE.html5QrCode.start(
+                { facingMode: "environment" },
+                config,
+                (decodedText) => {
+                    handleScannedCode(decodedText);
+                },
+                (errorMessage) => {}
+            ).catch(err => {
+                showToast("Kamera Error", "Gagal membuka kamera HP. Gunakan simulator.");
             });
         }
 
-        /* Multi-Device Data Sync (Fetch & Merge Residents and Transactions) */
-        function fetchDataFromCloud(silent = false) {
-            if (!googleScriptUrl) {
-                if (!silent) showToast("URL Google Apps Script belum diatur di Pengaturan!", "error");
+        function onSimulateScanSelect() {
+            const val = document.getElementById('simWargaSelect').value;
+            if (!val) return;
+            handleScannedCode(val);
+        }
+
+        function handleScannedCode(wargaId) {
+            const warga = APP_STATE.wargaList.find(w => w.id === wargaId);
+            if (!warga) {
+                showToast("Warga Tidak Ditemukan", `ID ${wargaId} tidak terdaftar di database.`);
                 return;
             }
-            if (!navigator.onLine) {
-                if (!silent) showToast("HP Anda sedang offline!", "error");
-                return;
+
+            APP_STATE.scannedWarga = warga;
+            document.getElementById('cardWargaId').innerText = warga.id;
+            document.getElementById('cardWargaName').innerText = warga.name;
+            document.getElementById('cardWargaAddress').innerText = warga.address;
+            document.getElementById('cardWargaRt').innerText = `${warga.rt} / RW 01`;
+
+            const badge = document.getElementById('scanStatusBadge');
+            badge.className = "text-xs bg-emerald-950 text-emerald-400 font-bold px-2.5 py-1 rounded-full border border-emerald-800 animate-pulse";
+            badge.innerText = "Terpindai / Siap Input";
+
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = false;
+            submitBtn.className = "w-full bg-brand-600 hover:bg-brand-500 text-white font-bold py-3.5 rounded-xl transition duration-200 flex items-center justify-center space-x-2 shadow-lg shadow-brand-600/30 cursor-pointer";
+
+            showToast("Pemindaian Berhasil!", `${warga.name} (${warga.id}) teridentifikasi.`);
+        }
+
+        function setNominal(amount) {
+            const input = document.getElementById('inputNominal');
+            const currentVal = parseInt(input.value) || 0;
+            input.value = currentVal + amount;
+        }
+
+        function initPWA() {
+            // Dynamic Web App Manifest Injection
+            const manifestData = {
+                name: "E-JIMPITAN Pekon Panggungrejo Utara",
+                short_name: "E-JIMPITAN",
+                start_url: "./",
+                display: "standalone",
+                background_color: "#070b14",
+                theme_color: "#070b14",
+                icons: [{
+                    src: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png",
+                    sizes: "512x512",
+                    type: "image/png"
+                }]
+            };
+            const manifestBlob = new Blob([JSON.stringify(manifestData)], { type: 'application/json' });
+            const manifestUrl = URL.createObjectURL(manifestBlob);
+            const link = document.createElement('link');
+            link.rel = 'manifest';
+            link.href = manifestUrl;
+            document.head.appendChild(link);
+
+            // Register Service Worker via Blob for standalone PWA support
+            if ('serviceWorker' in navigator) {
+                const swCode = `
+                    self.addEventListener('install', e => self.skipWaiting());
+                    self.addEventListener('activate', e => e.waitUntil(clients.claim()));
+                    self.addEventListener('fetch', e => e.respondWith(fetch(e.request).catch(() => caches.match(e.request))));
+                `;
+                const swBlob = new Blob([swCode], { type: 'text/javascript' });
+                const swUrl = URL.createObjectURL(swBlob);
+                navigator.serviceWorker.register(swUrl).catch(() => {});
             }
 
-            if (!silent) showToast("Menarik data terbaru dari Google Sheets...", "info");
+            // Capture PWA Install Prompt Event
+            window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                APP_STATE.deferredPrompt = e;
+            });
+        }
 
-            fetch(googleScriptUrl)
-                .then(res => res.json())
-                .then(data => {
-                    let updatedCount = 0;
-
-                    // 1. Merge Cloud Residents
-                    if (data.residents && Array.isArray(data.residents) && data.residents.length > 0) {
-                        data.residents.forEach(cloudWarga => {
-                            const exists = residentsData.some(r => r.id_warga === cloudWarga.id_warga || r.kode_qr === cloudWarga.kode_qr);
-                            if (!exists) {
-                                residentsData.push(cloudWarga);
-                                updatedCount++;
-                            }
-                        });
-                        saveWargaToStorage();
-                        renderResidentDropdown();
-                        renderResidentList();
-                        renderPrintableCards();
-                    }
-
-                    // 2. Merge Cloud Transactions
-                    if (data.transactions && Array.isArray(data.transactions) && data.transactions.length > 0) {
-                        data.transactions.forEach(cloudTrx => {
-                            const localIndex = transactionsData.findIndex(t => t.id_transaksi === cloudTrx.id_transaksi);
-                            if (localIndex === -1) {
-                                transactionsData.push(cloudTrx);
-                            } else {
-                                transactionsData[localIndex].synced = true;
-                            }
-                        });
-                        // Sort transactions descending by time
-                        transactionsData.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-                        saveTrxToStorage();
-                        renderTransactionHistory();
-                    }
-
-                    if (!silent) {
-                        showToast(`Sync Cloud Berhasil! Data Warga & Kas Diperbarui.`, "success");
-                    }
-                })
-                .catch(err => {
-                    console.log("Error fetching cloud data:", err);
-                    if (!silent) showToast("Gagal mengambil data dari Google Sheets.", "error");
+        function triggerPwaInstall() {
+            if (APP_STATE.deferredPrompt) {
+                APP_STATE.deferredPrompt.prompt();
+                APP_STATE.deferredPrompt.userChoice.then(() => {
+                    APP_STATE.deferredPrompt = null;
                 });
-        }
-
-        function syncAllDataWithCloud() {
-            // First send pending local transactions
-            const pendingList = transactionsData.filter(t => !t.synced);
-            if (pendingList.length > 0 && googleScriptUrl && navigator.onLine) {
-                pendingList.forEach(trx => postTransactionToCloud(trx));
-            }
-            // Fetch updated residents and transactions from cloud
-            fetchDataFromCloud(false);
-        }
-
-        /* Post New Resident to Cloud to Sync Across Devices */
-        function postWargaToCloud(wargaObj) {
-            if (!googleScriptUrl) return;
-
-            const payload = {
-                action: "add_warga",
-                id_warga: wargaObj.id_warga,
-                kode_qr: wargaObj.kode_qr,
-                nama: wargaObj.nama,
-                rt: wargaObj.rt,
-                no_rumah: wargaObj.no_rumah
-            };
-
-            fetch(googleScriptUrl, {
-                method: 'POST',
-                mode: 'no-cors',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            }).then(() => {
-                console.log("Warga baru tersimpan ke Google Sheets");
-            }).catch(err => console.log("Gagal sync warga ke cloud:", err));
-        }
-
-        function renderResidentDropdown() {
-            const select = document.getElementById('input-warga-id');
-            select.innerHTML = '<option value="">-- Cari atau Pilih Nama Warga --</option>';
-            residentsData.forEach(r => {
-                select.innerHTML += `<option value="${r.id_warga}">${r.nama} (${r.rt} - ${r.no_rumah})</option>`;
-            });
-        }
-
-        function renderResidentList() {
-            const container = document.getElementById('resident-cards-grid');
-            const search = document.getElementById('search-warga').value.toLowerCase();
-            const filterRt = document.getElementById('filter-rt-warga').value;
-
-            const filtered = residentsData.filter(r => {
-                const matchSearch = r.nama.toLowerCase().includes(search) || r.no_rumah.toLowerCase().includes(search) || r.rt.toLowerCase().includes(search);
-                const matchRt = !filterRt || r.rt === filterRt;
-                return matchSearch && matchRt;
-            });
-
-            container.innerHTML = '';
-            if (filtered.length === 0) {
-                container.innerHTML = '<div class="col-span-full py-8 text-center text-slate-400 text-xs font-semibold">Tidak ada data warga ditemukan</div>';
-                return;
-            }
-
-            filtered.forEach(r => {
-                container.innerHTML += `
-                    <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm flex items-center justify-between">
-                        <div class="space-y-1">
-                            <span class="text-[10px] font-black bg-brand-100 text-brand-800 px-2 py-0.5 rounded">${r.rt}</span>
-                            <h4 class="font-bold text-slate-800 text-sm">${r.nama}</h4>
-                            <p class="text-xs text-slate-500">Rumah: ${r.no_rumah}</p>
-                            <p class="text-[11px] font-mono text-slate-400">${r.kode_qr}</p>
-                        </div>
-                        <button onclick="previewQRModal('${r.nama}', '${r.rt}', '${r.kode_qr}')" class="w-10 h-10 rounded-xl bg-slate-100 hover:bg-brand-50 text-slate-700 hover:text-brand-700 flex items-center justify-center transition active:scale-95">
-                            <i class="fa-solid fa-qrcode text-lg"></i>
-                        </button>
-                    </div>
-                `;
-            });
-        }
-
-        function renderTransactionHistory() {
-            const tbody = document.getElementById('table-history-body');
-            tbody.innerHTML = '';
-
-            let todayTotal = 0;
-            let monthTotal = 0;
-            let pendingCount = 0;
-
-            const now = new Date();
-            const todayStr = now.toISOString().split('T')[0];
-
-            transactionsData.forEach(t => {
-                const dateObj = new Date(t.timestamp);
-                const isToday = t.timestamp.startsWith(todayStr);
-                
-                if (isToday) todayTotal += t.nominal;
-                if (dateObj.getMonth() === now.getMonth() && dateObj.getFullYear() === now.getFullYear()) {
-                    monthTotal += t.nominal;
-                }
-                if (!t.synced) pendingCount++;
-
-                const formattedTime = dateObj.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
-
-                tbody.innerHTML += `
-                    <tr class="hover:bg-slate-50">
-                        <td class="p-3 text-slate-500 font-mono text-[11px]">${formattedTime}</td>
-                        <td class="p-3 font-bold text-slate-800">${t.nama_warga} <span class="text-[10px] text-slate-400 block font-normal">${t.no_rumah}</span></td>
-                        <td class="p-3"><span class="bg-slate-100 text-slate-700 font-bold px-2 py-0.5 rounded text-[10px]">${t.rt}</span></td>
-                        <td class="p-3 font-black text-brand-700">Rp ${t.nominal.toLocaleString('id-ID')}</td>
-                        <td class="p-3 text-slate-600">${t.petugas}</td>
-                        <td class="p-3">
-                            ${t.synced 
-                                ? '<span class="text-[10px] font-bold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full"><i class="fa-solid fa-check mr-1"></i>Cloud</span>'
-                                : '<span class="text-[10px] font-bold bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full"><i class="fa-solid fa-clock mr-1"></i>Lokal</span>'}
-                        </td>
-                    </tr>
-                `;
-            });
-
-            document.getElementById('stat-hari-ini').innerText = `Rp ${todayTotal.toLocaleString('id-ID')}`;
-            document.getElementById('stat-bulan-ini').innerText = `Rp ${monthTotal.toLocaleString('id-ID')}`;
-            document.getElementById('stat-total-trx').innerText = transactionsData.length;
-            document.getElementById('stat-pending-sync').innerText = `${pendingCount} Pending`;
-        }
-
-        function renderPrintableCards() {
-            const container = document.getElementById('printable-cards-grid');
-            const filterRt = document.getElementById('select-print-rt').value;
-            container.innerHTML = '';
-
-            const list = residentsData.filter(r => !filterRt || r.rt === filterRt);
-
-            list.forEach((r, idx) => {
-                const qrDivId = `qr-card-gen-${idx}`;
-                container.innerHTML += `
-                    <div class="bg-white border-2 border-slate-800 rounded-2xl p-4 text-center space-y-3 relative overflow-hidden shadow-sm">
-                        <div class="bg-brand-800 text-white p-2 rounded-xl">
-                            <h4 class="font-black text-xs uppercase tracking-wider">E-JIMPITAN PEKON</h4>
-                            <p class="text-[10px] text-brand-100">Panggungrejo Utara</p>
-                        </div>
-                        <div id="${qrDivId}" class="flex justify-center my-2"></div>
-                        <div>
-                            <h3 class="font-black text-slate-900 text-sm">${r.nama}</h3>
-                            <p class="text-xs font-bold text-brand-700">${r.rt} — Rumah ${r.no_rumah}</p>
-                            <p class="text-[10px] font-mono text-slate-400 mt-1">${r.kode_qr}</p>
-                        </div>
-                    </div>
-                `;
-
-                setTimeout(() => {
-                    const el = document.getElementById(qrDivId);
-                    if (el) {
-                        el.innerHTML = '';
-                        new QRCode(el, { text: r.kode_qr, width: 110, height: 110 });
-                    }
-                }, 100);
-            });
-        }
-
-        function openModalAddWarga() {
-            document.getElementById('modal-add-warga').classList.remove('hidden');
-        }
-        function closeModalAddWarga() {
-            document.getElementById('modal-add-warga').classList.add('hidden');
-        }
-
-        function handleSaveNewWarga(e) {
-            e.preventDefault();
-            const nama = document.getElementById('add-nama').value.trim();
-            const rt = document.getElementById('add-rt').value;
-            const rumah = document.getElementById('add-rumah').value.trim();
-
-            const newId = "W-" + String(residentsData.length + 1).padStart(3, '0');
-            const newQr = `QR-PGR-${rt.replace(/\s+/g, '')}-${String(residentsData.length + 1).padStart(3, '0')}`;
-
-            const newWargaObj = {
-                id_warga: newId,
-                kode_qr: newQr,
-                nama: nama,
-                rt: rt,
-                no_rumah: rumah
-            };
-
-            residentsData.push(newWargaObj);
-            saveWargaToStorage();
-
-            // Automatically sync new resident to Google Sheets for other mobile devices
-            if (googleScriptUrl && navigator.onLine) {
-                postWargaToCloud(newWargaObj);
-            }
-
-            renderResidentDropdown();
-            renderResidentList();
-            renderPrintableCards();
-            closeModalAddWarga();
-
-            showToast(`Data warga ${nama} tersimpan & dikirim ke Cloud!`, "success");
-            document.getElementById('add-nama').value = '';
-            document.getElementById('add-rumah').value = '';
-        }
-
-        function previewQRModal(nama, rt, qrCode) {
-            document.getElementById('modal-qr-title').innerText = nama;
-            document.getElementById('modal-qr-sub').innerText = `${rt} — Kode: ${qrCode}`;
-            const container = document.getElementById('qrcode-modal-container');
-            container.innerHTML = '';
-            new QRCode(container, { text: qrCode, width: 160, height: 160 });
-            document.getElementById('modal-qr-preview').classList.remove('hidden');
-        }
-
-        function closeModalQRPreview() {
-            document.getElementById('modal-qr-preview').classList.add('hidden');
-        }
-
-        function openPWAHelpModal() {
-            document.getElementById('modal-pwa-help').classList.remove('hidden');
-        }
-
-        function closePWAHelpModal() {
-            document.getElementById('modal-pwa-help').classList.add('hidden');
-        }
-
-        function saveSettings() {
-            const url = document.getElementById('input-script-url').value.trim();
-            googleScriptUrl = url;
-            localStorage.setItem('ejimpitan_script_url', url);
-            showToast("URL Google Apps Script disimpan!", "success");
-            if (url && navigator.onLine) {
-                fetchDataFromCloud(false);
+            } else {
+                openPwaModal();
             }
         }
 
-        function testGoogleSheetsConnection() {
-            if (!googleScriptUrl) {
-                showToast("Masukkan URL Apps Script terlebih dahulu!", "error");
-                return;
+        function openPwaModal() {
+            document.getElementById('pwaModal').classList.remove('hidden');
+        }
+
+        function closePwaModal() {
+            document.getElementById('pwaModal').classList.add('hidden');
+        }
+
+        function openSheetsModal() {
+            document.getElementById('sheetsWebUrlInput').value = APP_STATE.sheetsUrl;
+            document.getElementById('sheetsModal').classList.remove('hidden');
+        }
+
+        function closeSheetsModal() {
+            document.getElementById('sheetsModal').classList.add('hidden');
+        }
+
+        function saveSheetsUrl() {
+            const url = document.getElementById('sheetsWebUrlInput').value.trim();
+            APP_STATE.sheetsUrl = url;
+            localStorage.setItem('ejimpitan_sheets_url', url);
+            updateSheetsUIStatus();
+            closeSheetsModal();
+            showToast("Koneksi Disimpan", url ? "Aplikasi terhubung ke Google Sheets Pekon Anda." : "Menggunakan penyimpanan lokal HP.");
+        }
+
+        function updateSheetsUIStatus() {
+            const dot = document.getElementById('sheetSyncDot');
+            const txt = document.getElementById('sheetStatusText');
+            if (APP_STATE.sheetsUrl) {
+                dot.className = "w-2 h-2 rounded-full bg-emerald-400 animate-pulse";
+                txt.innerText = "Sheets Terhubung";
+                txt.className = "hidden md:inline text-emerald-400 font-semibold";
+            } else {
+                dot.className = "w-2 h-2 rounded-full bg-amber-400 animate-ping";
+                txt.innerText = "Set Google Sheets";
+                txt.className = "hidden md:inline text-amber-400 font-semibold";
             }
-            showToast("Menguji koneksi ke Google Sheets...", "info");
-            fetch(googleScriptUrl)
-                .then(res => res.json())
-                .then(() => showToast("Terhubung dengan Google Sheets!", "success"))
-                .catch(() => showToast("Gagal terhubung ke URL Apps Script.", "error"));
         }
 
         function copyAppsScriptCode() {
-            const code = document.getElementById('apps-script-code-block').innerText;
-            navigator.clipboard.writeText(code);
-            showToast("Kode Apps Script tersalin ke clipboard!", "success");
+            const text = document.getElementById('appsScriptCodeText').innerText;
+            const temp = document.createElement('textarea');
+            temp.value = text;
+            document.body.appendChild(temp);
+            temp.select();
+            document.execCommand('copy');
+            document.body.removeChild(temp);
+            showToast("Skrip Disalin!", "Tempelkan pada Apps Script di Google Sheets.");
         }
 
-        function exportToCSV() {
-            if (transactionsData.length === 0) {
-                showToast("Belum ada data transaksi untuk diekspor!", "error");
+        async function sendToGoogleSheets(txData) {
+            if (!APP_STATE.sheetsUrl) return false;
+            try {
+                await fetch(APP_STATE.sheetsUrl, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(txData)
+                });
+                return true;
+            } catch (err) {
+                console.warn('Sheets post failed:', err);
+                return false;
+            }
+        }
+
+        async function testSheetsConnection() {
+            const url = document.getElementById('sheetsWebUrlInput').value.trim();
+            if (!url) {
+                showToast("URL Kosong", "Masukkan URL Web App Google Apps Script terlebih dahulu.");
+                return;
+            }
+            showToast("Mengirim...", "Menguji koneksi ke Google Sheets.");
+            const dummy = {
+                timestamp: new Date().toLocaleString('id-ID'),
+                idWarga: 'TEST-001',
+                namaWarga: 'Uji Coba System',
+                rt: 'RT 01',
+                nominal: 1000,
+                petugas: 'System Test',
+                catatan: 'Uji Koneksi'
+            };
+            await sendToGoogleSheets(dummy);
+            showToast("Pengujian Terkirim!", "Silakan periksa baris baru pada Google Sheet Anda.");
+        }
+
+        async function handleFormSubmit(e) {
+            e.preventDefault();
+            if (!APP_STATE.scannedWarga) return;
+
+            const nominalVal = parseInt(document.getElementById('inputNominal').value);
+            const catatanVal = document.getElementById('inputCatatan').value || "Lunas";
+
+            if (isNaN(nominalVal) || nominalVal <= 0) {
+                showToast("Nominal Salah", "Masukkan nominal uang yang valid.");
                 return;
             }
 
-            let csvContent = "data:text/csv;charset=utf-8,ID Transaksi,Tanggal Waktu,ID Warga,Nama Warga,RT,No Rumah,Nominal,Petugas\n";
-            transactionsData.forEach(t => {
-                csvContent += `"${t.id_transaksi}","${t.timestamp}","${t.id_warga}","${t.nama_warga}","${t.rt}","${t.no_rumah}",${t.nominal},"${t.petugas}"\n`;
+            // Create Transaction Record
+            const now = new Date();
+            const timeStr = now.getFullYear() + '-' +
+                String(now.getMonth() + 1).padStart(2, '0') + '-' +
+                String(now.getDate()).padStart(2, '0') + ' ' +
+                String(now.getHours()).padStart(2, '0') + ':' +
+                String(now.getMinutes()).padStart(2, '0') + ':' +
+                String(now.getSeconds()).padStart(2, '0');
+
+            const newTx = {
+                timestamp: timeStr,
+                idWarga: APP_STATE.scannedWarga.id,
+                namaWarga: APP_STATE.scannedWarga.name,
+                rt: APP_STATE.scannedWarga.rt,
+                nominal: nominalVal,
+                petugas: `${APP_STATE.currentUser.name} (${APP_STATE.currentUser.rtScope})`,
+                catatan: catatanVal
+            };
+
+            // Save to State & Local Storage
+            APP_STATE.transactions.unshift(newTx);
+            localStorage.setItem('ejimpitan_tx', JSON.stringify(APP_STATE.transactions));
+
+            // Sync to Google Sheets if configured
+            if (APP_STATE.sheetsUrl) {
+                sendToGoogleSheets(newTx);
+                showToast("Sync Google Sheets Sukses!", `Rp ${nominalVal.toLocaleString('id-ID')} dicatat untuk ${APP_STATE.scannedWarga.name}`);
+            } else {
+                showToast("Tersimpan di HP!", `Rp ${nominalVal.toLocaleString('id-ID')} dicatat (Lokal HP). Sambungkan Sheets untuk sync online.`);
+            }
+
+            // Reset Input Form
+            document.getElementById('jimpitanForm').reset();
+            document.getElementById('simWargaSelect').value = "";
+            document.getElementById('cardWargaId').innerText = "- ID WARGA -";
+            document.getElementById('cardWargaName').innerText = "Belum Ada Data Pemindaian";
+            document.getElementById('cardWargaAddress').innerText = "Silakan scan stiker warga atau gunakan selector simulator di samping.";
+            document.getElementById('cardWargaRt').innerText = "RT -- / RW 01";
+            document.getElementById('scanStatusBadge').className = "text-xs bg-slate-800 text-slate-400 font-semibold px-2.5 py-1 rounded-full border border-slate-700";
+            document.getElementById('scanStatusBadge').innerText = "Menunggu Scan...";
+
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.className = "w-full bg-slate-800 text-slate-500 font-bold py-3.5 rounded-xl transition duration-200 flex items-center justify-center space-x-2 shadow-lg cursor-not-allowed";
+
+            APP_STATE.scannedWarga = null;
+
+            // Update Tables & Charts
+            renderHistoryTable();
+            updateDashboardMetrics();
+        }
+
+        function updateDashboardMetrics() {
+            // Total Today
+            const todaySum = APP_STATE.transactions.reduce((acc, curr) => acc + curr.nominal, 0);
+            document.getElementById('statTodayTotal').innerText = `Rp ${todaySum.toLocaleString('id-ID')}`;
+
+            // Monthly Total
+            const monthSum = 1485000 + todaySum;
+            document.getElementById('statMonthTotal').innerText = `Rp ${monthSum.toLocaleString('id-ID')}`;
+
+            // Houses scanned count
+            const uniqueHouses = new Set(APP_STATE.transactions.map(t => t.idWarga)).size;
+            document.getElementById('statHouseCount').innerText = `${uniqueHouses} / 120 Warga`;
+            const pct = Math.min(100, Math.round((uniqueHouses / 120) * 100));
+            document.getElementById('statHouseBar').style.width = `${pct}%`;
+
+            // Active Officer Leaderboard Breakdown
+            const officerCounts = {};
+            APP_STATE.transactions.forEach(t => {
+                officerCounts[t.petugas] = (officerCounts[t.petugas] || 0) + 1;
             });
 
+            let topOfficer = "Pak Ahmad (RT 01)";
+            let maxCount = 0;
+            for (let off in officerCounts) {
+                if (officerCounts[off] > maxCount) {
+                    maxCount = officerCounts[off];
+                    topOfficer = off;
+                }
+            }
+            document.getElementById('statTopOfficer').innerText = topOfficer;
+            document.getElementById('statTopOfficerCount').innerText = `${maxCount} Transaksi Selesai`;
+
+            // Render Petugas Leaderboard List
+            const listEl = document.getElementById('petugasPerformanceList');
+            listEl.innerHTML = '';
+            
+            APP_STATE.users.filter(u => u.role.includes('Petugas')).forEach(p => {
+                const count = APP_STATE.transactions.filter(t => t.petugas.includes(p.name)).length;
+                const totalAmount = APP_STATE.transactions.filter(t => t.petugas.includes(p.name)).reduce((a, b) => a + b.nominal, 0);
+
+                const div = document.createElement('div');
+                div.className = "bg-slate-950 p-3 rounded-xl border border-slate-800 flex items-center justify-between";
+                div.innerHTML = `
+                    <div class="flex items-center space-x-3">
+                        <div class="w-8 h-8 rounded-lg bg-brand-950 border border-brand-800 text-brand-400 font-bold flex items-center justify-center text-xs">
+                            ${p.avatar}
+                        </div>
+                        <div>
+                            <p class="font-bold text-xs text-white">${p.name} <span class="text-[10px] text-slate-400">(${p.rtScope})</span></p>
+                            <p class="text-[10px] text-emerald-400 font-medium">Rp ${totalAmount.toLocaleString('id-ID')}</p>
+                        </div>
+                    </div>
+                    <span class="text-xs font-mono font-bold bg-slate-900 border border-slate-700 px-2 py-1 rounded text-slate-300">
+                        ${count} Input
+                    </span>
+                `;
+                listEl.appendChild(div);
+            });
+
+            // Update Chart
+            updateRtChart();
+        }
+
+        function initRtChart() {
+            const ctx = document.getElementById('rtChart').getContext('2d');
+            rtChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['RT 01', 'RT 02', 'RT 03', 'RT 04', 'RT 05', 'RT 06'],
+                    datasets: [{
+                        label: 'Perolehan Jimpitan (Rp)',
+                        data: [0, 0, 0, 0, 0, 0],
+                        backgroundColor: '#3b82f6',
+                        borderRadius: 8,
+                        hoverBackgroundColor: '#60a5fa'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        x: {
+                            grid: { color: '#1e293b' },
+                            ticks: { color: '#94a3b8' }
+                        },
+                        y: {
+                            grid: { color: '#1e293b' },
+                            ticks: { color: '#94a3b8' }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateRtChart() {
+            if (!rtChartInstance) return;
+            const rtTotals = [0, 0, 0, 0, 0, 0];
+            const rts = ['RT 01', 'RT 02', 'RT 03', 'RT 04', 'RT 05', 'RT 06'];
+
+            APP_STATE.transactions.forEach(t => {
+                const idx = rts.indexOf(t.rt);
+                if (idx !== -1) {
+                    rtTotals[idx] += t.nominal;
+                }
+            });
+
+            rtChartInstance.data.datasets[0].data = rtTotals;
+            rtChartInstance.update();
+        }
+
+        function renderHistoryTable() {
+            const filterRt = document.getElementById('filterRtSelect').value;
+            const tbody = document.getElementById('historyTableBody');
+            tbody.innerHTML = '';
+
+            const filtered = filterRt === 'ALL' 
+                ? APP_STATE.transactions 
+                : APP_STATE.transactions.filter(t => t.rt === filterRt);
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="text-center p-4 text-slate-500">Belum ada data penarikan jimpitan.</td></tr>`;
+                return;
+            }
+
+            filtered.forEach(t => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-800/40 transition";
+                tr.innerHTML = `
+                    <td class="p-3 font-mono text-[11px] text-slate-400">${t.timestamp}</td>
+                    <td class="p-3 font-mono text-brand-400 font-bold">${t.idWarga}</td>
+                    <td class="p-3 font-semibold text-white">${t.namaWarga}</td>
+                    <td class="p-3"><span class="bg-slate-800 border border-slate-700 px-2 py-0.5 rounded text-[10px] font-bold text-slate-300">${t.rt}</span></td>
+                    <td class="p-3 font-bold text-emerald-400">Rp ${t.nominal.toLocaleString('id-ID')}</td>
+                    <td class="p-3 text-slate-300">${t.petugas}</td>
+                    <td class="p-3 text-slate-400 italic">${t.catatan}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function exportToCSV() {
+            let csvContent = "data:text/csv;charset=utf-8,Waktu,ID Warga,Nama Warga,RT,Nominal,Petugas,Catatan\n";
+            APP_STATE.transactions.forEach(t => {
+                csvContent += `"${t.timestamp}","${t.idWarga}","${t.namaWarga}","${t.rt}",${t.nominal},"${t.petugas}","${t.catatan}"\n`;
+            });
             const encodedUri = encodeURI(csvContent);
             const link = document.createElement("a");
             link.setAttribute("href", encodedUri);
-            link.setAttribute("download", `Rekap_Jimpitan_Pekon_Panggungrejo_Utara_${new Date().toISOString().split('T')[0]}.csv`);
+            link.setAttribute("download", `Jimpitan_PanggungrejoUtara_${new Date().toISOString().slice(0,10)}.csv`);
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
+            showToast("Export Berhasil", "Berkas CSV telah terunduh.");
         }
 
-        function loadSampleData() {
-            residentsData = defaultSampleResidents;
-            saveWargaToStorage();
-            renderResidentDropdown();
-            renderResidentList();
-            renderPrintableCards();
-            showToast("Data contoh Pekon berhasil dimuat!", "success");
+        function renderQrCards() {
+            const container = document.getElementById('qrCardsContainer');
+            container.innerHTML = '';
+
+            APP_STATE.wargaList.forEach((w, index) => {
+                const card = document.createElement('div');
+                card.className = "bg-slate-950 border border-slate-800 rounded-2xl p-4 flex flex-col items-center text-center relative overflow-hidden";
+                
+                const qrDivId = `qrcode-${index}`;
+                
+                card.innerHTML = `
+                    <div class="w-full bg-brand-900/30 border-b border-slate-800 pb-2 mb-3 flex items-center justify-between px-2">
+                        <span class="text-[10px] font-bold text-brand-400 uppercase">E-JIMPITAN PEKON</span>
+                        <span class="text-[10px] font-semibold text-slate-400">${w.rt}</span>
+                    </div>
+                    <div id="${qrDivId}" class="bg-white p-2.5 rounded-xl shadow-md my-1"></div>
+                    <h4 class="font-bold text-white text-sm mt-3">${w.name}</h4>
+                    <p class="text-xs font-mono font-bold text-brand-400 mt-0.5">${w.id}</p>
+                    <p class="text-[11px] text-slate-400">${w.address}</p>
+                `;
+                container.appendChild(card);
+
+                // Generate QR Code via QRCode library
+                setTimeout(() => {
+                    new QRCode(document.getElementById(qrDivId), {
+                        text: w.id,
+                        width: 96,
+                        height: 96,
+                        colorDark : "#070b14",
+                        colorLight : "#ffffff",
+                        correctLevel : QRCode.CorrectLevel.H
+                    });
+                }, 50);
+            });
         }
 
-        function confirmResetData() {
-            if (window.confirm("Apakah Anda yakin ingin menghapus semua data lokal?")) {
-                localStorage.clear();
-                residentsData = [];
-                transactionsData = [];
-                renderResidentDropdown();
-                renderResidentList();
-                renderTransactionHistory();
-                renderPrintableCards();
-                showToast("Semua data lokal telah dibersihkan!", "info");
-            }
+        function renderUsersAccessTab() {
+            const grid = document.getElementById('usersListGrid');
+            grid.innerHTML = '';
+
+            APP_STATE.users.forEach(u => {
+                const card = document.createElement('div');
+                const isAdmin = u.role.includes('Superadmin');
+                card.className = `p-4 rounded-2xl border ${isAdmin ? 'bg-slate-900 border-amber-500/50 shadow-lg shadow-amber-500/10' : 'bg-slate-900 border-slate-800'}`;
+
+                card.innerHTML = `
+                    <div class="flex items-start justify-between">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 rounded-xl ${isAdmin ? 'bg-amber-500' : 'bg-brand-600'} text-white font-bold flex items-center justify-center text-sm shadow-md">
+                                ${u.avatar}
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-sm text-white">${u.name}</h4>
+                                <p class="text-xs text-brand-400 font-semibold">${u.role}</p>
+                            </div>
+                        </div>
+                        <span class="text-[10px] bg-slate-950 border border-slate-800 text-emerald-400 font-bold px-2 py-0.5 rounded-full">
+                            ${u.status}
+                        </span>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs text-slate-400">
+                        <span>Wilayah Penarikan:</span>
+                        <strong class="text-slate-200">${u.rtScope}</strong>
+                    </div>
+                    <div class="mt-1 flex items-center justify-between text-xs text-slate-400">
+                        <span>Kode Petugas:</span>
+                        <span class="font-mono text-slate-300 font-bold">${u.code}</span>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
         }
 
-        function updateNetworkStatus() {
-            const badge = document.getElementById('connection-status');
-            const statusText = document.getElementById('status-text');
-            if (navigator.onLine) {
-                statusText.innerText = "Online";
-                badge.className = "flex items-center gap-1 bg-emerald-950/70 text-emerald-200 text-xs px-2.5 py-1.5 rounded-xl border border-emerald-500/40 font-bold";
-            } else {
-                statusText.innerText = "Offline";
-                badge.className = "flex items-center gap-1 bg-amber-950/70 text-amber-200 text-xs px-2.5 py-1.5 rounded-xl border border-amber-500/40 font-bold";
-            }
-        }
+        function showToast(title, message) {
+            const toast = document.getElementById('toastNotification');
+            document.getElementById('toastTitle').innerText = title;
+            document.getElementById('toastMessage').innerText = message;
 
-        function checkPWAStandaloneMode() {
-            const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
-            const statusDesc = document.getElementById('pwa-status-description');
-            const pwaStandaloneBadge = document.getElementById('pwa-standalone-badge');
-
-            if (isStandalone) {
-                if (statusDesc) statusDesc.innerText = "Aplikasi berjalan dalam mode Fullscreen App (Bebas Bar Browser Chrome)";
-                if (pwaStandaloneBadge) {
-                    pwaStandaloneBadge.innerText = "Standalone App";
-                    pwaStandaloneBadge.className = "bg-emerald-400 text-emerald-950 text-xs font-black px-2.5 py-1 rounded-md uppercase";
-                }
-            } else {
-                if (statusDesc) statusDesc.innerText = "Aplikasi terbuka dalam browser tab (Belum terpasang sebagai App di HP)";
-            }
-            updatePWADiagnostics();
-        }
-
-        function updatePWADiagnostics() {
-            const protoBadge = document.getElementById('diag-protocol-badge');
-            const reasonText = document.getElementById('diag-reason-text');
-            if (!protoBadge || !reasonText) return;
-
-            const isHttps = window.location.protocol === 'https:';
-            const isLocal = window.location.protocol === 'file:';
-
-            if (isLocal) {
-                protoBadge.innerText = "FILE LOKAL";
-                protoBadge.className = "px-2 py-0.5 rounded text-[10px] font-black uppercase bg-rose-900 text-rose-200";
-                reasonText.innerHTML = "File dibuka secara lokal. Upload ke <b>GitHub Pages</b> agar tombol instal PWA aktif!";
-            } else if (isHttps) {
-                protoBadge.innerText = "HTTPS TERHUBUNG";
-                protoBadge.className = "px-2 py-0.5 rounded text-[10px] font-black uppercase bg-emerald-900 text-emerald-200";
-                reasonText.innerHTML = "Koneksi HTTPS GitHub Pages Aktif! Tekan menu <b>Titik Tiga (⋮)</b> di Chrome -> Pilih <b>'Instal aplikasi'</b>.";
-            } else {
-                protoBadge.innerText = "HTTP STANDARD";
-                protoBadge.className = "px-2 py-0.5 rounded text-[10px] font-black uppercase bg-amber-900 text-amber-200";
-                reasonText.innerHTML = "Pastikan tautan menggunakan HTTPS.";
-            }
-        }
-
-        function triggerPWAInstall(fromModal = false) {
-            if (deferredPWAInstallPrompt) {
-                deferredPWAInstallPrompt.prompt();
-                deferredPWAInstallPrompt.userChoice.then((choiceResult) => {
-                    if (choiceResult.outcome === 'accepted') {
-                        showToast("Aplikasi E-JIMPITAN berhasil dipasang!", "success");
-                    }
-                    deferredPWAInstallPrompt = null;
-                    dismissPWABanner();
-                    if (fromModal) closePWAHelpModal();
-                });
-            } else {
-                openPWAHelpModal();
-                if (fromModal) {
-                    showToast("Gunakan menu Titik Tiga (⋮) di Chrome -> 'Instal Aplikasi'", "info");
-                }
-            }
-        }
-
-        function dismissPWABanner() {
-            const banner = document.getElementById('pwa-install-banner');
-            if (banner) banner.classList.add('hidden');
-        }
-
-        /* Toast Notification Engine */
-        function showToast(msg, type = "info") {
-            const container = document.getElementById('toast-container');
-            const toast = document.createElement('div');
-
-            let bg = "bg-slate-900 text-white border border-slate-700";
-            if (type === "success") bg = "bg-emerald-800 text-white border border-emerald-600";
-            if (type === "error") bg = "bg-rose-800 text-white border border-rose-600";
-
-            toast.className = `${bg} px-4 py-3 rounded-2xl text-xs sm:text-sm font-bold shadow-2xl flex items-center gap-2.5 transition-all duration-300 opacity-0 transform translate-y-3`;
-            toast.innerHTML = `<i class="fa-solid fa-circle-info text-base shrink-0"></i> <span>${msg}</span>`;
-
-            container.appendChild(toast);
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
 
             setTimeout(() => {
-                toast.classList.remove('opacity-0', 'translate-y-3');
-            }, 10);
-
-            setTimeout(() => {
-                toast.classList.add('opacity-0', 'translate-y-3');
-                setTimeout(() => toast.remove(), 300);
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-20', 'opacity-0');
             }, 3000);
         }
     </script>
