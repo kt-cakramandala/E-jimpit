@@ -899,31 +899,612 @@ function createJsonResponse(obj) {
     </div>
 
     <script>
+        // --- 1. GLOBAL STATE & LOCAL STORAGE ---
+        const STORAGE_KEYS = {
+            USER: 'ejimpitan_current_user',
+            GSHEET_URL: 'ejimpitan_gsheet_url',
+            WARGA: 'ejimpitan_data_warga',
+            TX: 'ejimpitan_data_tx',
+            PETUGAS: 'ejimpitan_data_petugas',
+            DEFAULT_NOMINAL: 'ejimpitan_default_nominal'
+        };
+
+        let APP_STATE = {
+            currentUser: null,
+            googleSheetUrl: '',
+            defaultNominal: 1000,
+            wargaList: [],
+            transaksiList: [],
+            petugasList: [],
+            activeTab: 'dashboard',
+            chartInstance: null
+        };
+
+        let html5QrCode;
         let isProcessingScan = false;
+        let deleteActionCallback = null;
+        let pwaInstallPrompt = null;
+
+        // --- 2. PWA SETUP (MANIFEST & SERVICE WORKER) ---
+        function setupPWA() {
+            // Generate Dynamic Manifest
+            const manifest = {
+                "name": "E-Jimpitan Panggungrejo Utara",
+                "short_name": "E-Jimpitan",
+                "start_url": ".",
+                "display": "standalone",
+                "background_color": "#f8fafc",
+                "theme_color": "#15803d",
+                "icons": [
+                    {
+                        "src": "https://cdn-icons-png.flaticon.com/512/5166/5166160.png",
+                        "sizes": "512x512",
+                        "type": "image/png"
+                    }
+                ]
+            };
+            const manifestBlob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
+            document.getElementById('manifest-placeholder').href = URL.createObjectURL(manifestBlob);
+
+            // Generate Dynamic Service Worker
+            const swCode = `
+                self.addEventListener('install', (e) => self.skipWaiting());
+                self.addEventListener('activate', (e) => self.clients.claim());
+                self.addEventListener('fetch', (e) => {});
+            `;
+            const swBlob = new Blob([swCode], { type: 'text/javascript' });
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register(URL.createObjectURL(swBlob)).catch(err => console.log('SW Reg Failed', err));
+            }
+
+            // Listen for Install Prompt
+            window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                pwaInstallPrompt = e;
+                document.getElementById('pwa-install-banner').classList.remove('hidden');
+            });
+
+            document.getElementById('btn-pwa-install').addEventListener('click', async () => {
+                if (pwaInstallPrompt) {
+                    pwaInstallPrompt.prompt();
+                    const { outcome } = await pwaInstallPrompt.userChoice;
+                    if (outcome === 'accepted') dismissPwaBanner();
+                    pwaInstallPrompt = null;
+                }
+            });
+        }
+
+        function dismissPwaBanner() {
+            document.getElementById('pwa-install-banner').classList.add('hidden');
+        }
+
+        // --- 3. INITIALIZATION & DATA LOADING ---
+        window.onload = function() {
+            setupPWA();
+            loadLocalData();
+            checkAndApplyAuth();
+            renderUI();
+            
+            // Auto sync if gsheet url exists
+            if (APP_STATE.googleSheetUrl) {
+                syncAllWithGSheet();
+            } else {
+                document.getElementById('gsheet-status-alert').classList.remove('hidden');
+            }
+        };
+
+        function loadLocalData() {
+            // Load User
+            const savedUser = localStorage.getItem(STORAGE_KEYS.USER);
+            if (savedUser) APP_STATE.currentUser = JSON.parse(savedUser);
+
+            // Load Settings
+            APP_STATE.googleSheetUrl = localStorage.getItem(STORAGE_KEYS.GSHEET_URL) || '';
+            APP_STATE.defaultNominal = parseInt(localStorage.getItem(STORAGE_KEYS.DEFAULT_NOMINAL)) || 1000;
+            document.getElementById('setting-gsheet-url').value = APP_STATE.googleSheetUrl;
+            document.getElementById('setting-default-nominal').value = APP_STATE.defaultNominal;
+
+            // Load Petugas Defaults if empty
+            const savedPetugas = localStorage.getItem(STORAGE_KEYS.PETUGAS);
+            if (savedPetugas) {
+                APP_STATE.petugasList = JSON.parse(savedPetugas);
+            } else {
+                APP_STATE.petugasList = [
+                    { id: 'ADM1', nama: 'Super Admin', username: 'admin', role: 'SUPERADMIN', rt: 'ALL' },
+                    { id: 'PTG1', nama: 'Petugas RT 01', username: 'petugas1', role: 'PETUGAS', rt: 'RT 01' },
+                    { id: 'PTG2', nama: 'Petugas RT 02', username: 'petugas2', role: 'PETUGAS', rt: 'RT 02' }
+                ];
+                savePetugasToLocal();
+            }
+
+            // Load Warga
+            const savedWarga = localStorage.getItem(STORAGE_KEYS.WARGA);
+            APP_STATE.wargaList = savedWarga ? JSON.parse(savedWarga) : [];
+
+            // Load Tx
+            const savedTx = localStorage.getItem(STORAGE_KEYS.TX);
+            APP_STATE.transaksiList = savedTx ? JSON.parse(savedTx) : [];
+        }
+
+        // --- 4. AUTHENTICATION & NAVIGATION ---
+        function checkAndApplyAuth() {
+            const deskMenu = document.getElementById('desktop-menu');
+            const mobMenu = document.getElementById('mobile-menu');
+            const userInfo = document.getElementById('user-info-badge');
+            const btnLoginText = document.getElementById('login-btn-text');
+            const btnLoginIcon = document.getElementById('login-btn-icon');
+            
+            // Generate Links based on Role
+            let links = `<button onclick="switchTab('dashboard')" class="nav-link px-3 py-2 rounded-lg text-sm font-medium hover:bg-brand-700 transition"><i class="fa-solid fa-chart-pie mr-1"></i> Dashboard</button>`;
+            
+            if (APP_STATE.currentUser) {
+                const role = APP_STATE.currentUser.role;
+                if (role === 'SUPERADMIN' || role === 'PETUGAS') {
+                    links += `<button onclick="switchTab('scanner')" class="nav-link px-3 py-2 rounded-lg text-sm font-medium hover:bg-brand-700 transition"><i class="fa-solid fa-qrcode mr-1"></i> QR Scan</button>`;
+                    links += `<button onclick="switchTab('warga')" class="nav-link px-3 py-2 rounded-lg text-sm font-medium hover:bg-brand-700 transition"><i class="fa-solid fa-users mr-1"></i> Warga</button>`;
+                }
+                if (role === 'SUPERADMIN') {
+                    links += `<button onclick="switchTab('petugas')" class="nav-link px-3 py-2 rounded-lg text-sm font-medium hover:bg-brand-700 transition"><i class="fa-solid fa-user-shield mr-1"></i> Petugas</button>`;
+                    links += `<button onclick="switchTab('settings')" class="nav-link px-3 py-2 rounded-lg text-sm font-medium hover:bg-brand-700 transition"><i class="fa-solid fa-gear mr-1"></i> Settings</button>`;
+                }
+
+                userInfo.classList.remove('hidden');
+                document.getElementById('user-display-name').innerText = APP_STATE.currentUser.nama;
+                document.getElementById('user-display-role').innerText = role === 'SUPERADMIN' ? 'Administrator' : `Petugas ${APP_STATE.currentUser.rt}`;
+                
+                btnLoginText.innerText = 'Keluar';
+                btnLoginIcon.className = 'fa-solid fa-right-from-bracket';
+                document.getElementById('btn-login-modal').classList.replace('bg-brand-600', 'bg-red-600');
+                document.getElementById('btn-login-modal').classList.replace('hover:bg-brand-500', 'hover:bg-red-700');
+            } else {
+                userInfo.classList.add('hidden');
+                btnLoginText.innerText = 'Masuk';
+                btnLoginIcon.className = 'fa-solid fa-right-to-bracket';
+                document.getElementById('btn-login-modal').classList.replace('bg-red-600', 'bg-brand-600');
+                document.getElementById('btn-login-modal').classList.replace('hover:bg-red-700', 'hover:bg-brand-500');
+            }
+
+            deskMenu.innerHTML = links;
+            // Simplified mobile version
+            mobMenu.innerHTML = links.replace(/px-3 py-2/g, 'flex-col items-center justify-center p-2').replace(/mr-1/g, 'text-lg mb-1 block');
+            
+            highlightActiveNav();
+        }
+
+        function handleAuthButtonClick() {
+            if (APP_STATE.currentUser) {
+                // If logged in, open logout confirm
+                document.getElementById('modal-login-active-status').classList.remove('hidden');
+                document.getElementById('modal-active-user-text').innerText = `${APP_STATE.currentUser.nama} (${APP_STATE.currentUser.role})`;
+                document.getElementById('modal-login').classList.remove('hidden');
+            } else {
+                // Open login
+                document.getElementById('modal-login-active-status').classList.add('hidden');
+                document.getElementById('modal-login').classList.remove('hidden');
+            }
+        }
+
+        function closeLoginModal() {
+            document.getElementById('modal-login').classList.add('hidden');
+        }
+
+        function handleLoginSubmit(e) {
+            e.preventDefault();
+            const uname = document.getElementById('login-username').value;
+            // Simple mockup authentication using petugasList
+            const user = APP_STATE.petugasList.find(p => p.username === uname);
+            
+            if (user) {
+                doLogin(user);
+            } else if (uname === 'warga') {
+                doLogin({ id: 'W01', nama: 'Akun Warga', role: 'WARGA', rt: 'ALL' });
+            } else {
+                showToast('Username tidak ditemukan!', 'error');
+            }
+        }
+
+        function quickLogin(type) {
+            let user;
+            if (type === 'admin') user = APP_STATE.petugasList.find(p => p.role === 'SUPERADMIN') || { nama: 'Admin', role: 'SUPERADMIN', rt: 'ALL' };
+            if (type === 'petugas1') user = APP_STATE.petugasList.find(p => p.username === 'petugas1') || { nama: 'Petugas RT 01', role: 'PETUGAS', rt: 'RT 01' };
+            if (type === 'petugas2') user = APP_STATE.petugasList.find(p => p.username === 'petugas2') || { nama: 'Petugas RT 02', role: 'PETUGAS', rt: 'RT 02' };
+            if (type === 'warga') user = { nama: 'Warga Publik', role: 'WARGA', rt: 'ALL' };
+            
+            if(user) doLogin(user);
+        }
+
+        function doLogin(userObj) {
+            APP_STATE.currentUser = userObj;
+            localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(userObj));
+            closeLoginModal();
+            checkAndApplyAuth();
+            switchTab('dashboard');
+            renderUI();
+            showToast(`Berhasil masuk sebagai ${userObj.nama}`);
+        }
+
+        function handleLogout() {
+            APP_STATE.currentUser = null;
+            localStorage.removeItem(STORAGE_KEYS.USER);
+            closeLoginModal();
+            checkAndApplyAuth();
+            switchTab('dashboard');
+            renderUI();
+            showToast('Anda telah keluar dari sistem');
+        }
+
+        // --- 5. TAB NAVIGATION & RENDERING ---
+        function switchTab(tabId) {
+            // Prevent unauthorized access
+            if (!APP_STATE.currentUser && tabId !== 'dashboard') {
+                handleAuthButtonClick();
+                showToast('Silakan login untuk mengakses menu ini', 'error');
+                return;
+            }
+            if (APP_STATE.currentUser && APP_STATE.currentUser.role === 'WARGA' && tabId !== 'dashboard') {
+                showToast('Akun Warga hanya dapat melihat Dashboard Transparansi', 'error');
+                return;
+            }
+
+            APP_STATE.activeTab = tabId;
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+            
+            // Stop scanner if navigating away
+            if (tabId !== 'scanner' && html5QrCode) {
+                stopQRScanner();
+            }
+
+            highlightActiveNav();
+            renderUI();
+        }
+
+        function highlightActiveNav() {
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('bg-brand-900', 'text-white');
+                if (link.innerText.toLowerCase().includes(APP_STATE.activeTab.replace('settings','setting'))) {
+                    link.classList.add('bg-brand-900', 'text-white');
+                }
+            });
+        }
+
+        function renderUI() {
+            if (APP_STATE.activeTab === 'dashboard') {
+                updateDashboardStats();
+                renderRecentTransactions();
+                renderChart();
+            } else if (APP_STATE.activeTab === 'warga') {
+                renderWargaTable();
+                document.getElementById('btn-add-warga').classList.toggle('hidden', APP_STATE.currentUser.role !== 'SUPERADMIN');
+            } else if (APP_STATE.activeTab === 'petugas') {
+                renderPetugasTable();
+            } else if (APP_STATE.activeTab === 'scanner') {
+                setupScannerUI();
+            }
+        }
+
+        // --- 6. DASHBOARD & CHART ---
+        function updateDashboardStats() {
+            const totalDana = APP_STATE.transaksiList.reduce((sum, tx) => sum + parseInt(tx.nominal), 0);
+            document.getElementById('stat-total-dana').innerText = formatRupiah(totalDana);
+            
+            const currentMonth = new Date().getMonth();
+            const currentYear = new Date().getFullYear();
+            const monthlyDana = APP_STATE.transaksiList
+                .filter(tx => {
+                    const txDate = new Date(tx.date);
+                    return txDate.getMonth() === currentMonth && txDate.getFullYear() === currentYear;
+                })
+                .reduce((sum, tx) => sum + parseInt(tx.nominal), 0);
+            
+            document.getElementById('stat-monthly-dana').innerText = formatRupiah(monthlyDana);
+            document.getElementById('stat-month-label').innerText = new Date().toLocaleString('id-ID', { month: 'long', year: 'numeric' });
+            
+            document.getElementById('stat-total-warga').innerText = APP_STATE.wargaList.length;
+            document.getElementById('stat-total-transaksi').innerText = APP_STATE.transaksiList.length;
+        }
+
+        function renderRecentTransactions() {
+            const tbody = document.getElementById('table-recent-transactions');
+            const search = document.getElementById('search-transaksi') ? document.getElementById('search-transaksi').value.toLowerCase() : '';
+            
+            const sortedTx = [...APP_STATE.transaksiList].sort((a, b) => new Date(b.date) - new Date(a.date));
+            const filtered = sortedTx.filter(tx => tx.nama.toLowerCase().includes(search) || tx.rt.toLowerCase().includes(search));
+            
+            tbody.innerHTML = filtered.slice(0, 10).map(tx => `
+                <tr class="hover:bg-slate-50">
+                    <td class="p-3 text-[11px] text-slate-500">${new Date(tx.date).toLocaleString('id-ID')}</td>
+                    <td class="p-3 font-semibold text-slate-800">${tx.nama}</td>
+                    <td class="p-3"><span class="px-2 py-1 rounded-md bg-brand-50 text-brand-700 font-medium">${tx.rt}</span></td>
+                    <td class="p-3 font-bold text-emerald-600">${formatRupiah(tx.nominal)}</td>
+                    <td class="p-3 text-slate-500">${tx.petugas}</td>
+                </tr>
+            `).join('');
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-500 italic">Belum ada riwayat transaksi jimpitan.</td></tr>`;
+            }
+        }
+
+        function filterTransactions() {
+            renderRecentTransactions();
+        }
+
+        function renderChart() {
+            const ctx = document.getElementById('rtChart').getContext('2d');
+            const rts = ['RT 01', 'RT 02', 'RT 03', 'RT 04', 'RT 05', 'RT 06'];
+            const data = rts.map(rt => {
+                return APP_STATE.transaksiList
+                    .filter(tx => tx.rt === rt)
+                    .reduce((sum, tx) => sum + parseInt(tx.nominal), 0);
+            });
+
+            if (APP_STATE.chartInstance) APP_STATE.chartInstance.destroy();
+
+            APP_STATE.chartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: rts,
+                    datasets: [{
+                        label: 'Total Terkumpul (Rp)',
+                        data: data,
+                        backgroundColor: '#22c55e',
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { beginAtZero: true, ticks: { callback: value => 'Rp ' + value.toLocaleString('id-ID') } }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+
+        // --- 7. QR SCANNER & AUDIO FEEDBACK ---
+        function setupScannerUI() {
+            const badge = document.getElementById('scanner-rt-restriction-badge');
+            if (APP_STATE.currentUser.role === 'SUPERADMIN') {
+                badge.className = 'inline-block bg-purple-100 text-purple-800 font-semibold text-xs px-3.5 py-1 rounded-full mb-2';
+                badge.innerText = 'Akses Mode: Superadmin (Semua RT)';
+            } else {
+                badge.className = 'inline-block bg-brand-100 text-brand-800 font-semibold text-xs px-3.5 py-1 rounded-full mb-2';
+                badge.innerText = `Akses Mode: Petugas Khusus ${APP_STATE.currentUser.rt}`;
+            }
+        }
+
+        function checkAccessAndOpenScanner() {
+            if (!APP_STATE.currentUser || APP_STATE.currentUser.role === 'WARGA') {
+                handleAuthButtonClick();
+                return;
+            }
+            switchTab('scanner');
+            startQRScanner();
+        }
+
+        function playSuccessBeep() {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = ctx.createOscillator();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(1000, ctx.currentTime);
+                osc.connect(ctx.destination);
+                osc.start();
+                osc.stop(ctx.currentTime + 0.15); // 150ms beep
+            } catch (e) {
+                console.log("Audio not supported or blocked");
+            }
+        }
+
+        function startQRScanner() {
+            if (!html5QrCode) html5QrCode = new Html5Qrcode("qr-reader");
+            
+            document.getElementById('btn-start-scanner').classList.add('hidden');
+            document.getElementById('btn-stop-scanner').classList.remove('hidden');
+
+            const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+            html5QrCode.start({ facingMode: "environment" }, config, onScanSuccess)
+                .catch(err => {
+                    showToast('Gagal mengakses kamera. Periksa izin browser.', 'error');
+                    stopQRScanner();
+                });
+        }
+
+        function stopQRScanner() {
+            if (html5QrCode && html5QrCode.isScanning) {
+                html5QrCode.stop().then(() => {
+                    document.getElementById('btn-start-scanner').classList.remove('hidden');
+                    document.getElementById('btn-stop-scanner').classList.add('hidden');
+                });
+            }
+        }
 
         function onScanSuccess(decodedText) {
             if (isProcessingScan) return;
-            isProcessingScan = true;
+            isProcessingScan = true; // Throttle to prevent multiple rapid scans
             
             playSuccessBeep();
             
-            // Show flash visual feedback
+            // Visual Flash feedback
             const flash = document.getElementById('scan-success-flash');
             if (flash) {
                 flash.classList.remove('hidden');
-                setTimeout(() => flash.classList.add('hidden'), 1000);
+                setTimeout(() => flash.classList.add('hidden'), 500);
             }
 
             processScannedWargaData(decodedText);
             
-            setTimeout(() => {
-                isProcessingScan = false;
-            }, 1500);
+            setTimeout(() => { isProcessingScan = false; }, 2000);
         }
 
+        function processManualQR() {
+            const input = document.getElementById('manual-qr-input').value.trim();
+            if (!input) return;
+            processScannedWargaData(input);
+            document.getElementById('manual-qr-input').value = '';
+        }
+
+        function processScannedWargaData(wargaId) {
+            const warga = APP_STATE.wargaList.find(w => w.id === wargaId || w.nik === wargaId);
+            
+            if (!warga) {
+                showToast('Data Warga tidak ditemukan!', 'error');
+                return;
+            }
+
+            // Role based RT checking
+            if (APP_STATE.currentUser.role === 'PETUGAS' && APP_STATE.currentUser.rt !== warga.rt) {
+                showToast(`Ditolak! Warga ini wilayah ${warga.rt}, Anda bertugas di ${APP_STATE.currentUser.rt}`, 'error');
+                return;
+            }
+
+            // Open Input Nominal Modal
+            document.getElementById('modal-tx-nama').innerText = warga.nama;
+            document.getElementById('modal-tx-rt').innerText = `Wilayah: ${warga.rt}`;
+            document.getElementById('modal-tx-nik').innerText = `NIK: ${warga.nik}`;
+            document.getElementById('tx-nominal-input').value = APP_STATE.defaultNominal;
+            document.getElementById('modal-transaksi').setAttribute('data-warga-id', warga.id);
+            document.getElementById('modal-transaksi').classList.remove('hidden');
+        }
+
+        // --- 8. TRANSAKSI (JIMPITAN SETORAN) ---
+        function setNominalQuick(val) {
+            document.getElementById('tx-nominal-input').value = val;
+        }
+
+        function closeTransaksiModal() {
+            document.getElementById('modal-transaksi').classList.add('hidden');
+        }
+
+        function saveTransaksiSubmit() {
+            const wargaId = document.getElementById('modal-transaksi').getAttribute('data-warga-id');
+            const nominal = parseInt(document.getElementById('tx-nominal-input').value);
+            
+            if (nominal < 500 || isNaN(nominal)) {
+                showToast('Nominal tidak valid!', 'error');
+                return;
+            }
+
+            const warga = APP_STATE.wargaList.find(w => w.id === wargaId);
+            
+            const newTx = {
+                id: 'TX' + Date.now(),
+                date: new Date().toISOString(),
+                wargaId: warga.id,
+                nama: warga.nama,
+                rt: warga.rt,
+                nominal: nominal,
+                petugas: APP_STATE.currentUser.nama
+            };
+
+            APP_STATE.transaksiList.push(newTx);
+            saveTxToLocal();
+            closeTransaksiModal();
+            showToast(`Berhasil menyimpan jimpitan Rp ${nominal} dari ${warga.nama}`);
+
+            // Background sync
+            if (APP_STATE.googleSheetUrl) {
+                fetch(APP_STATE.googleSheetUrl, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: "addTransaksi", ...newTx })
+                }).catch(e => console.log('Silently failed to sync', e));
+            }
+        }
+
+        // --- 9. CRUD WARGA ---
+        function renderWargaTable() {
+            const tbody = document.getElementById('table-warga-body');
+            const filterRt = document.getElementById('filter-rt-warga').value;
+            const search = document.getElementById('search-warga').value.toLowerCase();
+            const isSuperadmin = APP_STATE.currentUser && APP_STATE.currentUser.role === 'SUPERADMIN';
+
+            // Filter data
+            let filtered = APP_STATE.wargaList.filter(w => {
+                const matchRt = filterRt === 'ALL' || w.rt === filterRt;
+                const matchSearch = w.nama.toLowerCase().includes(search) || w.nik.toLowerCase().includes(search);
+                // Petugas can only see their RT
+                const roleAllowed = isSuperadmin || (APP_STATE.currentUser && w.rt === APP_STATE.currentUser.rt);
+                return matchRt && matchSearch && roleAllowed;
+            });
+
+            tbody.innerHTML = filtered.map(w => `
+                <tr class="hover:bg-slate-50">
+                    <td class="p-3 text-[11px] text-slate-500 font-mono">${w.nik}</td>
+                    <td class="p-3 font-semibold text-slate-800">${w.nama}</td>
+                    <td class="p-3 font-medium text-slate-600">${w.rt}</td>
+                    <td class="p-3 text-slate-500">${w.alamat}</td>
+                    <td class="p-3 text-center">
+                        <button onclick="openQrCardModal('${w.id}')" class="bg-brand-50 text-brand-600 hover:bg-brand-100 p-2 rounded-lg transition"><i class="fa-solid fa-qrcode"></i></button>
+                    </td>
+                    <td class="p-3 text-right">
+                        ${isSuperadmin ? `
+                            <button onclick="editWarga('${w.id}')" class="text-slate-400 hover:text-brand-600 p-1 text-xs"><i class="fa-solid fa-pen-to-square"></i></button>
+                            <button onclick="promptDeleteWarga('${w.id}')" class="text-slate-400 hover:text-red-600 p-1 text-xs"><i class="fa-solid fa-trash-can"></i></button>
+                        ` : '-'}
+                    </td>
+                </tr>
+            `).join('');
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-slate-500 italic">Data warga tidak ditemukan.</td></tr>`;
+            }
+        }
+
+        function openWargaModal(editId = null) {
+            document.getElementById('modal-warga').classList.remove('hidden');
+            document.getElementById('form-warga').reset();
+            
+            if (editId) {
+                const w = APP_STATE.wargaList.find(x => x.id === editId);
+                document.getElementById('warga-id-edit').value = w.id;
+                document.getElementById('warga-nik').value = w.nik;
+                document.getElementById('warga-nama').value = w.nama;
+                document.getElementById('warga-rt').value = w.rt;
+                document.getElementById('warga-alamat').value = w.alamat;
+                document.getElementById('modal-warga-title').innerText = 'Edit Data Warga';
+            } else {
+                document.getElementById('warga-id-edit').value = '';
+                document.getElementById('modal-warga-title').innerText = 'Tambah Data Warga Baru';
+            }
+        }
+
+        function editWarga(id) { openWargaModal(id); }
+        function closeWargaModal() { document.getElementById('modal-warga').classList.add('hidden'); }
+
+        function saveWargaSubmit(e) {
+            e.preventDefault();
+            const editId = document.getElementById('warga-id-edit').value;
+            const wData = {
+                nik: document.getElementById('warga-nik').value,
+                nama: document.getElementById('warga-nama').value,
+                rt: document.getElementById('warga-rt').value,
+                alamat: document.getElementById('warga-alamat').value
+            };
+
+            if (editId) {
+                const idx = APP_STATE.wargaList.findIndex(w => w.id === editId);
+                APP_STATE.wargaList[idx] = { ...APP_STATE.wargaList[idx], ...wData };
+                showToast('Data warga diperbarui!');
+            } else {
+                wData.id = 'WRG' + Date.now();
+                APP_STATE.wargaList.push(wData);
+                showToast('Warga baru ditambahkan!');
+            }
+
+            saveWargaToLocal();
+            syncWargaToCloud();
+            renderWargaTable();
+            closeWargaModal();
+        }
+
+        // --- 10. CRUD PETUGAS (SUPERADMIN ONLY) ---
         function renderPetugasTable() {
             const tbody = document.getElementById('table-petugas-body');
-            const isSuperadmin = APP_STATE.currentUser.role === 'SUPERADMIN';
+            const isSuperadmin = APP_STATE.currentUser && APP_STATE.currentUser.role === 'SUPERADMIN';
 
             tbody.innerHTML = APP_STATE.petugasList.map(p => `
                 <tr class="hover:bg-slate-50">
@@ -964,13 +1545,8 @@ function createJsonResponse(obj) {
             }
         }
 
-        function editPetugas(id) {
-            openPetugasModal(id);
-        }
-
-        function closePetugasModal() {
-            document.getElementById('modal-petugas').classList.add('hidden');
-        }
+        function editPetugas(id) { openPetugasModal(id); }
+        function closePetugasModal() { document.getElementById('modal-petugas').classList.add('hidden'); }
 
         function savePetugasSubmit(e) {
             e.preventDefault();
@@ -989,23 +1565,11 @@ function createJsonResponse(obj) {
             if (editId) {
                 const idx = APP_STATE.petugasList.findIndex(p => p.id === editId);
                 if (idx !== -1) {
-                    APP_STATE.petugasList[idx] = {
-                        ...APP_STATE.petugasList[idx],
-                        nama,
-                        username,
-                        rt
-                    };
+                    APP_STATE.petugasList[idx] = { ...APP_STATE.petugasList[idx], nama, username, rt };
                     showToast(`Data petugas ${nama} berhasil diperbarui!`);
                 }
             } else {
-                const newPetugas = {
-                    id: 'PTG' + Date.now(),
-                    nama,
-                    username,
-                    role: 'PETUGAS',
-                    rt
-                };
-                APP_STATE.petugasList.push(newPetugas);
+                APP_STATE.petugasList.push({ id: 'PTG' + Date.now(), nama, username, role: 'PETUGAS', rt });
                 showToast(`Petugas ${nama} berhasil ditambahkan!`);
             }
 
@@ -1015,49 +1579,233 @@ function createJsonResponse(obj) {
             closePetugasModal();
         }
 
-        function syncAllWithGSheet() {
-            if (!APP_STATE.googleSheetUrl) return;
-            showToast('Menyinkronkan data dengan Google Sheets...');
+        // --- 11. DELETE CONFIRMATION (REPLACES BROWSER CONFIRM) ---
+        function promptDeletePetugas(id) {
+            const p = APP_STATE.petugasList.find(x => x.id === id);
+            document.getElementById('confirm-delete-title').innerText = 'Hapus Petugas RT';
+            document.getElementById('confirm-delete-message').innerText = `Yakin menghapus hak akses untuk ${p.nama}?`;
+            document.getElementById('modal-confirm-delete').classList.remove('hidden');
+            
+            document.getElementById('btn-confirm-delete-yes').onclick = function() {
+                APP_STATE.petugasList = APP_STATE.petugasList.filter(x => x.id !== id);
+                savePetugasToLocal();
+                syncPetugasToCloud();
+                renderPetugasTable();
+                closeDeleteConfirmModal();
+                showToast('Petugas berhasil dihapus');
+            };
+        }
 
-            // Fetch Warga
+        function promptDeleteWarga(id) {
+            const w = APP_STATE.wargaList.find(x => x.id === id);
+            document.getElementById('confirm-delete-title').innerText = 'Hapus Data Warga';
+            document.getElementById('confirm-delete-message').innerText = `Yakin menghapus data warga ${w.nama}? Transaksi terkait tidak terhapus otomatis.`;
+            document.getElementById('modal-confirm-delete').classList.remove('hidden');
+            
+            document.getElementById('btn-confirm-delete-yes').onclick = function() {
+                APP_STATE.wargaList = APP_STATE.wargaList.filter(x => x.id !== id);
+                saveWargaToLocal();
+                syncWargaToCloud();
+                renderWargaTable();
+                closeDeleteConfirmModal();
+                showToast('Warga berhasil dihapus');
+            };
+        }
+
+        function closeDeleteConfirmModal() {
+            document.getElementById('modal-confirm-delete').classList.add('hidden');
+        }
+
+        // --- 12. PRINTING (QR & LAPORAN) ---
+        function generateQRCode(elementId, text) {
+            document.getElementById(elementId).innerHTML = '';
+            new QRCode(document.getElementById(elementId), {
+                text: text,
+                width: 128,
+                height: 128,
+                colorDark : "#000000",
+                colorLight : "#ffffff",
+                correctLevel : QRCode.CorrectLevel.H
+            });
+        }
+
+        function openQrCardModal(wargaId) {
+            const w = APP_STATE.wargaList.find(x => x.id === wargaId);
+            document.getElementById('card-warga-nama').innerText = w.nama;
+            document.getElementById('card-warga-rt').innerText = w.rt;
+            document.getElementById('card-warga-nik').innerText = `NIK: ${w.nik}`;
+            generateQRCode('qrcode-container', w.id);
+            document.getElementById('modal-qr-card').classList.remove('hidden');
+        }
+        function closeQrCardModal() { document.getElementById('modal-qr-card').classList.add('hidden'); }
+
+        function openBatchQrModal() {
+            document.getElementById('modal-batch-qr').classList.remove('hidden');
+            renderBatchQrCards();
+        }
+        function closeBatchQrModal() { document.getElementById('modal-batch-qr').classList.add('hidden'); }
+
+        function renderBatchQrCards() {
+            const filterRt = document.getElementById('batch-qr-filter-rt').value;
+            const grid = document.getElementById('batch-qr-grid');
+            grid.innerHTML = '';
+            
+            const filteredWarga = filterRt === 'ALL' ? APP_STATE.wargaList : APP_STATE.wargaList.filter(w => w.rt === filterRt);
+            
+            filteredWarga.forEach((w, index) => {
+                const cardDiv = document.createElement('div');
+                cardDiv.className = 'bg-white border-2 border-brand-600 p-4 rounded-xl text-center space-y-2 break-inside-avoid ' + ((index + 1) % 9 === 0 ? 'page-break' : '');
+                cardDiv.innerHTML = `
+                    <p class="text-[9px] font-bold tracking-widest text-brand-800 uppercase">E-JIMPITAN PEKON</p>
+                    <div id="batch-qr-${w.id}" class="flex justify-center my-2"></div>
+                    <h3 class="font-bold text-slate-800 text-sm truncate">${w.nama}</h3>
+                    <p class="text-[11px] text-brand-700 font-medium">${w.rt}</p>
+                `;
+                grid.appendChild(cardDiv);
+                setTimeout(() => generateQRCode(`batch-qr-${w.id}`, w.id), 10);
+            });
+        }
+
+        function openLaporanModal() {
+            document.getElementById('modal-laporan').classList.remove('hidden');
+            document.getElementById('lap-date-label').innerText = new Date().toLocaleDateString('id-ID', {day: 'numeric', month: 'long', year: 'numeric'});
+            document.getElementById('lap-sign-date').innerText = new Date().toLocaleDateString('id-ID', {day: 'numeric', month: 'long', year: 'numeric'});
+            renderLaporanPreview();
+        }
+        function closeLaporanModal() { document.getElementById('modal-laporan').classList.add('hidden'); }
+
+        function renderLaporanPreview() {
+            const rt = document.getElementById('laporan-filter-rt').value;
+            const tbody = document.getElementById('laporan-table-body');
+            
+            document.getElementById('lap-rt-label').innerText = rt === 'ALL' ? 'Semua Wilayah RT (RT 01 - RT 06)' : `Wilayah Khusus ${rt}`;
+            
+            const filtered = rt === 'ALL' ? APP_STATE.transaksiList : APP_STATE.transaksiList.filter(tx => tx.rt === rt);
+            const sorted = filtered.sort((a,b) => new Date(a.date) - new Date(b.date));
+            
+            let total = 0;
+            tbody.innerHTML = sorted.map((tx, idx) => {
+                total += parseInt(tx.nominal);
+                return `
+                <tr class="border-b border-slate-300">
+                    <td class="p-2 border border-slate-300 text-center">${idx + 1}</td>
+                    <td class="p-2 border border-slate-300 whitespace-nowrap">${new Date(tx.date).toLocaleDateString('id-ID')}</td>
+                    <td class="p-2 border border-slate-300">${tx.nama}</td>
+                    <td class="p-2 border border-slate-300 text-center">${tx.rt}</td>
+                    <td class="p-2 border border-slate-300 text-right font-medium">${formatRupiah(tx.nominal)}</td>
+                    <td class="p-2 border border-slate-300 text-[10px] text-slate-500">${tx.petugas}</td>
+                </tr>
+                `;
+            }).join('');
+
+            if(sorted.length === 0) tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center">Belum ada transaksi di wilayah ini</td></tr>`;
+            document.getElementById('lap-total-label').innerText = formatRupiah(total);
+        }
+
+        // --- 13. SETTINGS, STORAGE & GSHEET SYNC ---
+        function autoSaveGsheetUrl(val) {
+            APP_STATE.googleSheetUrl = val;
+            localStorage.setItem(STORAGE_KEYS.GSHEET_URL, val);
+            if(val.startsWith('http')) {
+                document.getElementById('gsheet-status-alert').classList.add('hidden');
+                showToast('URL Google Sheets otomatis tersimpan');
+            }
+        }
+
+        function saveSettings() {
+            APP_STATE.googleSheetUrl = document.getElementById('setting-gsheet-url').value;
+            APP_STATE.defaultNominal = parseInt(document.getElementById('setting-default-nominal').value);
+            
+            localStorage.setItem(STORAGE_KEYS.GSHEET_URL, APP_STATE.googleSheetUrl);
+            localStorage.setItem(STORAGE_KEYS.DEFAULT_NOMINAL, APP_STATE.defaultNominal);
+            
+            if(APP_STATE.googleSheetUrl) document.getElementById('gsheet-status-alert').classList.add('hidden');
+            showToast('Konfigurasi sistem berhasil disimpan!');
+            if (APP_STATE.googleSheetUrl) syncAllWithGSheet();
+        }
+
+        function testGSheetConnection() {
+            if(!APP_STATE.googleSheetUrl) return showToast('Masukkan URL Web App GAS dahulu!', 'error');
             fetch(APP_STATE.googleSheetUrl + '?op=getWarga')
                 .then(r => r.json())
-                .then(rows => {
-                    if (Array.isArray(rows) && rows.length > 1) {
-                        APP_STATE.wargaList = rows.slice(1).map(r => ({
-                            id: r[0], nik: r[1], nama: r[2], rt: r[3], alamat: r[4]
-                        }));
-                        saveWargaToLocal();
-                        renderWargaTable();
-                    }
-                }).catch(e => console.log('Warga sync error', e));
+                .then(() => showToast('Koneksi ke Google Sheets Berhasil!'))
+                .catch(() => showToast('Koneksi Gagal. Periksa URL dan Hak Akses GAS.', 'error'));
+        }
 
-            // Fetch Transaksi
-            fetch(APP_STATE.googleSheetUrl + '?op=getTransaksi')
-                .then(r => r.json())
-                .then(rows => {
-                    if (Array.isArray(rows) && rows.length > 1) {
-                        APP_STATE.transaksiList = rows.slice(1).map(r => ({
-                            date: r[0], wargaId: r[1], nama: r[2], rt: r[3], nominal: r[4], petugas: r[5]
-                        }));
-                        saveTxToLocal();
-                        updateDashboardStats();
-                        renderRecentTransactions();
-                    }
-                }).catch(e => console.log('Tx sync error', e));
+        function copyGasCode() {
+            const code = document.getElementById('gas-script-code');
+            code.select();
+            document.execCommand('copy');
+            showToast('Kode GAS berhasil disalin ke clipboard');
+        }
 
-            // Fetch Petugas
-            fetch(APP_STATE.googleSheetUrl + '?op=getPetugas')
-                .then(r => r.json())
-                .then(rows => {
-                    if (Array.isArray(rows) && rows.length > 1) {
-                        APP_STATE.petugasList = rows.slice(1).map(r => ({
-                            id: r[0], nama: r[1], username: r[2], role: r[3], rt: r[4]
-                        }));
-                        savePetugasToLocal();
-                        renderPetugasTable();
-                    }
-                }).catch(e => console.log('Petugas sync error', e));
+        function syncAllWithGSheet() {
+            if (!APP_STATE.googleSheetUrl) return;
+            showToast('Menyinkronkan data dengan Google Sheets...', 'info');
+
+            // 1. Fetch Warga
+            fetch(APP_STATE.googleSheetUrl + '?op=getWarga').then(r => r.json()).then(rows => {
+                if (Array.isArray(rows) && rows.length > 1) {
+                    APP_STATE.wargaList = rows.slice(1).map(r => ({id: r[0], nik: r[1], nama: r[2], rt: r[3], alamat: r[4]}));
+                    saveWargaToLocal(); renderWargaTable();
+                }
+            }).catch(e => console.log('Warga sync err', e));
+
+            // 2. Fetch Transaksi
+            fetch(APP_STATE.googleSheetUrl + '?op=getTransaksi').then(r => r.json()).then(rows => {
+                if (Array.isArray(rows) && rows.length > 1) {
+                    APP_STATE.transaksiList = rows.slice(1).map(r => ({date: r[0], wargaId: r[1], nama: r[2], rt: r[3], nominal: r[4], petugas: r[5]}));
+                    saveTxToLocal(); updateDashboardStats(); renderRecentTransactions(); renderChart();
+                }
+            }).catch(e => console.log('Tx sync err', e));
+
+            // 3. Fetch Petugas
+            fetch(APP_STATE.googleSheetUrl + '?op=getPetugas').then(r => r.json()).then(rows => {
+                if (Array.isArray(rows) && rows.length > 1) {
+                    APP_STATE.petugasList = rows.slice(1).map(r => ({id: r[0], nama: r[1], username: r[2], role: r[3], rt: r[4]}));
+                    savePetugasToLocal(); renderPetugasTable();
+                }
+            }).catch(e => console.log('Petugas sync err', e));
+        }
+
+        function syncWargaToCloud() {
+            if (!APP_STATE.googleSheetUrl) return;
+            fetch(APP_STATE.googleSheetUrl, {
+                method: 'POST', mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: "syncWarga", data: APP_STATE.wargaList })
+            });
+        }
+
+        function syncPetugasToCloud() {
+            if (!APP_STATE.googleSheetUrl) return;
+            fetch(APP_STATE.googleSheetUrl, {
+                method: 'POST', mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: "syncPetugas", data: APP_STATE.petugasList })
+            });
+        }
+
+        // --- 14. HELPER FUNCTIONS ---
+        function saveWargaToLocal() { localStorage.setItem(STORAGE_KEYS.WARGA, JSON.stringify(APP_STATE.wargaList)); }
+        function saveTxToLocal() { localStorage.setItem(STORAGE_KEYS.TX, JSON.stringify(APP_STATE.transaksiList)); }
+        function savePetugasToLocal() { localStorage.setItem(STORAGE_KEYS.PETUGAS, JSON.stringify(APP_STATE.petugasList)); }
+        
+        function formatRupiah(num) {
+            return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(num);
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const icon = document.getElementById('toast-icon');
+            document.getElementById('toast-message').innerText = message;
+            
+            icon.className = type === 'success' ? 'fa-solid fa-circle-check text-brand-400 text-lg' :
+                             type === 'error' ? 'fa-solid fa-circle-exclamation text-red-400 text-lg' : 
+                             'fa-solid fa-circle-info text-blue-400 text-lg';
+            
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => toast.classList.add('translate-y-20', 'opacity-0'), 3000);
         }
     </script>
 </body>
