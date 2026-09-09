@@ -5,14 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>E-Jimpitan Panggungrejo Utara</title>
     
-    <!-- Meta PWA -->
     <meta name="theme-color" content="#16a34a">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link id="manifest-link" rel="manifest" href="">
     <link rel="apple-touch-icon" href="https://placehold.co/192x192/16a34a/ffffff?text=EJ">
 
-    <!-- Libraries -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
@@ -33,13 +31,11 @@
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
         body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
         
-        /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
-        /* Print Media Styles */
         @media print {
             @page { margin: 5mm; }
             body * { visibility: hidden; }
@@ -49,33 +45,30 @@
                 background: white; color: black; padding: 0 !important; margin: 0 !important;
             }
             .no-print { display: none !important; }
-            .page-break { page-break-after: always; }
             
-            /* Responsive Grid untuk Cetak QR via HP */
             #batch-qr-grid {
                 display: grid !important;
                 grid-template-columns: repeat(3, 1fr) !important;
-                gap: 10px !important;
-                align-items: start;
+                gap: 15px !important;
                 width: 100%;
+                justify-items: center;
             }
             .qr-card-print {
-                border: 1px solid #000; padding: 8px; border-radius: 4px;
+                border: 2px dashed #333; padding: 10px; border-radius: 8px;
                 text-align: center; width: 100%; box-sizing: border-box;
                 page-break-inside: avoid;
             }
         }
         
-        .flash-effect { animation: flashGreen 0.5s ease-out; }
+        .flash-effect { animation: flashGreen 0.4s ease-out; }
         @keyframes flashGreen {
-            0% { background-color: rgba(34, 197, 94, 0.4); }
+            0% { background-color: rgba(34, 197, 94, 0.5); }
             100% { background-color: transparent; }
         }
     </style>
 </head>
 <body class="text-slate-800 antialiased h-screen flex flex-col overflow-hidden transition-colors duration-300">
 
-    <!-- PWA Install Banner -->
     <div id="pwa-banner" class="hidden bg-brand-600 text-white px-4 py-3 flex justify-between items-center shadow-md z-50">
         <div class="flex items-center gap-3">
             <i class="fa-solid fa-mobile-screen-button text-xl"></i>
@@ -89,7 +82,6 @@
         </button>
     </div>
 
-    <!-- Header -->
     <header class="bg-white shadow-sm border-b border-slate-100 z-40 relative no-print">
         <div class="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
             <div class="flex items-center gap-3">
@@ -98,27 +90,25 @@
                 </div>
                 <div>
                     <h1 class="font-bold text-lg leading-tight text-slate-800">E-Jimpitan</h1>
-                    <p class="text-[10px] font-medium text-slate-500 uppercase tracking-wider">Pekon Panggungrejo Utara</p>
+                    <p class="text-[10px] font-medium text-slate-500 uppercase tracking-wider">Panggungrejo Utara</p>
                 </div>
             </div>
             <div class="flex items-center gap-3">
                 <span id="user-role-badge" class="hidden px-2.5 py-1 bg-brand-100 text-brand-700 rounded-lg text-xs font-bold border border-brand-200"></span>
-                <button id="btn-logout" onclick="promptLogout()" class="hidden text-slate-400 hover:text-red-500 transition">
+                <button id="btn-logout" onclick="promptLogout()" class="hidden text-slate-400 hover:text-red-500 transition" title="Keluar Aplikasi">
                     <i class="fa-solid fa-arrow-right-from-bracket text-lg"></i>
                 </button>
             </div>
         </div>
     </header>
 
-    <!-- Main Content -->
     <main class="flex-1 overflow-y-auto relative no-print bg-slate-50" id="main-container">
         
-        <!-- SECTION: LOGIN -->
         <section id="sec-login" class="max-w-md mx-auto p-6 mt-10">
             <div class="bg-white rounded-2xl shadow-xl border border-slate-100 p-6 md:p-8">
                 <div class="text-center mb-6">
                     <h2 class="text-2xl font-bold text-slate-800">Selamat Datang</h2>
-                    <p class="text-sm text-slate-500 mt-1">Silakan masuk untuk melanjutkan</p>
+                    <p class="text-sm text-slate-500 mt-1">Silakan masuk ke sistem E-Jimpitan</p>
                 </div>
                 
                 <form id="login-form" onsubmit="handleLogin(event)" class="space-y-4">
@@ -146,44 +136,38 @@
                     <button onclick="loginAsWarga()" class="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium rounded-xl transition text-sm flex items-center justify-center gap-2">
                         <i class="fa-regular fa-eye"></i> Akses Mode Warga
                     </button>
-                    <p class="text-[10px] text-slate-400 mt-2">Login default warga: Username <b>warga</b> | Pass <b>warga123</b></p>
                 </div>
             </div>
         </section>
 
-        <!-- SECTION: APP CONTENT -->
         <section id="sec-app" class="hidden max-w-5xl mx-auto p-4 pb-24 space-y-6">
             
-            <!-- Navbar / Tabs -->
             <div id="nav-tabs" class="flex overflow-x-auto hide-scrollbar gap-2 pb-2">
                 <button onclick="switchTab('dashboard')" class="tab-btn active px-4 py-2 rounded-xl text-sm font-semibold whitespace-nowrap transition" data-target="tab-dashboard"><i class="fa-solid fa-chart-pie mr-1"></i> Dashboard</button>
                 <button onclick="switchTab('scan')" id="tab-btn-scan" class="tab-btn px-4 py-2 rounded-xl text-sm font-semibold whitespace-nowrap transition hidden" data-target="tab-scan"><i class="fa-solid fa-qrcode mr-1"></i> Scan Jimpitan</button>
                 <button onclick="switchTab('warga')" id="tab-btn-warga" class="tab-btn px-4 py-2 rounded-xl text-sm font-semibold whitespace-nowrap transition hidden" data-target="tab-warga"><i class="fa-solid fa-users mr-1"></i> Data Warga</button>
                 <button onclick="switchTab('petugas')" id="tab-btn-petugas" class="tab-btn px-4 py-2 rounded-xl text-sm font-semibold whitespace-nowrap transition hidden" data-target="tab-petugas"><i class="fa-solid fa-user-shield mr-1"></i> Hak Akses</button>
-                <button onclick="switchTab('settings')" id="tab-btn-settings" class="tab-btn px-4 py-2 rounded-xl text-sm font-semibold whitespace-nowrap transition hidden" data-target="tab-settings"><i class="fa-solid fa-gear mr-1"></i> Database</button>
+                <button onclick="switchTab('settings')" id="tab-btn-settings" class="tab-btn px-4 py-2 rounded-xl text-sm font-semibold whitespace-nowrap transition hidden" data-target="tab-settings"><i class="fa-solid fa-gear mr-1"></i> Database Server</button>
             </div>
 
-            <!-- TAB: DASHBOARD -->
             <div id="tab-dashboard" class="tab-content block space-y-6">
-                <!-- Welcome Card -->
                 <div class="bg-gradient-to-br from-brand-600 to-brand-800 rounded-2xl p-6 text-white shadow-lg relative overflow-hidden">
                     <div class="absolute -right-10 -top-10 opacity-10">
                         <i class="fa-solid fa-leaf text-[150px]"></i>
                     </div>
                     <div class="relative z-10">
                         <h2 class="text-xl md:text-2xl font-bold" id="dash-greeting">Halo, Pengguna!</h2>
-                        <p class="text-brand-100 text-sm mt-1 mb-4" id="dash-role-desc">Selamat datang di Sistem Informasi E-Jimpitan.</p>
+                        <p class="text-brand-100 text-sm mt-1 mb-4" id="dash-role-desc">Sistem Informasi E-Jimpitan.</p>
                         <div class="bg-white/20 backdrop-blur-md rounded-xl p-4 inline-block border border-white/20">
                             <p class="text-xs text-brand-100 uppercase tracking-wider mb-1">Total Dana Terkumpul</p>
                             <p class="text-3xl font-bold font-mono" id="dash-total-dana">Rp 0</p>
                         </div>
                         <button onclick="openModal('modal-laporan')" id="btn-cetak-lap" class="hidden mt-4 bg-white text-brand-800 px-4 py-2 rounded-lg text-sm font-bold shadow hover:bg-brand-50 transition">
-                            <i class="fa-solid fa-print mr-1"></i> Cetak Laporan
+                            <i class="fa-solid fa-print mr-1"></i> Cetak Laporan PDF
                         </button>
                     </div>
                 </div>
 
-                <!-- Stats Grid -->
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
                         <div class="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center mb-2"><i class="fa-solid fa-users"></i></div>
@@ -204,7 +188,6 @@
                     </div>
                 </div>
 
-                <!-- Charts & Recent -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div class="md:col-span-2 bg-white rounded-2xl shadow-sm border border-slate-100 p-5">
                         <h3 class="font-bold text-slate-800 mb-4">Grafik Pemasukan per RT</h3>
@@ -219,7 +202,6 @@
                 </div>
             </div>
 
-            <!-- TAB: SCAN JIMPITAN -->
             <div id="tab-scan" class="tab-content hidden space-y-4">
                 <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-4 md:p-6 text-center">
                     <h2 class="text-xl font-bold text-slate-800 mb-2">Scanner QR Code Jimpitan</h2>
@@ -234,27 +216,26 @@
                     </div>
                     
                     <div class="mt-6 flex justify-center gap-3">
-                        <button onclick="startScanner()" class="bg-brand-600 hover:bg-brand-700 text-white px-6 py-2.5 rounded-xl font-semibold shadow-lg shadow-brand-500/30 transition flex items-center gap-2">
+                        <button onclick="startScanner()" class="bg-brand-600 hover:bg-brand-700 text-white px-6 py-2.5 rounded-xl font-semibold shadow-lg transition flex items-center gap-2">
                             <i class="fa-solid fa-play"></i> Mulai Scan
                         </button>
                         <button onclick="stopScanner()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 px-6 py-2.5 rounded-xl font-semibold transition flex items-center gap-2">
-                            <i class="fa-solid fa-stop"></i> Hentikan
+                            <i class="fa-solid fa-stop"></i> Matikan
                         </button>
                     </div>
                 </div>
 
                 <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-4">
-                    <h3 class="font-bold text-slate-800 mb-3 text-sm">Input Manual (Jika QR Rusak/Tidak Terbaca)</h3>
+                    <h3 class="font-bold text-slate-800 mb-3 text-sm">Input Manual (Jika QR Rusak/Hilang)</h3>
                     <div class="flex flex-col md:flex-row gap-2">
                         <select id="manual-warga-select" class="flex-1 px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-brand-500 text-sm">
-                            <option value="">-- Pilih Warga --</option>
+                            <option value="">-- Pilih Nama Warga --</option>
                         </select>
                         <button onclick="processManualInput()" class="bg-slate-800 hover:bg-slate-900 text-white px-4 py-2 rounded-xl text-sm font-semibold transition">Proses Input</button>
                     </div>
                 </div>
             </div>
 
-            <!-- TAB: DATA WARGA (Superadmin) -->
             <div id="tab-warga" class="tab-content hidden space-y-4">
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
                     <div>
@@ -265,7 +246,7 @@
                         <button onclick="openModalCetakQRMassal()" class="flex-1 md:flex-none bg-slate-800 hover:bg-slate-900 text-white px-4 py-2 rounded-xl text-sm font-semibold transition">
                             <i class="fa-solid fa-qrcode"></i> Cetak QR Warga
                         </button>
-                        <button onclick="openModalWarga()" class="flex-1 md:flex-none bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition shadow-lg shadow-brand-500/30">
+                        <button onclick="openModalWarga()" class="flex-1 md:flex-none bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition shadow-lg">
                             <i class="fa-solid fa-plus"></i> Tambah Warga
                         </button>
                     </div>
@@ -298,14 +279,13 @@
                 </div>
             </div>
 
-            <!-- TAB: HAK AKSES PETUGAS (Superadmin) -->
             <div id="tab-petugas" class="tab-content hidden space-y-4">
                  <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
                     <div>
                         <h2 class="text-lg font-bold text-slate-800">Manajemen Hak Akses</h2>
                         <p class="text-xs text-slate-500">Kelola akun Login, Ubah Password, Tambah/Hapus Petugas RT.</p>
                     </div>
-                    <button onclick="openModalPetugas()" class="bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition shadow-lg shadow-brand-500/30">
+                    <button onclick="openModalPetugas()" class="bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition shadow-lg">
                         <i class="fa-solid fa-user-plus"></i> Tambah Akun
                     </button>
                 </div>
@@ -317,7 +297,7 @@
                                 <tr>
                                     <th class="p-3 pl-4">Nama Pengguna</th>
                                     <th class="p-3">Username Login</th>
-                                    <th class="p-3">Hak Akses / Role</th>
+                                    <th class="p-3">Hak Akses</th>
                                     <th class="p-3">Wilayah</th>
                                     <th class="p-3 text-right pr-4">Aksi</th>
                                 </tr>
@@ -328,11 +308,10 @@
                 </div>
             </div>
 
-            <!-- TAB: PENGATURAN (Superadmin) -->
             <div id="tab-settings" class="tab-content hidden space-y-4">
                 <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
-                    <h2 class="text-lg font-bold text-slate-800 mb-4"><i class="fa-brands fa-google-drive text-brand-600"></i> Integrasi Database Google Sheets</h2>
-                    <p class="text-sm text-slate-600 mb-4">Masukkan <b>Web App URL</b> dari Google Apps Script untuk menghubungkan data dengan Spreadsheet Anda. <br> Pengaturan URL ini akan otomatis tersimpan di perangkat ini.</p>
+                    <h2 class="text-lg font-bold text-slate-800 mb-4"><i class="fa-brands fa-google-drive text-brand-600"></i> Integrasi Google Sheets</h2>
+                    <p class="text-sm text-slate-600 mb-4">Masukkan <b>Web App URL</b> dari Google Apps Script untuk menghubungkan data dengan Spreadsheet Anda. <br> Pengaturan URL ini akan otomatis tersimpan permanen di perangkat ini.</p>
                     
                     <div class="flex gap-2">
                         <input type="url" id="setting-gsheet-url" placeholder="https://script.google.com/macros/s/..." class="flex-1 px-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-brand-500 text-sm">
@@ -340,8 +319,8 @@
                     </div>
                     
                     <div class="mt-6 p-4 bg-blue-50 border border-blue-100 rounded-xl text-xs text-blue-800">
-                        <p class="font-bold mb-1">Status Sinkronisasi & Backup:</p>
-                        <p id="sync-status">Belum terhubung. Jika URL kosong, aplikasi 100% offline (Penyimpanan Browser).</p>
+                        <p class="font-bold mb-1">Status Sinkronisasi:</p>
+                        <p id="sync-status">Belum terhubung. Jika URL kosong, aplikasi beroperasi offline lokal.</p>
                         <button onclick="syncAllWithGSheet()" class="mt-3 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-xs font-bold transition shadow-sm">
                             <i class="fa-solid fa-cloud-arrow-down"></i> Tarik Data dari Server
                         </button>
@@ -352,10 +331,8 @@
         </section>
     </main>
 
-    <!-- OVERLAYS & MODALS -->
     <div id="overlay" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 transition-opacity"></div>
 
-    <!-- Modal Jimpitan Input -->
     <div id="modal-jimpitan" class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-sm bg-white rounded-2xl shadow-2xl p-6 hidden z-50 transform scale-95 transition-transform">
         <h3 class="text-lg font-bold text-slate-800 border-b pb-2 mb-4">Input Jimpitan Warga</h3>
         <input type="hidden" id="input-warga-id">
@@ -374,7 +351,6 @@
         </div>
     </div>
 
-    <!-- Modal Laporan -->
     <div id="modal-laporan" class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md bg-white rounded-2xl shadow-2xl p-6 hidden z-50 transform scale-95 transition-transform">
         <div class="flex justify-between items-center mb-4">
             <h3 class="text-lg font-bold text-slate-800">Cetak Laporan Keuangan</h3>
@@ -391,7 +367,7 @@
                 </select>
             </div>
             <div>
-                <label class="block text-sm font-bold text-slate-700 mb-1">Periode Waktu</label>
+                <label class="block text-sm font-bold text-slate-700 mb-1">Periode Waktu (Bulan/Tahun)</label>
                 <input type="month" id="lap-filter-bulan" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm bg-slate-50 focus:outline-none focus:border-brand-500">
                 <p class="text-[10px] text-slate-500 mt-1">*Kosongkan jika ingin mencetak riwayat keseluruhan (Semua Waktu)</p>
             </div>
@@ -401,21 +377,20 @@
         </button>
     </div>
 
-    <!-- Modal Form Warga -->
     <div id="modal-warga" class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-sm bg-white rounded-2xl shadow-2xl p-6 hidden z-50 transform scale-95 transition-transform">
         <h3 class="text-lg font-bold text-slate-800 mb-4" id="modal-warga-title">Tambah Warga Baru</h3>
         <form onsubmit="handleSaveWarga(event)" class="space-y-3">
             <input type="hidden" id="form-warga-id">
             <div>
-                <label class="block text-xs font-bold text-slate-700 mb-1">NIK (Nomor Induk Kependudukan)</label>
-                <input type="number" id="form-warga-nik" required class="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-brand-500 text-sm bg-slate-50">
+                <label class="block text-xs font-bold text-slate-700 mb-1">NIK</label>
+                <input type="number" id="form-warga-nik" required class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm bg-slate-50 focus:outline-none focus:border-brand-500">
             </div>
             <div>
                 <label class="block text-xs font-bold text-slate-700 mb-1">Nama Lengkap</label>
-                <input type="text" id="form-warga-nama" required class="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-brand-500 text-sm bg-slate-50">
+                <input type="text" id="form-warga-nama" required class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm bg-slate-50 focus:outline-none focus:border-brand-500">
             </div>
             <div>
-                <label class="block text-xs font-bold text-slate-700 mb-1">Wilayah Domisili RT</label>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Wilayah RT</label>
                 <select id="form-warga-rt" required class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm bg-slate-50 focus:outline-none focus:border-brand-500">
                     <option value="RT 01">RT 01</option><option value="RT 02">RT 02</option>
                     <option value="RT 03">RT 03</option><option value="RT 04">RT 04</option>
@@ -429,29 +404,28 @@
         </form>
     </div>
 
-    <!-- Modal Form Petugas -->
     <div id="modal-petugas" class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-sm bg-white rounded-2xl shadow-2xl p-6 hidden z-50 transform scale-95 transition-transform overflow-y-auto max-h-[90vh]">
         <h3 class="text-lg font-bold text-slate-800 mb-4" id="modal-petugas-title">Form Hak Akses</h3>
         <form onsubmit="handleSavePetugas(event)" class="space-y-3">
             <input type="hidden" id="form-petugas-id">
             <div>
-                <label class="block text-xs font-bold text-slate-700 mb-1">Nama Petugas/Pengguna</label>
-                <input type="text" id="form-petugas-nama" required class="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-brand-500 text-sm bg-slate-50">
+                <label class="block text-xs font-bold text-slate-700 mb-1">Nama Pengguna</label>
+                <input type="text" id="form-petugas-nama" required class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm bg-slate-50 focus:outline-none focus:border-brand-500">
             </div>
             <div>
                 <label class="block text-xs font-bold text-slate-700 mb-1">Username Login</label>
-                <input type="text" id="form-petugas-username" required class="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-brand-500 text-sm bg-slate-50">
+                <input type="text" id="form-petugas-username" required class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm bg-slate-50 focus:outline-none focus:border-brand-500">
             </div>
             <div>
-                <label class="block text-xs font-bold text-slate-700 mb-1">Password</label>
-                <input type="text" id="form-petugas-password" placeholder="Isi untuk mengubah password" class="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-brand-500 text-sm bg-slate-50">
-                <p class="text-[10px] text-slate-500 mt-1" id="form-petugas-pass-help">Default: 123 (Kosongkan jika tidak ingin mengubah password lama)</p>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Ubah Password</label>
+                <input type="text" id="form-petugas-password" placeholder="Isi untuk mengubah password..." class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm bg-slate-50 focus:outline-none focus:border-brand-500">
+                <p class="text-[10px] text-slate-500 mt-1" id="form-petugas-pass-help">*Kosongkan jika tidak ingin mengubah password lamanya.</p>
             </div>
             <div>
                 <label class="block text-xs font-bold text-slate-700 mb-1">Peran / Wilayah Tugas</label>
                 <select id="form-petugas-rt" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm bg-slate-50 focus:outline-none focus:border-brand-500">
                     <option value="ALL">SUPERADMIN (Seluruh Akses)</option>
-                    <option value="WARGA">WARGA (Hanya Lihat Laporan)</option>
+                    <option value="WARGA">WARGA (Hanya Laporan)</option>
                     <option value="RT 01">Petugas RT 01</option><option value="RT 02">Petugas RT 02</option>
                     <option value="RT 03">Petugas RT 03</option><option value="RT 04">Petugas RT 04</option>
                     <option value="RT 05">Petugas RT 05</option><option value="RT 06">Petugas RT 06</option>
@@ -464,7 +438,6 @@
         </form>
     </div>
 
-    <!-- Modal Konfirmasi Hapus/Logout -->
     <div id="modal-confirm" class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-xs bg-white rounded-2xl shadow-2xl p-6 hidden z-50 text-center transform scale-95 transition-transform">
         <div class="w-12 h-12 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-3 text-xl"><i class="fa-solid fa-triangle-exclamation"></i></div>
         <h3 class="text-lg font-bold text-slate-800 mb-2" id="confirm-title">Konfirmasi</h3>
@@ -475,19 +448,17 @@
         </div>
     </div>
 
-    <!-- Toast Notification UI -->
     <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-slate-800 text-white px-5 py-3 rounded-full text-sm font-medium shadow-2xl flex items-center gap-3 transform translate-y-24 opacity-0 transition-all duration-300 z-50 pointer-events-none">
         <i id="toast-icon" class="fa-solid fa-circle-check text-brand-400 text-lg"></i>
         <span id="toast-msg">Pesan Notifikasi</span>
     </div>
 
-    <!-- ================= PRINT LAYOUTS (Hidden di Layar) ================= -->
     <div id="printable-area" class="hidden font-sans">
         <div class="text-center mb-4 border-b-2 border-black pb-2">
             <h1 class="text-lg font-bold uppercase">Kartu QR Code E-Jimpitan</h1>
             <p class="text-sm font-semibold">Pekon Panggungrejo Utara</p>
         </div>
-        <div id="batch-qr-grid" class="flex flex-wrap justify-center gap-2"></div>
+        <div id="batch-qr-grid"></div>
     </div>
 
     <div id="printable-area-laporan" class="hidden font-sans text-sm bg-white text-black p-4">
@@ -537,18 +508,17 @@
     </div>
 
 
-    <!-- ==================== JAVASCRIPT ==================== -->
     <script>
         // Constants & State
         const STORAGE_KEYS = {
-            WARGA: 'ejimpitan_warga',
-            TX: 'ejimpitan_tx',
-            PETUGAS: 'ejimpitan_petugas',
-            USER: 'ejimpitan_current_user',
-            URL: 'ejimpitan_gsheet_url'
+            WARGA: 'ejimpitan_warga_v2',
+            TX: 'ejimpitan_tx_v2',
+            PETUGAS: 'ejimpitan_petugas_v2',
+            USER: 'ejimpitan_user_session',
+            URL: 'ejimpitan_gsheet_url_v2'
         };
 
-        const APP_STATE = {
+        let APP_STATE = {
             wargaList: [],
             transaksiList: [],
             petugasList: [],
@@ -561,29 +531,40 @@
         let scanThrottle = false;
         let confirmActionCb = null;
 
-        // PWA Manifest Injector (Menggunakan Data URI agar aman dari blob error)
-        const manifestData = {
-            name: "E-Jimpitan Panggungrejo Utara",
-            short_name: "E-Jimpitan",
-            start_url: ".",
-            display: "standalone",
-            background_color: "#f8fafc",
-            theme_color: "#16a34a",
-            icons: [
-                { src: "https://placehold.co/192x192/16a34a/ffffff?text=EJ", sizes: "192x192", type: "image/png" },
-                { src: "https://placehold.co/512x512/16a34a/ffffff?text=EJ", sizes: "512x512", type: "image/png" }
-            ]
-        };
-        const manifestString = encodeURIComponent(JSON.stringify(manifestData));
-        document.getElementById('manifest-link').href = `data:application/manifest+json;charset=utf-8,${manifestString}`;
+        // PWA Manifest Generation (Blob)
+        function initPWA() {
+            try {
+                const manifestData = {
+                    name: "E-Jimpitan Panggungrejo Utara",
+                    short_name: "E-Jimpitan",
+                    start_url: window.location.href,
+                    display: "standalone",
+                    background_color: "#f8fafc",
+                    theme_color: "#16a34a",
+                    icons: [
+                        { src: "https://placehold.co/192x192/16a34a/ffffff?text=EJ", sizes: "192x192", type: "image/png" },
+                        { src: "https://placehold.co/512x512/16a34a/ffffff?text=EJ", sizes: "512x512", type: "image/png" }
+                    ]
+                };
+                const manifestBlob = new Blob([JSON.stringify(manifestData)], {type: 'application/manifest+json'});
+                document.getElementById('manifest-link').href = URL.createObjectURL(manifestBlob);
+                
+                // Dummy SW to satisfy Chrome PWA requirements silently
+                const swCode = `self.addEventListener('fetch', function(e) {});`;
+                const swBlob = new Blob([swCode], {type: 'application/javascript'});
+                if ('serviceWorker' in navigator) {
+                    navigator.serviceWorker.register(URL.createObjectURL(swBlob)).catch(()=>{});
+                }
+            } catch(e) { console.log('PWA init skipped', e); }
+        }
 
-        // Event PWA Install Prompt
         let deferredPrompt;
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
             document.getElementById('pwa-banner').classList.remove('hidden');
         });
+        
         document.getElementById('btn-install-pwa').addEventListener('click', async () => {
             if (deferredPrompt) {
                 deferredPrompt.prompt();
@@ -593,9 +574,9 @@
             }
         });
 
-        // Utilities
-        function playBeep() {
+        function triggerSuccessIndicator() {
             try {
+                // Audio Beep
                 const ctx = new (window.AudioContext || window.webkitAudioContext)();
                 const osc = ctx.createOscillator();
                 const gainNode = ctx.createGain();
@@ -606,11 +587,9 @@
                 gainNode.gain.exponentialRampToValueAtTime(0.00001, ctx.currentTime + 0.15);
                 osc.stop(ctx.currentTime + 0.15);
             } catch (e) {}
-        }
-
-        function triggerFlash() {
+            // Visual Flash
             document.body.classList.add('flash-effect');
-            setTimeout(() => document.body.classList.remove('flash-effect'), 500);
+            setTimeout(() => document.body.classList.remove('flash-effect'), 400);
         }
 
         function showToast(msg, type = 'success') {
@@ -630,15 +609,14 @@
             document.getElementById('overlay').classList.remove('hidden');
             const m = document.getElementById(id);
             m.classList.remove('hidden');
-            setTimeout(() => m.classList.remove('scale-95'), 10); // Animasi
+            setTimeout(() => m.classList.remove('scale-95'), 10);
         }
         
         function closeModal(id) {
             const m = document.getElementById(id);
-            m.classList.add('scale-95');
+            if(m) m.classList.add('scale-95');
             setTimeout(() => {
-                m.classList.add('hidden');
-                // Check if any other modals are open before hiding overlay
+                if(m) m.classList.add('hidden');
                 if(!document.querySelectorAll('.fixed.z-50:not(.hidden):not(#toast)').length) {
                     document.getElementById('overlay').classList.add('hidden');
                 }
@@ -663,16 +641,12 @@
         });
 
         function switchTab(tabId) {
-            // Sembunyikan semua tab content
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-            
-            // Reset tab button styling
             document.querySelectorAll('.tab-btn').forEach(el => {
                 el.classList.remove('bg-slate-800', 'text-white', 'shadow-md');
                 el.classList.add('text-slate-500', 'hover:bg-slate-200');
             });
             
-            // Tampilkan tab yg aktif
             document.getElementById(`tab-${tabId}`).classList.remove('hidden');
             const activeBtn = document.querySelector(`.tab-btn[data-target="tab-${tabId}"]`);
             if(activeBtn) {
@@ -680,39 +654,33 @@
                 activeBtn.classList.add('bg-slate-800', 'text-white', 'shadow-md');
             }
             
-            // Eksekusi fungsi spesifik tiap tab
             if (tabId === 'dashboard') renderDashboard();
             if (tabId === 'warga') renderWargaTable();
             if (tabId === 'petugas') renderPetugasTable();
         }
 
-        // ================= INISIALISASI APLIKASI =================
         function initApp() {
-            // Load Local Data Warga & Transaksi
+            initPWA();
             APP_STATE.wargaList = JSON.parse(localStorage.getItem(STORAGE_KEYS.WARGA) || '[]');
             APP_STATE.transaksiList = JSON.parse(localStorage.getItem(STORAGE_KEYS.TX) || '[]');
             
-            // Load Akun / Petugas
             const savedPetugas = localStorage.getItem(STORAGE_KEYS.PETUGAS);
             if(savedPetugas) {
                 APP_STATE.petugasList = JSON.parse(savedPetugas);
             } else {
-                // Generate Default Master Data jika kosong
                 APP_STATE.petugasList = [
                     { id: 'ADM', nama: 'Administrator', username: 'admin', password: '123', role: 'SUPERADMIN', rt: 'ALL' },
-                    { id: 'WRG', nama: 'Masyarakat', username: 'warga', password: 'warga123', role: 'WARGA', rt: 'ALL' }
+                    { id: 'WRG', nama: 'Masyarakat Umum', username: 'warga', password: 'warga123', role: 'WARGA', rt: 'ALL' }
                 ];
-                // Buat Petugas RT 1 - 6
                 for(let i=1; i<=6; i++) {
                     APP_STATE.petugasList.push({ id: `PTG${i}`, nama: `Petugas RT 0${i}`, username: `petugas${i}`, password: '123', role: 'PETUGAS', rt: `RT 0${i}` });
                 }
                 localStorage.setItem(STORAGE_KEYS.PETUGAS, JSON.stringify(APP_STATE.petugasList));
             }
 
-            // Atur URL DB Setting
             document.getElementById('setting-gsheet-url').value = APP_STATE.googleSheetUrl;
 
-            // Cek Sesi Tersimpan (Anti-Logout)
+            // Session Persistence
             const savedUser = localStorage.getItem(STORAGE_KEYS.USER);
             if(savedUser) {
                 APP_STATE.currentUser = JSON.parse(savedUser);
@@ -720,7 +688,6 @@
             }
         }
 
-        // ================= AUTENTIKASI =================
         function handleLogin(e) {
             e.preventDefault();
             const u = document.getElementById('login-username').value.trim();
@@ -728,43 +695,50 @@
 
             const user = APP_STATE.petugasList.find(x => x.username === u);
             if (user) {
-                if (user.password === p || !user.password) {
+                if (user.password === p) {
                     doLogin(user);
                 } else {
                     showToast('Password yang dimasukkan salah!', 'error');
                 }
             } else {
-                showToast('Username tidak ditemukan dalam sistem!', 'error');
+                showToast('Username tidak ditemukan!', 'error');
             }
         }
 
         function loginAsWarga() {
-            const wargaUser = APP_STATE.petugasList.find(x => x.username === 'warga');
-            if(wargaUser) doLogin(wargaUser);
+            const w = APP_STATE.petugasList.find(x => x.username === 'warga');
+            if(w) doLogin(w);
         }
 
         function doLogin(userData) {
             APP_STATE.currentUser = userData;
-            localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(userData)); // Simpan sesi
+            localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(userData));
             
             document.getElementById('login-username').value = '';
             document.getElementById('login-password').value = '';
             
-            showToast(`Login berhasil. Selamat datang, ${userData.nama}!`);
+            showToast(`Login berhasil. Halo, ${userData.nama}!`);
             applyUserRoleUI();
         }
 
         function promptLogout() {
-            confirmAction("Keluar Aplikasi", "Apakah Anda yakin ingin keluar dari sistem (Log Out)?", "Ya, Keluar", true, () => {
-                APP_STATE.currentUser = null;
-                localStorage.removeItem(STORAGE_KEYS.USER); // Hapus sesi
-                
-                if(html5QrcodeScanner) stopScanner();
-                
-                document.getElementById('sec-app').classList.add('hidden');
-                document.getElementById('sec-login').classList.remove('hidden');
-                document.getElementById('btn-logout').classList.add('hidden');
-                document.getElementById('user-role-badge').classList.add('hidden');
+            confirmAction("Keluar Aplikasi", "Keluar dari sistem (Log Out)?", "Ya, Keluar", true, () => {
+                try {
+                    APP_STATE.currentUser = null;
+                    localStorage.removeItem(STORAGE_KEYS.USER); 
+                    
+                    stopScanner(); // safely stop camera
+                    
+                    document.getElementById('sec-app').classList.add('hidden');
+                    document.getElementById('sec-login').classList.remove('hidden');
+                    document.getElementById('btn-logout').classList.add('hidden');
+                    document.getElementById('user-role-badge').classList.add('hidden');
+                    document.getElementById('overlay').classList.add('hidden'); // force hide
+                    
+                    showToast('Berhasil Log Out.');
+                } catch(err) {
+                    console.log('Logout error handled', err);
+                }
             });
         }
 
@@ -776,7 +750,6 @@
             document.getElementById('sec-app').classList.remove('hidden');
             document.getElementById('btn-logout').classList.remove('hidden');
             
-            // Badge UI
             const badge = document.getElementById('user-role-badge');
             badge.classList.remove('hidden');
             badge.innerText = `${u.role} ${u.rt !== 'ALL' ? '- '+u.rt : ''}`;
@@ -784,7 +757,6 @@
             document.getElementById('dash-greeting').innerText = `Halo, ${u.nama}!`;
             document.getElementById('dash-role-desc').innerText = u.role === 'WARGA' ? 'Transparansi Data E-Jimpitan Warga Panggungrejo Utara' : `Sistem Pendataan E-Jimpitan Wilayah ${u.rt}`;
 
-            // Reset dan Atur Tab Berdasarkan Hak Akses
             ['scan','warga','petugas','settings'].forEach(id => document.getElementById(`tab-btn-${id}`).classList.add('hidden'));
             document.getElementById('btn-cetak-lap').classList.add('hidden');
 
@@ -797,26 +769,24 @@
             else if (u.role === 'PETUGAS') {
                 document.getElementById('tab-btn-scan').classList.remove('hidden');
                 document.getElementById('scan-rt-label').innerText = u.rt;
-                populateManualSelect(u.rt); // Isi select manual warga sesuai RT
+                populateManualSelect(u.rt);
             }
-            // Role WARGA hanya bisa melihat tab default (Dashboard)
 
-            switchTab('dashboard'); // Pindah ke tab awal
+            switchTab('dashboard');
         }
 
-        // ================= DASHBOARD & CHART =================
         function renderDashboard() {
             let total = 0;
             let txMonth = 0;
             const now = new Date();
-            const currMonth = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`; // Format YYYY-MM
+            const currMonth = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
             
             const rtTotals = {'RT 01':0, 'RT 02':0, 'RT 03':0, 'RT 04':0, 'RT 05':0, 'RT 06':0};
 
             APP_STATE.transaksiList.forEach(t => {
                 const nom = parseInt(t.nominal) || 0;
                 total += nom;
-                if(t.date.startsWith(currMonth)) txMonth++;
+                if(t.date && t.date.startsWith(currMonth)) txMonth++;
                 if(rtTotals[t.rt] !== undefined) rtTotals[t.rt] += nom;
             });
 
@@ -824,7 +794,6 @@
             document.getElementById('stat-warga').innerText = APP_STATE.wargaList.length;
             document.getElementById('stat-tx-month').innerText = txMonth;
 
-            // Render Recent Transaksi
             const sortedTx = [...APP_STATE.transaksiList].sort((a,b) => new Date(b.date) - new Date(a.date));
             const listEl = document.getElementById('recent-tx-list');
             listEl.innerHTML = '';
@@ -843,7 +812,6 @@
             });
             if(sortedTx.length === 0) listEl.innerHTML = '<p class="text-sm text-slate-400 text-center py-4">Belum ada riwayat transaksi.</p>';
 
-            // Render ChartJS
             const ctx = document.getElementById('chartRt').getContext('2d');
             if(APP_STATE.chartInstance) APP_STATE.chartInstance.destroy();
             APP_STATE.chartInstance = new Chart(ctx, {
@@ -863,18 +831,17 @@
 
         function searchRiwayatDash() {
             const q = document.getElementById('search-warga-dash').value.toLowerCase().trim();
-            if(!q) return showToast('Masukkan NIK atau Nama warga terlebih dahulu!', 'error');
+            if(!q) return showToast('Masukkan NIK/Nama!', 'error');
             
             const w = APP_STATE.wargaList.find(x => x.nik.includes(q) || x.nama.toLowerCase().includes(q));
-            if(!w) return showToast('Data warga tidak ditemukan dalam sistem.', 'error');
+            if(!w) return showToast('Warga tidak ditemukan.', 'error');
             
             const txWarga = APP_STATE.transaksiList.filter(x => x.wargaId === w.id);
             const totalBayar = txWarga.reduce((sum, val) => sum + val.nominal, 0);
             
-            showToast(`${w.nama} (${w.rt}): ${txWarga.length}x Jimpitan. Total Bayar: Rp${totalBayar.toLocaleString('id-ID')}`);
+            showToast(`${w.nama} (${w.rt}): ${txWarga.length}x Jimpitan. Total: Rp${totalBayar.toLocaleString('id-ID')}`);
         }
 
-        // ================= MANAJEMEN WARGA (CRUD & PRINT QR) =================
         function renderWargaTable() {
             const rt = document.getElementById('filter-warga-rt').value;
             const search = document.getElementById('search-warga').value.toLowerCase();
@@ -894,7 +861,7 @@
                     <td class="p-3"><span class="px-2 py-1 bg-slate-100 text-slate-600 rounded text-xs font-semibold">${w.rt}</span></td>
                     <td class="p-3 text-right pr-4 space-x-2">
                         <button onclick="printIndividualQR('${w.id}')" title="Cetak QR" class="text-blue-500 hover:text-blue-700 w-6 h-6 rounded bg-blue-50"><i class="fa-solid fa-qrcode"></i></button>
-                        <button onclick="openModalWarga('${w.id}')" title="Edit Warga" class="text-brand-500 hover:text-brand-700 w-6 h-6 rounded bg-brand-50"><i class="fa-solid fa-pen"></i></button>
+                        <button onclick="openModalWarga('${w.id}')" title="Edit" class="text-brand-500 hover:text-brand-700 w-6 h-6 rounded bg-brand-50"><i class="fa-solid fa-pen"></i></button>
                         <button onclick="promptDeleteWarga('${w.id}')" title="Hapus" class="text-red-500 hover:text-red-700 w-6 h-6 rounded bg-red-50"><i class="fa-solid fa-trash"></i></button>
                     </td>
                 </tr>`;
@@ -939,14 +906,13 @@
             localStorage.setItem(STORAGE_KEYS.WARGA, JSON.stringify(APP_STATE.wargaList));
             closeModal('modal-warga');
             renderWargaTable();
-            showToast('Data warga berhasil disimpan!');
+            showToast('Data warga disimpan!');
             
-            // Background push ke GSheet
             if(APP_STATE.googleSheetUrl && !id) pushDataToGSheet('saveWarga', w);
         }
 
         function promptDeleteWarga(id) {
-            confirmAction("Hapus Warga", "Hapus data warga ini permanen (beserta QR Code-nya)?", "Ya, Hapus", true, () => {
+            confirmAction("Hapus Warga", "Hapus data warga ini permanen?", "Ya, Hapus", true, () => {
                 APP_STATE.wargaList = APP_STATE.wargaList.filter(x => x.id !== id);
                 localStorage.setItem(STORAGE_KEYS.WARGA, JSON.stringify(APP_STATE.wargaList));
                 renderWargaTable();
@@ -954,7 +920,6 @@
             });
         }
 
-        // ================= CETAK QR CODE =================
         function printIndividualQR(id) {
             const w = APP_STATE.wargaList.find(x => x.id === id);
             generatePrintView([w]);
@@ -965,7 +930,7 @@
             let list = APP_STATE.wargaList;
             if(rt !== 'ALL') list = list.filter(w => w.rt === rt);
             
-            if(list.length === 0) return showToast('Tidak ada data warga di tabel saat ini.', 'error');
+            if(list.length === 0) return showToast('Tidak ada data warga di tabel.', 'error');
             
             confirmAction("Cetak Massal", `Cetak ${list.length} Kartu QR untuk area ${rt}?`, "Ya, Cetak QR", false, () => {
                 generatePrintView(list);
@@ -973,7 +938,6 @@
         }
 
         function generatePrintView(list) {
-            // Sembunyikan UI Aplikasi
             document.getElementById('sec-app').classList.add('hidden');
             const printArea = document.getElementById('printable-area');
             printArea.classList.remove('hidden');
@@ -985,29 +949,25 @@
                 const card = document.createElement('div');
                 card.className = 'qr-card-print';
                 card.innerHTML = `
-                    <div style="font-size:10px; font-weight:bold; margin-bottom:5px; border-bottom:1px solid #ccc; padding-bottom:2px;">KARTU E-JIMPITAN <br> ${w.rt}</div>
+                    <div style="font-size:12px; font-weight:bold; margin-bottom:5px; border-bottom:1px solid #ccc; padding-bottom:2px;">KARTU JIMPITAN <br> ${w.rt}</div>
                     <div id="qr-canvas-${w.id}" style="display:flex; justify-content:center; margin-bottom:5px;"></div>
-                    <div style="font-size:11px; font-weight:bold; text-transform:uppercase; line-height:1.1;">${w.nama}</div>
-                    <div style="font-size:9px; color:#333; margin-top:2px;">NIK: ${w.nik}</div>
+                    <div style="font-size:13px; font-weight:bold; text-transform:uppercase; line-height:1.2;">${w.nama}</div>
+                    <div style="font-size:11px; color:#333; margin-top:2px;">NIK: ${w.nik}</div>
                 `;
                 grid.appendChild(card);
                 
-                // Render QRCodejs ke element yg sudah masuk ke DOM
                 new QRCode(document.getElementById(`qr-canvas-${w.id}`), {
-                    text: w.id, width: 90, height: 90, colorDark: "#000000", colorLight: "#ffffff"
+                    text: w.id, width: 100, height: 100, colorDark: "#000000", colorLight: "#ffffff"
                 });
             });
 
-            // Beri jeda kecil agar Canvas QRCode dirender browser sebelum dialog Print muncul
             setTimeout(() => {
                 window.print();
-                // Setelah selesai print (dialog ditutup), kembalikan tampilan
                 printArea.classList.add('hidden');
                 document.getElementById('sec-app').classList.remove('hidden');
             }, 600);
         }
 
-        // ================= MANAJEMEN PETUGAS HAK AKSES (CRUD) =================
         function renderPetugasTable() {
             const tbody = document.getElementById('petugas-table-body');
             tbody.innerHTML = '';
@@ -1022,7 +982,7 @@
                     <td class="p-3"><span class="px-2 py-1 ${roleColor} rounded text-[10px] font-bold tracking-wider">${p.role}</span></td>
                     <td class="p-3 text-slate-600 font-medium">${p.rt}</td>
                     <td class="p-3 text-right pr-4 space-x-2">
-                        <button onclick="openModalPetugas('${p.id}')" title="Edit Akun/Password" class="text-brand-500 hover:text-brand-700 w-6 h-6 rounded bg-brand-50"><i class="fa-solid fa-pen"></i></button>
+                        <button onclick="openModalPetugas('${p.id}')" title="Edit Akun" class="text-brand-500 hover:text-brand-700 w-6 h-6 rounded bg-brand-50"><i class="fa-solid fa-pen"></i></button>
                         ${(p.role !== 'SUPERADMIN' || p.id !== APP_STATE.currentUser.id) ? `<button onclick="promptDeletePetugas('${p.id}', '${p.nama}')" title="Hapus Akun" class="text-red-500 hover:text-red-700 w-6 h-6 rounded bg-red-50"><i class="fa-solid fa-trash"></i></button>` : ''}
                     </td>
                 </tr>`;
@@ -1035,7 +995,7 @@
                 document.getElementById('form-petugas-id').value = p.id;
                 document.getElementById('form-petugas-nama').value = p.nama;
                 document.getElementById('form-petugas-username').value = p.username;
-                document.getElementById('form-petugas-password').value = ''; // Kosongkan agar tidak overwrite tanpa sengaja
+                document.getElementById('form-petugas-password').value = ''; 
                 
                 let selectedRole = p.rt;
                 if(p.role === 'SUPERADMIN') selectedRole = 'ALL';
@@ -1051,7 +1011,7 @@
                 document.getElementById('form-petugas-password').value = '123';
                 document.getElementById('form-petugas-rt').value = 'RT 01';
                 document.getElementById('form-petugas-pass-help').innerText = '*Password bawaan disarankan: 123';
-                document.getElementById('modal-petugas-title').innerText = 'Tambah Pengguna/Petugas Baru';
+                document.getElementById('modal-petugas-title').innerText = 'Tambah Pengguna Baru';
             }
             openModal('modal-petugas');
         }
@@ -1063,7 +1023,6 @@
             const pass = document.getElementById('form-petugas-password').value;
             const rtSelect = document.getElementById('form-petugas-rt').value;
             
-            // Validasi duplikat username (kecuali milik sendiri yang sedang di-edit)
             if(APP_STATE.petugasList.some(x => x.username === uname && x.id !== id)) {
                 return showToast('Username tersebut sudah digunakan orang lain!', 'error');
             }
@@ -1083,7 +1042,7 @@
 
             if (id) {
                 const idx = APP_STATE.petugasList.findIndex(x => x.id === id);
-                p.password = pass ? pass : APP_STATE.petugasList[idx].password; // Jika pass diisi, ubah. Jika kosong, pertahankan lama.
+                p.password = pass ? pass : APP_STATE.petugasList[idx].password; 
                 APP_STATE.petugasList[idx] = p;
             } else {
                 p.password = pass || '123';
@@ -1093,22 +1052,20 @@
             localStorage.setItem(STORAGE_KEYS.PETUGAS, JSON.stringify(APP_STATE.petugasList));
             closeModal('modal-petugas');
             renderPetugasTable();
-            showToast('Akun Petugas/Pengguna berhasil disimpan!');
+            showToast('Akun Pengguna berhasil disimpan!');
             
-            // Backup ke GSheet (jika dikonfigurasikan)
             if(APP_STATE.googleSheetUrl) pushDataToGSheet('savePetugas', p);
         }
 
         function promptDeletePetugas(id, nama) {
-            confirmAction("Hapus Hak Akses", `Hapus akun "${nama}" secara permanen? Akun tidak bisa login lagi.`, "Ya, Hapus", true, () => {
+            confirmAction("Hapus Hak Akses", `Hapus akun "${nama}" secara permanen?`, "Ya, Hapus", true, () => {
                 APP_STATE.petugasList = APP_STATE.petugasList.filter(x => x.id !== id);
                 localStorage.setItem(STORAGE_KEYS.PETUGAS, JSON.stringify(APP_STATE.petugasList));
                 renderPetugasTable();
-                showToast(`Akun ${nama} berhasil dihapus.`);
+                showToast(`Akun ${nama} dihapus.`);
             });
         }
 
-        // ================= SCANNER JIMPITAN =================
         function startScanner() {
             if (html5QrcodeScanner) return;
             document.getElementById('qr-placeholder').classList.add('hidden');
@@ -1120,25 +1077,28 @@
                 (decodedText) => {
                     if(!scanThrottle) {
                         scanThrottle = true;
-                        playBeep();
-                        triggerFlash();
+                        triggerSuccessIndicator();
                         processScannedQR(decodedText);
-                        setTimeout(() => scanThrottle = false, 2500); // 2.5 detik throttle cegah dobel
+                        setTimeout(() => scanThrottle = false, 2500); 
                     }
                 },
-                (err) => {} // Abaikan warning frame dari scanner
+                (err) => {}
             ).catch(err => {
                 showToast('Kamera tidak terdeteksi atau diblokir izinnya oleh Browser!', 'error');
                 document.getElementById('qr-placeholder').classList.remove('hidden');
+                html5QrcodeScanner = null;
             });
         }
 
         function stopScanner() {
             if (html5QrcodeScanner) {
-                html5QrcodeScanner.stop().then(() => {
-                    html5QrcodeScanner = null;
-                    document.getElementById('qr-placeholder').classList.remove('hidden');
-                }).catch(console.error);
+                try {
+                    html5QrcodeScanner.stop().then(() => {
+                        html5QrcodeScanner.clear();
+                        html5QrcodeScanner = null;
+                        document.getElementById('qr-placeholder').classList.remove('hidden');
+                    }).catch(e => console.log('Scanner stop err', e));
+                } catch(e) { console.log(e); }
             }
         }
 
@@ -1149,7 +1109,6 @@
             let list = APP_STATE.wargaList;
             if(rt !== 'ALL') list = list.filter(w => w.rt === rt);
             
-            // Sort A-Z
             list.sort((a,b) => a.nama.localeCompare(b.nama)).forEach(w => {
                 sel.innerHTML += `<option value="${w.id}">${w.nama} (${w.nik})</option>`;
             });
@@ -1157,7 +1116,8 @@
 
         function processManualInput() {
             const wId = document.getElementById('manual-warga-select').value;
-            if(!wId) return showToast('Pilih nama warga terlebih dahulu pada menu dropdown!', 'error');
+            if(!wId) return showToast('Pilih nama warga terlebih dahulu pada dropdown!', 'error');
+            triggerSuccessIndicator();
             processScannedQR(wId);
         }
 
@@ -1167,13 +1127,13 @@
             
             if(!w) return showToast('Error: QR Code Warga tidak terdaftar dalam sistem.', 'error');
             if(u.role === 'PETUGAS' && w.rt !== u.rt) {
-                return showToast(`Gagal: Warga ini berada di ${w.rt}, wilayah tugas Anda adalah ${u.rt}`, 'error');
+                return showToast(`Gagal: Warga berada di ${w.rt}, wilayah tugas Anda adalah ${u.rt}`, 'error');
             }
             
             document.getElementById('input-warga-id').value = w.id;
             document.getElementById('input-warga-nama').innerText = w.nama;
             document.getElementById('input-warga-rt').innerText = w.rt;
-            document.getElementById('input-nominal').value = 1000; // Default Jimpitan standard
+            document.getElementById('input-nominal').value = 1000;
             
             openModal('modal-jimpitan');
         }
@@ -1187,7 +1147,7 @@
 
             const tx = {
                 id: 'TX' + Date.now(),
-                date: new Date().toISOString(), // Simpan format ISO standard
+                date: new Date().toISOString(),
                 wargaId: w.id,
                 nama: w.nama,
                 rt: w.rt,
@@ -1199,16 +1159,14 @@
             localStorage.setItem(STORAGE_KEYS.TX, JSON.stringify(APP_STATE.transaksiList));
             
             closeModal('modal-jimpitan');
-            showToast(`Sukses! Jimpitan Rp${tx.nominal.toLocaleString('id-ID')} untuk ${w.nama} tersimpan.`);
+            showToast(`Sukses! Jimpitan Rp${tx.nominal.toLocaleString('id-ID')} tersimpan.`);
             
-            // Background push ke Cloud (GSheet)
             if(APP_STATE.googleSheetUrl) pushDataToGSheet('addTransaksi', tx);
         }
 
-        // ================= CETAK LAPORAN =================
         function executePrintLaporan() {
             const rt = document.getElementById('lap-filter-rt').value;
-            const bulan = document.getElementById('lap-filter-bulan').value; // Format "YYYY-MM"
+            const bulan = document.getElementById('lap-filter-bulan').value;
             
             let filtered = APP_STATE.transaksiList;
             if(rt !== 'ALL') filtered = filtered.filter(x => x.rt === rt);
@@ -1238,7 +1196,6 @@
                 });
             }
 
-            // Update Labels
             document.getElementById('print-lap-rt').innerText = rt === 'ALL' ? 'Seluruh Keseluruhan RT (01 - 06)' : rt;
             
             let perLabel = 'Keseluruhan Waktu (Semua Riwayat)';
@@ -1266,11 +1223,10 @@
             }, 600);
         }
 
-        // ================= DATABASE PENGATURAN & SYNC =================
         function saveSettings() {
             const url = document.getElementById('setting-gsheet-url').value.trim();
             APP_STATE.googleSheetUrl = url;
-            localStorage.setItem(STORAGE_KEYS.URL, url); // Simpan permanen URL Database
+            localStorage.setItem(STORAGE_KEYS.URL, url); 
             showToast('Pengaturan URL Database berhasil disimpan permanen!');
             if(url) syncAllWithGSheet();
         }
@@ -1280,26 +1236,22 @@
             const sts = document.getElementById('sync-status');
             sts.innerText = "Mendownload sinkronisasi dari Server... Mohon tunggu.";
             
-            // Proses Sinkronisasi Tarik 3 Data (Warga, Transaksi, Petugas) via fetch berantai
             fetch(APP_STATE.googleSheetUrl + '?op=getData')
                 .then(r => r.json())
                 .then(data => {
-                    // Update Warga
                     if(data.warga && data.warga.length > 1) {
-                        APP_STATE.wargaList = data.warga.slice(1).map(r => ({ id: r[0], nik: String(r[1]), nama: r[2], rt: r[3] }));
+                        APP_STATE.wargaList = data.warga.slice(1).map(r => ({ id: String(r[0]), nik: String(r[1]), nama: String(r[2]), rt: String(r[3]) }));
                         localStorage.setItem(STORAGE_KEYS.WARGA, JSON.stringify(APP_STATE.wargaList));
                     }
-                    // Update Transaksi
                     if(data.transaksi && data.transaksi.length > 1) {
                         APP_STATE.transaksiList = data.transaksi.slice(1).map(r => ({
-                            id: r[0] || ('TX'+Math.random()), date: r[1], wargaId: r[2], nama: r[3], rt: r[4], nominal: parseInt(r[5]), petugas: r[6]
+                            id: String(r[0]), date: String(r[1]), wargaId: String(r[2]), nama: String(r[3]), rt: String(r[4]), nominal: parseInt(r[5]), petugas: String(r[6])
                         }));
                         localStorage.setItem(STORAGE_KEYS.TX, JSON.stringify(APP_STATE.transaksiList));
                     }
-                    // Update Petugas
                     if(data.petugas && data.petugas.length > 1) {
                         APP_STATE.petugasList = data.petugas.slice(1).map(r => ({
-                            id: r[0], nama: r[1], username: r[2], password: String(r[3]), role: r[4], rt: r[5]
+                            id: String(r[0]), nama: String(r[1]), username: String(r[2]), password: String(r[3]), role: String(r[4]), rt: String(r[5])
                         }));
                         localStorage.setItem(STORAGE_KEYS.PETUGAS, JSON.stringify(APP_STATE.petugasList));
                     }
@@ -1307,27 +1259,25 @@
                     sts.innerText = `Sinkronisasi berhasil & Mutakhir pada ${new Date().toLocaleTimeString('id-ID')}`;
                     showToast('Sukses menarik data terbaru dari Google Sheets!');
                     
-                    // Render ulang semua view jika sedang login sebagai Admin
                     if(APP_STATE.currentUser && APP_STATE.currentUser.role === 'SUPERADMIN'){
                         renderWargaTable(); renderPetugasTable();
                     }
                 }).catch(e => {
-                    sts.innerText = "Gagal Sinkron. Pastikan URL benar dan Akses 'Anyone/Siapa Saja' terbuka di Apps Script.";
+                    sts.innerText = "Gagal Sinkron. Pastikan URL benar dan Akses Google Apps Script adalah 'Siapa Saja (Anyone)'.";
                     showToast('Gagal menarik data Server', 'error');
                     console.error(e);
                 });
         }
 
-        // Helper untuk Push Perubahan ke GSheet di Latar Belakang (tanpa block UI)
         function pushDataToGSheet(actionName, payload) {
             fetch(APP_STATE.googleSheetUrl, {
                 method: 'POST', mode: 'no-cors',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({ action: actionName, data: payload })
-            }).catch(e => console.log('Siluman push err', e)); // silent error fallback ke local
+            }).catch(e => console.log('Siluman push err', e));
         }
 
-        // Boot
+        // Start App
         window.addEventListener('DOMContentLoaded', initApp);
 
     </script>
