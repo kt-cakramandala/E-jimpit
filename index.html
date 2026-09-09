@@ -13,7 +13,7 @@
     <meta name="apple-mobile-web-app-title" content="E-Jimpitan">
     <meta name="application-name" content="E-Jimpitan">
     
-    <!-- Inline Web App Manifest for Fullscreen PWA -->
+    <!-- Web App Manifest for Fullscreen PWA -->
     <link id="manifest-link" rel="manifest" href='data:application/manifest+json;charset=utf-8,{"id":"ejimpitan-panggungrejo-utara","name":"E-JIMPITAN Panggungrejo Utara","short_name":"E-Jimpitan","start_url":"./","scope":"./","display":"standalone","display_override":["standalone","minimal-ui"],"orientation":"portrait","background_color":"#047857","theme_color":"#047857","description":"Aplikasi Pendataan Jimpitan Warga Pekon Panggungrejo Utara","icons":[{"src":"https://cdn-icons-png.flaticon.com/512/3135/3135715.png","sizes":"192x192","type":"image/png","purpose":"any maskable"},{"src":"https://cdn-icons-png.flaticon.com/512/3135/3135715.png","sizes":"512x512","type":"image/png","purpose":"any maskable"}]}'>
 
     <!-- Fonts & External Libraries -->
@@ -83,7 +83,7 @@
                 <i class="fa-solid fa-mobile-screen-button text-xl animate-bounce shrink-0"></i>
                 <div class="leading-tight">
                     <span class="font-black block text-xs sm:text-sm">Pasang E-Jimpitan ke Layar Utama HP</span>
-                    <span class="text-[10px] sm:text-xs opacity-95">Mode Full-Screen tanpa baris URL Chrome</span>
+                    <span class="text-[10px] sm:text-xs opacity-95">Aplikasi PWA Full-Screen tanpa baris URL Chrome</span>
                 </div>
             </div>
             <div class="flex items-center gap-1.5 shrink-0">
@@ -100,7 +100,7 @@
     <!-- Clean Modern Main Header -->
     <header class="bg-gradient-to-r from-brand-900 via-brand-800 to-brand-900 text-white shadow-md sticky top-0 z-40 border-b border-brand-700/50">
         <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
-            <!-- Simplified Brand Logo and Title -->
+            <!-- Brand Logo and Title -->
             <div class="flex items-center space-x-3">
                 <div class="w-10 h-10 sm:w-11 sm:h-11 bg-white rounded-2xl flex items-center justify-center shadow-md border-2 border-brand-200 p-1 shrink-0">
                     <svg viewBox="0 0 100 100" class="w-full h-full text-brand-700">
@@ -122,6 +122,10 @@
 
             <!-- Header Controls -->
             <div class="flex items-center space-x-2">
+                <button onclick="syncAllDataWithCloud()" class="bg-emerald-700 hover:bg-emerald-600 text-white border border-emerald-400/50 text-xs font-bold px-2.5 py-1.5 rounded-xl flex items-center gap-1.5 transition active:scale-95" title="Sinkronkan Warga & Kas dari Cloud">
+                    <i class="fa-solid fa-rotate text-xs animate-spin-hover"></i>
+                    <span class="hidden sm:inline">Sync Cloud</span>
+                </button>
                 <button onclick="openPWAHelpModal()" class="bg-amber-400/20 hover:bg-amber-400/30 text-amber-200 border border-amber-400/40 text-xs font-bold px-2.5 py-1.5 rounded-xl flex items-center gap-1.5 transition active:scale-95" title="Petunjuk Mode Fullscreen App">
                     <i class="fa-solid fa-mobile-screen text-xs"></i>
                     <span class="hidden sm:inline">Mode App</span>
@@ -181,7 +185,7 @@
                             <p class="font-bold flex items-center gap-1 text-amber-800">
                                 <i class="fa-solid fa-triangle-exclamation text-amber-600"></i> Izin Kamera Dibatasi
                             </p>
-                            <p class="opacity-90">Kamera membutuhkan akses <b>HTTPS</b> atau browser Chrome standar. Jika bermasalah, gunakan tombol <b>"Upload Foto QR"</b> di bawah.</p>
+                            <p class="opacity-90">Kamera membutuhkan akses <b>HTTPS</b>. Jika bermasalah di browser, gunakan tombol <b>"Upload Foto QR"</b> di bawah.</p>
                         </div>
 
                         <!-- Scanner Viewport Frame -->
@@ -236,7 +240,7 @@
                         <h2 class="font-bold text-slate-800 text-sm sm:text-base flex items-center gap-2">
                             <i class="fa-solid fa-hand-holding-dollar text-brand-600"></i> Form Input Nominal Jimpitan
                         </h2>
-                        <span class="text-xs font-bold text-brand-700 bg-brand-50 px-2.5 py-1 rounded-lg border border-brand-200">Langkah 2: Isi Nominal</span>
+                        <span class="text-xs font-bold text-brand-700 bg-brand-50 px-2.5 py-1 rounded-lg border border-brand-200">Isi Nominal</span>
                     </div>
 
                     <form id="form-jimpitan" onsubmit="handleSaveTransaction(event)" class="space-y-4">
@@ -324,10 +328,16 @@
                     </select>
                 </div>
                 
-                <button onclick="openModalAddWarga()" class="w-full sm:w-auto bg-brand-700 hover:bg-brand-800 text-white font-bold px-4 py-2.5 rounded-xl text-xs sm:text-sm flex items-center justify-center gap-2 transition shadow-sm active:scale-95">
-                    <i class="fa-solid fa-user-plus"></i>
-                    <span>Tambah Warga Baru</span>
-                </button>
+                <div class="flex gap-2 w-full sm:w-auto">
+                    <button onclick="syncAllDataWithCloud()" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 font-bold px-3 py-2.5 rounded-xl text-xs sm:text-sm flex items-center justify-center gap-1.5 transition active:scale-95" title="Tarik Data Warga Terbaru dari Cloud HP lain">
+                        <i class="fa-solid fa-cloud-arrow-down text-emerald-600"></i>
+                        <span>Tarik Data Cloud</span>
+                    </button>
+                    <button onclick="openModalAddWarga()" class="bg-brand-700 hover:bg-brand-800 text-white font-bold px-4 py-2.5 rounded-xl text-xs sm:text-sm flex items-center justify-center gap-2 transition shadow-sm active:scale-95">
+                        <i class="fa-solid fa-user-plus"></i>
+                        <span>Tambah Warga Baru</span>
+                    </button>
+                </div>
             </div>
 
             <div id="resident-cards-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -366,8 +376,8 @@
                     </div>
                     
                     <div class="flex flex-wrap gap-2 w-full sm:w-auto">
-                        <button onclick="syncTransactionsWithCloud()" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 font-bold text-xs px-3 py-2 rounded-xl flex items-center gap-1.5 transition active:scale-95">
-                            <i class="fa-solid fa-cloud-arrow-up"></i> Sync Cloud
+                        <button onclick="syncAllDataWithCloud()" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 font-bold text-xs px-3 py-2 rounded-xl flex items-center gap-1.5 transition active:scale-95">
+                            <i class="fa-solid fa-rotate"></i> Sync Cloud
                         </button>
                         <button onclick="exportToCSV()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs px-3 py-2 rounded-xl flex items-center gap-1.5 transition active:scale-95">
                             <i class="fa-solid fa-file-excel text-emerald-600"></i> Ekspor CSV
@@ -442,7 +452,7 @@
                 </div>
                 
                 <button onclick="openPWAHelpModal()" class="w-full bg-white/10 hover:bg-white/20 text-white font-bold py-2.5 px-3 rounded-xl text-xs border border-white/20 flex items-center justify-center gap-2 transition active:scale-95">
-                    <i class="fa-solid fa-circle-info text-amber-300"></i> Petunjuk Lengkap Cara Instal Aplikasi di HP
+                    <i class="fa-solid fa-circle-info text-amber-300"></i> Panduan Instalasi PWA GitHub Pages di HP
                 </button>
             </div>
             
@@ -453,20 +463,23 @@
                         <i class="fa-solid fa-file-csv"></i>
                     </div>
                     <div>
-                        <h2 class="font-bold text-slate-800 text-sm sm:text-base">Koneksi Database Google Sheets</h2>
-                        <p class="text-xs text-slate-500">Hubungkan aplikasi dengan Google Sheets Anda secara gratis</p>
+                        <h2 class="font-bold text-slate-800 text-sm sm:text-base">Koneksi Database Google Sheets (Multi-HP Sync)</h2>
+                        <p class="text-xs text-slate-500">Menghubungkan data warga & kas dari semua HP ke satu Google Sheets</p>
                     </div>
                 </div>
 
                 <div>
                     <label class="block text-xs font-bold text-slate-700 mb-1">URL Web App Google Apps Script</label>
                     <input type="url" id="input-script-url" placeholder="https://script.google.com/macros/s/AKfycbx.../exec" class="w-full bg-slate-50 border border-slate-300 text-xs sm:text-sm font-mono rounded-xl p-3 focus:ring-brand-500 focus:border-brand-500">
-                    <p class="text-[11px] text-slate-400 mt-1">Masukkan URL Web App (*Deploy as Web App, Access: Anyone*)</p>
+                    <p class="text-[11px] text-slate-400 mt-1">Gunakan URL Web App dari Google Sheets Pekon (*Access: Anyone*)</p>
                 </div>
 
-                <div class="flex gap-2">
+                <div class="flex flex-wrap gap-2">
                     <button onclick="saveSettings()" class="bg-brand-700 hover:bg-brand-800 text-white font-bold px-4 py-2.5 rounded-xl text-xs flex items-center gap-2 active:scale-95">
                         <i class="fa-solid fa-floppy-disk"></i> Simpan URL
+                    </button>
+                    <button onclick="syncAllDataWithCloud()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-2.5 rounded-xl text-xs flex items-center gap-2 active:scale-95">
+                        <i class="fa-solid fa-rotate"></i> Sync Data Sekarang
                     </button>
                     <button onclick="testGoogleSheetsConnection()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-4 py-2.5 rounded-xl text-xs flex items-center gap-2 active:scale-95">
                         <i class="fa-solid fa-network-wired"></i> Tes Koneksi
@@ -477,24 +490,92 @@
             <!-- Apps Script Helper Code -->
             <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 space-y-3">
                 <div class="flex items-center justify-between">
-                    <h3 class="font-bold text-slate-800 text-xs sm:text-sm">Kode Google Apps Script</h3>
-                    <button onclick="copyAppsScriptCode()" class="bg-brand-50 hover:bg-brand-100 text-brand-800 border border-brand-200 font-bold text-xs px-3 py-1.5 rounded-lg flex items-center gap-1 active:scale-95">
+                    <div>
+                        <h3 class="font-bold text-slate-800 text-xs sm:text-sm">Kode Google Apps Script Multi-HP Terbaru</h3>
+                        <p class="text-[11px] text-slate-500">Salin skrip ini ke Google Sheets agar data warga & transaksi otomatis tersinkron antar HP</p>
+                    </div>
+                    <button onclick="copyAppsScriptCode()" class="bg-brand-50 hover:bg-brand-100 text-brand-800 border border-brand-200 font-bold text-xs px-3 py-1.5 rounded-lg flex items-center gap-1 active:scale-95 shrink-0">
                         <i class="fa-solid fa-copy"></i> Salin Kode
                     </button>
                 </div>
-                <pre class="bg-slate-900 text-emerald-400 p-3.5 rounded-xl text-[11px] font-mono overflow-x-auto max-h-48 border border-slate-800 leading-relaxed" id="apps-script-code-block">
+                <pre class="bg-slate-900 text-emerald-400 p-3.5 rounded-xl text-[11px] font-mono overflow-x-auto max-h-56 border border-slate-800 leading-relaxed" id="apps-script-code-block">
+function doGet(e) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  
+  // Sheet 1: Transaksi
+  var sheetTrx = ss.getSheetByName("Transaksi") || ss.getSheets()[0];
+  var dataTrx = sheetTrx.getDataRange().getValues();
+  var transactions = [];
+  for (var i = 1; i < dataTrx.length; i++) {
+    if (dataTrx[i][0]) {
+      transactions.push({
+        timestamp: dataTrx[i][0],
+        id_transaksi: dataTrx[i][1],
+        id_warga: dataTrx[i][2],
+        nama_warga: dataTrx[i][3],
+        rt: dataTrx[i][4],
+        nominal: Number(dataTrx[i][5]),
+        petugas: dataTrx[i][6],
+        synced: true
+      });
+    }
+  }
+
+  // Sheet 2: Warga
+  var sheetWarga = ss.getSheetByName("Warga");
+  var residents = [];
+  if (sheetWarga) {
+    var dataWarga = sheetWarga.getDataRange().getValues();
+    for (var j = 1; j < dataWarga.length; j++) {
+      if (dataWarga[j][0]) {
+        residents.push({
+          id_warga: dataWarga[j][0],
+          kode_qr: dataWarga[j][1],
+          nama: dataWarga[j][2],
+          rt: dataWarga[j][3],
+          no_rumah: dataWarga[j][4]
+        });
+      }
+    }
+  }
+
+  var result = JSON.stringify({ transactions: transactions, residents: residents });
+  return ContentService.createTextOutput(result).setMimeType(ContentService.MimeType.JSON);
+}
+
 function doPost(e) {
-  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
   var data = JSON.parse(e.postData.contents);
-  sheet.appendRow([
-    new Date(),
-    data.id_transaksi,
-    data.id_warga,
-    data.nama_warga,
-    data.rt,
-    data.nominal,
-    data.petugas
-  ]);
+  
+  if (data.action === "add_warga") {
+    var sheetWarga = ss.getSheetByName("Warga");
+    if (!sheetWarga) {
+      sheetWarga = ss.insertSheet("Warga");
+      sheetWarga.appendRow(["ID Warga", "Kode QR", "Nama Warga", "RT", "No Rumah"]);
+    }
+    sheetWarga.appendRow([
+      data.id_warga,
+      data.kode_qr,
+      data.nama,
+      data.rt,
+      data.no_rumah
+    ]);
+  } else {
+    var sheetTrx = ss.getSheetByName("Transaksi") || ss.getSheets()[0];
+    if (sheetTrx.getLastRow() === 0) {
+      sheetTrx.appendRow(["Tanggal Waktu", "ID Transaksi", "ID Warga", "Nama Warga", "RT", "Nominal", "Petugas"]);
+    }
+    sheetTrx.appendRow([
+      new Date(),
+      data.id_transaksi,
+      data.id_warga,
+      data.nama_warga,
+      data.rt,
+      data.nominal,
+      data.petugas
+    ]);
+  }
+  
   return ContentService.createTextOutput(JSON.stringify({"result": "success"}))
     .setMimeType(ContentService.MimeType.JSON);
 }
@@ -506,10 +587,10 @@ function doPost(e) {
                 <h3 class="font-bold text-slate-800 text-xs sm:text-sm">Pemeliharaan Data Lokal</h3>
                 <div class="flex flex-wrap gap-2">
                     <button onclick="loadSampleData()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-3.5 py-2 rounded-xl text-xs active:scale-95">
-                        <i class="fa-solid fa-database mr-1"></i> Muat Data Warga Pekon
+                        <i class="fa-solid fa-database mr-1"></i> Muat Data Contoh Pekon
                     </button>
                     <button onclick="confirmResetData()" class="bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 font-bold px-3.5 py-2 rounded-xl text-xs active:scale-95">
-                        <i class="fa-solid fa-trash mr-1"></i> Reset Semua Data
+                        <i class="fa-solid fa-trash mr-1"></i> Reset Semua Data Lokal
                     </button>
                 </div>
             </div>
@@ -546,8 +627,11 @@ function doPost(e) {
                         <input type="text" id="add-rumah" required placeholder="No. 12 B" class="w-full bg-slate-50 border border-slate-300 text-xs sm:text-sm rounded-xl p-2.5">
                     </div>
                 </div>
+                <p class="text-[11px] text-emerald-700 bg-emerald-50 p-2 rounded-lg border border-emerald-200">
+                    <i class="fa-solid fa-cloud-arrow-up mr-1"></i> Data warga baru ini akan otomatis tersinkron ke semua HP petugas ronda jika Google Sheets terhubung.
+                </p>
                 <button type="submit" class="w-full bg-brand-700 hover:bg-brand-800 text-white font-bold py-3 rounded-xl text-xs sm:text-sm transition shadow-md active:scale-95">
-                    Simpan Data Warga
+                    Simpan Data Warga Baru
                 </button>
             </form>
         </div>
@@ -568,7 +652,7 @@ function doPost(e) {
         <div class="bg-white rounded-2xl max-w-md w-full p-5 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
             <div class="flex items-center justify-between pb-2 border-b border-slate-100">
                 <h3 class="font-bold text-slate-800 text-sm sm:text-base flex items-center gap-2">
-                    <i class="fa-solid fa-mobile-screen text-brand-600"></i> Solusi Instalasi Aplikasi di HP
+                    <i class="fa-solid fa-mobile-screen text-brand-600"></i> Panduan Instalasi PWA GitHub Pages
                 </h3>
                 <button onclick="closePWAHelpModal()" class="text-slate-400 hover:text-slate-600 p-1"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
@@ -577,57 +661,38 @@ function doPost(e) {
             <div id="pwa-diagnostic-card" class="bg-slate-900 text-white p-3.5 rounded-xl text-xs space-y-2 border border-slate-700">
                 <div class="flex items-center justify-between border-b border-slate-800 pb-1.5">
                     <span class="font-bold text-amber-400 flex items-center gap-1.5">
-                        <i class="fa-solid fa-stethoscope"></i> Status Kesiapan PWA HP
+                        <i class="fa-solid fa-stethoscope"></i> Status Kesiapan PWA
                     </span>
                     <span id="diag-protocol-badge" class="px-2 py-0.5 rounded text-[10px] font-black uppercase bg-slate-800 text-slate-300">Checking...</span>
                 </div>
-                <p id="diag-reason-text" class="text-slate-300 leading-relaxed text-[11px]">Sedang memeriksa protokol koneksi browser...</p>
+                <p id="diag-reason-text" class="text-slate-300 leading-relaxed text-[11px]">Memeriksa koneksi GitHub Pages...</p>
             </div>
 
             <div class="space-y-3 text-xs text-slate-700">
                 
-                <!-- Solution 1: Netlify Free Hosting (Recommended for 1-Tap Install) -->
+                <!-- GitHub Pages Step by Step Guide -->
                 <div class="bg-emerald-50 border border-emerald-300 p-3.5 rounded-xl text-emerald-950 space-y-2">
-                    <div class="flex items-center justify-between">
-                        <span class="font-black text-xs text-emerald-900 uppercase tracking-wider flex items-center gap-1.5">
-                            <i class="fa-solid fa-bolt text-emerald-600"></i> Solusi 1: Upload HTTPS Gratis (Rekomendasi Utama)
-                        </span>
-                        <span class="bg-emerald-200 text-emerald-900 font-bold px-2 py-0.5 rounded text-[10px]">10 Detik</span>
-                    </div>
-                    <p class="leading-relaxed text-[11px]">
-                        Google Chrome <b>MEWAJIBKAN HTTPS</b> agar tombol "Instal Otomatis" aktif.
-                    </p>
-                    <ol class="list-decimal pl-4 space-y-1 text-[11px] font-medium text-emerald-900">
-                        <li>Buka web gratis <a href="https://app.netlify.com/drop" target="_blank" class="underline font-bold text-emerald-700">app.netlify.com/drop</a> dari HP/Laptop.</li>
-                        <li>Drag & Drop file HTML ini.</li>
-                        <li>Anda langsung dapat link `https://...` resmi. Buka link tersebut di HP, tombol **Instal 1-Tap** akan LANSUNG BEKERJA!</li>
+                    <span class="font-black text-xs text-emerald-900 uppercase tracking-wider flex items-center gap-1.5">
+                        <i class="fa-solid fa-circle-check text-emerald-600"></i> Cara Memasang PWA dari GitHub Pages di Chrome HP
+                    </span>
+                    <ol class="list-decimal pl-4 space-y-1.5 font-medium text-emerald-950 leading-relaxed text-[11px]">
+                        <li>Buka link GitHub Pages Anda di browser <b>Google Chrome</b> HP Anda.</li>
+                        <li>Tekan tombol menu <b>Titik Tiga (⋮)</b> di pojok kanan atas Chrome.</li>
+                        <li>Pilih menu <b>"Instal aplikasi"</b> (atau <i>"Add to Home screen"</i>).</li>
+                        <li>Klik <b>Instal</b> pada pop-up konfirmasi Chrome.</li>
+                        <li>Buka aplikasi dari Layar Utama HP Anda, baris URL Chrome akan **hilang sepenuhnya** dan aplikasi berjalan Fullscreen!</li>
                     </ol>
                 </div>
 
-                <!-- Solution 2: Manual Chrome Add to Home Screen -->
-                <div class="space-y-2 pt-1">
-                    <p class="font-extrabold text-slate-800 flex items-center gap-1.5">
-                        <i class="fa-solid fa-hand-pointer text-brand-600"></i> Solusi 2: Pasang Manual via Menu Chrome (Tanpa Upload)
-                    </p>
-                    <ol class="list-decimal pl-4 space-y-1.5 font-medium text-slate-700 leading-relaxed text-[11px]">
-                        <li>Buka halaman ini di browser <b>Google Chrome</b> HP Anda.</li>
-                        <li>Klik ikon <b>Titik Tiga (⋮)</b> di pojok kanan atas Chrome.</li>
-                        <li>Cari dan tekan opsi <b>"Tambahkan ke Layar Utama"</b> (<i>Add to Home Screen</i>) atau <b>"Instal aplikasi"</b>.</li>
-                        <li>Tekan <b>Tambah / Instal</b> pada pop-up konfirmasi.</li>
-                        <li>Buka aplikasi dari layar utama HP Anda, alamat URL Chrome akan hilang!</li>
-                    </ol>
-                </div>
-
-                <!-- Safari iOS Instructions -->
-                <div class="pt-2 border-t border-slate-100 space-y-1">
-                    <p class="font-extrabold text-slate-800">Khusus iPhone / iPad (Safari):</p>
-                    <p class="text-[11px] leading-relaxed">Tekan tombol <b>Share</b> (kotak dengan panah ke atas) di Safari -> Gulir ke bawah -> Pilih <b>"Tambah ke Layar Utama"</b>.</p>
+                <div class="pt-1 border-t border-slate-100 space-y-1">
+                    <p class="font-extrabold text-slate-800">Khusus pengguna iPhone (Safari):</p>
+                    <p class="text-[11px] leading-relaxed">Tekan tombol <b>Share</b> (kotak dengan panah atas) di Safari -> Gulir ke bawah -> Pilih <b>"Tambah ke Layar Utama"</b>.</p>
                 </div>
             </div>
 
             <div class="pt-2">
                 <button onclick="triggerPWAInstall(true)" class="w-full bg-brand-700 hover:bg-brand-800 text-white font-bold py-3 rounded-xl text-xs sm:text-sm transition shadow active:scale-95 flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-download"></i> Coba Picu Instal Otomatis Lagi
+                    <i class="fa-solid fa-download"></i> Coba Minta Prompt Instal Chrome
                 </button>
             </div>
         </div>
@@ -645,10 +710,18 @@ function doPost(e) {
         let deferredPWAInstallPrompt = null;
         let googleScriptUrl = "";
 
-        // Scanning Debounce & Duplicate Prevention State
+        // STRICT Debounce & QR Single Trigger Lock State
         let lastScannedCode = "";
         let lastScanTime = 0;
         let isProcessingScan = false;
+
+        /* Register PWA Install Event Listener immediately */
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPWAInstallPrompt = e;
+            const banner = document.getElementById('pwa-install-banner');
+            if (banner) banner.classList.remove('hidden');
+        });
 
         /* Default Pekon Panggungrejo Utara Sample Residents */
         const defaultSampleResidents = [
@@ -660,9 +733,8 @@ function doPost(e) {
             { id_warga: "W-006", kode_qr: "QR-PGR-RT05-001", nama: "Pak Slamet", rt: "RT 05", no_rumah: "No. 03" }
         ];
 
-        /* Application Initialization */
         window.addEventListener('DOMContentLoaded', () => {
-            registerInlineServiceWorker();
+            registerServiceWorkerSafely();
             loadInitialStorage();
             updateNetworkStatus();
             checkPWAStandaloneMode();
@@ -671,29 +743,22 @@ function doPost(e) {
             renderResidentList();
             renderTransactionHistory();
             renderPrintableCards();
-            setupPWAInstallPrompt();
 
             window.addEventListener('online', updateNetworkStatus);
             window.addEventListener('offline', updateNetworkStatus);
+
+            // Auto-fetch data from cloud if script URL is available
+            if (googleScriptUrl && navigator.onLine) {
+                fetchDataFromCloud(true);
+            }
         });
 
-        /* Inline Service Worker Registration for PWA Compliance */
-        function registerInlineServiceWorker() {
+        /* Safe Service Worker Registration for GitHub Pages */
+        function registerServiceWorkerSafely() {
             if ('serviceWorker' in navigator) {
-                try {
-                    navigator.serviceWorker.register('./sw.js').catch(() => {
-                        const swScript = `
-                            const CACHE_NAME = 'ejimpitan-v1';
-                            self.addEventListener('install', (e) => self.skipWaiting());
-                            self.addEventListener('activate', (e) => e.waitUntil(clients.claim()));
-                            self.addEventListener('fetch', (e) => {
-                                e.respondWith(fetch(e.request).catch(() => new Response('Offline')));
-                            });
-                        `;
-                        const blob = new Blob([swScript], { type: 'application/javascript' });
-                        navigator.serviceWorker.register(URL.createObjectURL(blob)).catch(() => {});
-                    });
-                } catch(e) {}
+                navigator.serviceWorker.register('./sw.js').catch(err => {
+                    // Fallback when sw.js is not present as a separate file
+                });
             }
         }
 
@@ -706,7 +771,7 @@ function doPost(e) {
             }
         }
 
-        /* Web Audio API Beep Synthesizer */
+        /* Web Audio Synthesizer Beep */
         function playBeepSound(type = 'success') {
             try {
                 const ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -740,7 +805,7 @@ function doPost(e) {
             } catch (e) { console.log('Audio error:', e); }
         }
 
-        /* Storage Helper */
+        /* Local Storage Management */
         function loadInitialStorage() {
             const storedWarga = localStorage.getItem('ejimpitan_warga');
             residentsData = storedWarga ? JSON.parse(storedWarga) : defaultSampleResidents;
@@ -783,7 +848,6 @@ function doPost(e) {
             }
         }
 
-        /* Camera Scanner Functions */
         function toggleCamera() {
             if (isScannerRunning) {
                 stopCamera();
@@ -836,7 +900,7 @@ function doPost(e) {
                             document.getElementById('camera-status-badge').className = "text-xs bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-lg font-bold";
                         })
                         .catch(() => {
-                            showToast("Gagal membuka kamera HP! Gunakan fitur Upload Foto QR.", "error");
+                            showToast("Gagal membuka kamera! Gunakan fitur Upload Foto QR.", "error");
                             document.getElementById('scanner-placeholder').classList.remove('hidden');
                             document.getElementById('scanner-overlay').classList.add('hidden');
                         });
@@ -886,20 +950,23 @@ function doPost(e) {
                 });
         }
 
-        /* Fixed QR Scan Handler - Single Notification & Auto Focus to Nominal Input */
+        /* QR SCAN HANDLER - Single Notification & Lock Guard */
         function onQrScanSuccess(decodedText) {
+            // Guard 1: Ignore scan if process is currently locked
+            if (isProcessingScan) return;
+
             const now = Date.now();
-            
-            // Prevent duplicate triggers within 3 seconds or while processing
-            if (isProcessingScan || (decodedText === lastScannedCode && (now - lastScanTime < 3000))) {
+            // Guard 2: Ignore duplicate code within 5 seconds
+            if (decodedText === lastScannedCode && (now - lastScanTime < 5000)) {
                 return;
             }
 
+            // Lock scanner process immediately
             isProcessingScan = true;
             lastScannedCode = decodedText;
             lastScanTime = now;
 
-            // Pause camera loop temporarily
+            // Pause camera loop to prevent duplicate callbacks
             if (html5QrCodeScanner) {
                 try { html5QrCodeScanner.pause(true); } catch(e){}
             }
@@ -907,17 +974,24 @@ function doPost(e) {
             const resident = residentsData.find(r => r.kode_qr === decodedText || r.id_warga === decodedText);
             
             if (resident) {
-                // Single Success Beep Sound
+                // Play single audio beep
                 playBeepSound('success');
                 
-                // Single Toast Notification
-                showToast(`Scan Berhasil! Warga: ${resident.nama}`, "success");
+                // Show single toast notification
+                showToast(`Scan Berhasil: ${resident.nama}`, "success");
 
-                // Auto select resident
+                // Auto select resident in input form
                 document.getElementById('input-warga-id').value = resident.id_warga;
                 updateResidentInfoCard(resident);
 
-                // Auto Scroll directly to Form & Focus on Nominal Input Box
+                // Update visual badge indicator
+                const statusBadge = document.getElementById('camera-status-badge');
+                if (statusBadge) {
+                    statusBadge.innerText = `Terpindai: ${resident.nama}`;
+                    statusBadge.className = "text-xs bg-emerald-600 text-white px-2.5 py-1 rounded-lg font-black animate-pulse";
+                }
+
+                // Smooth scroll directly to form & focus on nominal input
                 const formSection = document.getElementById('section-form-jimpitan');
                 if (formSection) {
                     formSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -929,15 +1003,19 @@ function doPost(e) {
                         nominalInput.focus();
                         nominalInput.select();
                     }
-                    isProcessingScan = false;
-                }, 400);
+                }, 350);
 
-                // Resume camera scanning after 3.5 seconds delay
+                // Unlock process & resume camera scanning after 5 seconds delay
                 setTimeout(() => {
+                    isProcessingScan = false;
+                    if (statusBadge && isScannerRunning) {
+                        statusBadge.innerText = "Kamera Aktif";
+                        statusBadge.className = "text-xs bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-lg font-bold";
+                    }
                     if (html5QrCodeScanner && isScannerRunning) {
                         try { html5QrCodeScanner.resume(); } catch(e){}
                     }
-                }, 3500);
+                }, 5000);
 
             } else {
                 playBeepSound('error');
@@ -947,7 +1025,7 @@ function doPost(e) {
                     if (html5QrCodeScanner && isScannerRunning) {
                         try { html5QrCodeScanner.resume(); } catch(e){}
                     }
-                }, 2000);
+                }, 3000);
             }
         }
 
@@ -1031,6 +1109,7 @@ function doPost(e) {
             renderTransactionHistory();
 
             // Resume scanner ready for next scan
+            isProcessingScan = false;
             if (html5QrCodeScanner && isScannerRunning) {
                 try { html5QrCodeScanner.resume(); } catch(err){}
             }
@@ -1053,29 +1132,96 @@ function doPost(e) {
             });
         }
 
-        function syncTransactionsWithCloud() {
+        /* Multi-Device Data Sync (Fetch & Merge Residents and Transactions) */
+        function fetchDataFromCloud(silent = false) {
             if (!googleScriptUrl) {
-                showToast("URL Google Apps Script belum diatur!", "error");
+                if (!silent) showToast("URL Google Apps Script belum diatur di Pengaturan!", "error");
                 return;
             }
             if (!navigator.onLine) {
-                showToast("Perangkat Anda sedang offline!", "error");
+                if (!silent) showToast("HP Anda sedang offline!", "error");
                 return;
             }
 
+            if (!silent) showToast("Menarik data terbaru dari Google Sheets...", "info");
+
+            fetch(googleScriptUrl)
+                .then(res => res.json())
+                .then(data => {
+                    let updatedCount = 0;
+
+                    // 1. Merge Cloud Residents
+                    if (data.residents && Array.isArray(data.residents) && data.residents.length > 0) {
+                        data.residents.forEach(cloudWarga => {
+                            const exists = residentsData.some(r => r.id_warga === cloudWarga.id_warga || r.kode_qr === cloudWarga.kode_qr);
+                            if (!exists) {
+                                residentsData.push(cloudWarga);
+                                updatedCount++;
+                            }
+                        });
+                        saveWargaToStorage();
+                        renderResidentDropdown();
+                        renderResidentList();
+                        renderPrintableCards();
+                    }
+
+                    // 2. Merge Cloud Transactions
+                    if (data.transactions && Array.isArray(data.transactions) && data.transactions.length > 0) {
+                        data.transactions.forEach(cloudTrx => {
+                            const localIndex = transactionsData.findIndex(t => t.id_transaksi === cloudTrx.id_transaksi);
+                            if (localIndex === -1) {
+                                transactionsData.push(cloudTrx);
+                            } else {
+                                transactionsData[localIndex].synced = true;
+                            }
+                        });
+                        // Sort transactions descending by time
+                        transactionsData.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+                        saveTrxToStorage();
+                        renderTransactionHistory();
+                    }
+
+                    if (!silent) {
+                        showToast(`Sync Cloud Berhasil! Data Warga & Kas Diperbarui.`, "success");
+                    }
+                })
+                .catch(err => {
+                    console.log("Error fetching cloud data:", err);
+                    if (!silent) showToast("Gagal mengambil data dari Google Sheets.", "error");
+                });
+        }
+
+        function syncAllDataWithCloud() {
+            // First send pending local transactions
             const pendingList = transactionsData.filter(t => !t.synced);
-            if (pendingList.length === 0) {
-                showToast("Semua data transaksi sudah tersinkron!", "info");
-                return;
+            if (pendingList.length > 0 && googleScriptUrl && navigator.onLine) {
+                pendingList.forEach(trx => postTransactionToCloud(trx));
             }
+            // Fetch updated residents and transactions from cloud
+            fetchDataFromCloud(false);
+        }
 
-            let count = 0;
-            pendingList.forEach(trx => {
-                postTransactionToCloud(trx);
-                count++;
-            });
+        /* Post New Resident to Cloud to Sync Across Devices */
+        function postWargaToCloud(wargaObj) {
+            if (!googleScriptUrl) return;
 
-            showToast(`Mengirim ${count} transaksi ke Google Sheets...`, "info");
+            const payload = {
+                action: "add_warga",
+                id_warga: wargaObj.id_warga,
+                kode_qr: wargaObj.kode_qr,
+                nama: wargaObj.nama,
+                rt: wargaObj.rt,
+                no_rumah: wargaObj.no_rumah
+            };
+
+            fetch(googleScriptUrl, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            }).then(() => {
+                console.log("Warga baru tersimpan ke Google Sheets");
+            }).catch(err => console.log("Gagal sync warga ke cloud:", err));
         }
 
         function renderResidentDropdown() {
@@ -1215,21 +1361,28 @@ function doPost(e) {
             const newId = "W-" + String(residentsData.length + 1).padStart(3, '0');
             const newQr = `QR-PGR-${rt.replace(/\s+/g, '')}-${String(residentsData.length + 1).padStart(3, '0')}`;
 
-            residentsData.push({
+            const newWargaObj = {
                 id_warga: newId,
                 kode_qr: newQr,
                 nama: nama,
                 rt: rt,
                 no_rumah: rumah
-            });
+            };
 
+            residentsData.push(newWargaObj);
             saveWargaToStorage();
+
+            // Automatically sync new resident to Google Sheets for other mobile devices
+            if (googleScriptUrl && navigator.onLine) {
+                postWargaToCloud(newWargaObj);
+            }
+
             renderResidentDropdown();
             renderResidentList();
             renderPrintableCards();
             closeModalAddWarga();
 
-            showToast("Data warga baru berhasil ditambahkan!", "success");
+            showToast(`Data warga ${nama} tersimpan & dikirim ke Cloud!`, "success");
             document.getElementById('add-nama').value = '';
             document.getElementById('add-rumah').value = '';
         }
@@ -1260,6 +1413,9 @@ function doPost(e) {
             googleScriptUrl = url;
             localStorage.setItem('ejimpitan_script_url', url);
             showToast("URL Google Apps Script disimpan!", "success");
+            if (url && navigator.onLine) {
+                fetchDataFromCloud(false);
+            }
         }
 
         function testGoogleSheetsConnection() {
@@ -1268,15 +1424,16 @@ function doPost(e) {
                 return;
             }
             showToast("Menguji koneksi ke Google Sheets...", "info");
-            fetch(googleScriptUrl, { method: 'GET', mode: 'no-cors' })
-                .then(() => showToast("Terhubung dengan server Google Sheets!", "success"))
-                .catch(() => showToast("Gagal terhubung ke URL Apps Script", "error"));
+            fetch(googleScriptUrl)
+                .then(res => res.json())
+                .then(() => showToast("Terhubung dengan Google Sheets!", "success"))
+                .catch(() => showToast("Gagal terhubung ke URL Apps Script.", "error"));
         }
 
         function copyAppsScriptCode() {
             const code = document.getElementById('apps-script-code-block').innerText;
             navigator.clipboard.writeText(code);
-            showToast("Kode skrip tersalin ke clipboard!", "success");
+            showToast("Kode Apps Script tersalin ke clipboard!", "success");
         }
 
         function exportToCSV() {
@@ -1309,7 +1466,7 @@ function doPost(e) {
         }
 
         function confirmResetData() {
-            if (window.confirm("Apakah Anda yakin ingin menghapus semua data transaksi & warga lokal?")) {
+            if (window.confirm("Apakah Anda yakin ingin menghapus semua data lokal?")) {
                 localStorage.clear();
                 residentsData = [];
                 transactionsData = [];
@@ -1339,7 +1496,7 @@ function doPost(e) {
             const pwaStandaloneBadge = document.getElementById('pwa-standalone-badge');
 
             if (isStandalone) {
-                if (statusDesc) statusDesc.innerText = "Aplikasi berjalan dalam mode Standalone App (Bebas Bar Browser Chrome)";
+                if (statusDesc) statusDesc.innerText = "Aplikasi berjalan dalam mode Fullscreen App (Bebas Bar Browser Chrome)";
                 if (pwaStandaloneBadge) {
                     pwaStandaloneBadge.innerText = "Standalone App";
                     pwaStandaloneBadge.className = "bg-emerald-400 text-emerald-950 text-xs font-black px-2.5 py-1 rounded-md uppercase";
@@ -1357,34 +1514,20 @@ function doPost(e) {
 
             const isHttps = window.location.protocol === 'https:';
             const isLocal = window.location.protocol === 'file:';
-            const isHttp = window.location.protocol === 'http:';
 
             if (isLocal) {
-                protoBadge.innerText = "FILE LOKAL (FILE://)";
+                protoBadge.innerText = "FILE LOKAL";
                 protoBadge.className = "px-2 py-0.5 rounded text-[10px] font-black uppercase bg-rose-900 text-rose-200";
-                reasonText.innerHTML = "<b>Penyebab Utama:</b> File dibuka sebagai file lokal (`file:///...`). Google Chrome melarang PWA terinstal otomatis dari file lokal. Gunakan <b>Solusi 1</b> (Netlify Drop) atau <b>Solusi 2</b> (Menu Titik Tiga Chrome) di bawah.";
-            } else if (isHttp && window.location.hostname !== 'localhost') {
-                protoBadge.innerText = "HTTP TANPA SSL";
-                protoBadge.className = "px-2 py-0.5 rounded text-[10px] font-black uppercase bg-amber-900 text-amber-200";
-                reasonText.innerHTML = "<b>Penyebab Utama:</b> Tautan ini menggunakan `http://` tanpa SSL HTTPS. Chrome membutuhkan HTTPS untuk tombol 1-Tap.";
+                reasonText.innerHTML = "File dibuka secara lokal. Upload ke <b>GitHub Pages</b> agar tombol instal PWA aktif!";
             } else if (isHttps) {
                 protoBadge.innerText = "HTTPS TERHUBUNG";
                 protoBadge.className = "px-2 py-0.5 rounded text-[10px] font-black uppercase bg-emerald-900 text-emerald-200";
-                reasonText.innerHTML = "Koneksi HTTPS sudah aktif! Jika tombol belum merespon, tekan menu Titik Tiga (⋮) di Chrome -> Pilih <b>'Instal aplikasi'</b>.";
+                reasonText.innerHTML = "Koneksi HTTPS GitHub Pages Aktif! Tekan menu <b>Titik Tiga (⋮)</b> di Chrome -> Pilih <b>'Instal aplikasi'</b>.";
             } else {
-                protoBadge.innerText = "LOCALHOST";
-                protoBadge.className = "px-2 py-0.5 rounded text-[10px] font-black uppercase bg-blue-900 text-blue-200";
-                reasonText.innerHTML = "Berjalan di Server Lokal.";
+                protoBadge.innerText = "HTTP STANDARD";
+                protoBadge.className = "px-2 py-0.5 rounded text-[10px] font-black uppercase bg-amber-900 text-amber-200";
+                reasonText.innerHTML = "Pastikan tautan menggunakan HTTPS.";
             }
-        }
-
-        function setupPWAInstallPrompt() {
-            window.addEventListener('beforeinstallprompt', (e) => {
-                e.preventDefault();
-                deferredPWAInstallPrompt = e;
-                const banner = document.getElementById('pwa-install-banner');
-                if (banner) banner.classList.remove('hidden');
-            });
         }
 
         function triggerPWAInstall(fromModal = false) {
@@ -1392,17 +1535,16 @@ function doPost(e) {
                 deferredPWAInstallPrompt.prompt();
                 deferredPWAInstallPrompt.userChoice.then((choiceResult) => {
                     if (choiceResult.outcome === 'accepted') {
-                        showToast("Aplikasi E-Jimpitan berhasil dipasang!", "success");
+                        showToast("Aplikasi E-JIMPITAN berhasil dipasang!", "success");
                     }
                     deferredPWAInstallPrompt = null;
                     dismissPWABanner();
                     if (fromModal) closePWAHelpModal();
                 });
             } else {
-                // If deferred prompt is null (e.g. running from local file or HTTP), open diagnostic modal automatically
                 openPWAHelpModal();
                 if (fromModal) {
-                    showToast("Sistem Chrome memblokir tombol otomatis. Gunakan Solusi 1 atau Solusi 2 di panduan.", "info");
+                    showToast("Gunakan menu Titik Tiga (⋮) di Chrome -> 'Instal Aplikasi'", "info");
                 }
             }
         }
@@ -1412,7 +1554,7 @@ function doPost(e) {
             if (banner) banner.classList.add('hidden');
         }
 
-        /* Toast Message Engine */
+        /* Toast Notification Engine */
         function showToast(msg, type = "info") {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
