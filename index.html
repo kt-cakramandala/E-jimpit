@@ -1,0 +1,1382 @@
+<!DOCTYPE html>
+<html lang="id" class="h-full bg-slate-100">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>E-JIMPITAN Panggungrejo Utara</title>
+    
+    <!-- PWA & Mobile Standalone Tags -->
+    <meta name="theme-color" content="#047857">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="E-Jimpitan">
+    <meta name="application-name" content="E-Jimpitan">
+    
+    <!-- Inline Web App Manifest for Fullscreen PWA -->
+    <link id="manifest-link" rel="manifest" href='data:application/manifest+json;charset=utf-8,{"id":"ejimpitan-panggungrejo-utara","name":"E-JIMPITAN Panggungrejo Utara","short_name":"E-Jimpitan","start_url":"./","scope":"./","display":"standalone","display_override":["standalone","minimal-ui"],"orientation":"portrait","background_color":"#047857","theme_color":"#047857","description":"Aplikasi Pendataan Jimpitan Warga Pekon Panggungrejo Utara","icons":[{"src":"https://cdn-icons-png.flaticon.com/512/3135/3135715.png","sizes":"192x192","type":"image/png","purpose":"any maskable"},{"src":"https://cdn-icons-png.flaticon.com/512/3135/3135715.png","sizes":"512x512","type":"image/png","purpose":"any maskable"}]}'>
+
+    <!-- Fonts & External Libraries -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#ecfdf5',
+                            100: '#d1fae5',
+                            200: '#a7f3d0',
+                            500: '#10b981',
+                            600: '#059669',
+                            700: '#047857',
+                            800: '#065f46',
+                            900: '#064e3b',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- HTML5 QR Code Reader Library -->
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+
+    <!-- QRCode Generator Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
+        .scan-laser { animation: scanAnimation 2s infinite ease-in-out; }
+        @keyframes scanAnimation {
+            0% { top: 5%; opacity: 0.8; }
+            50% { top: 90%; opacity: 1; }
+            100% { top: 5%; opacity: 0.8; }
+        }
+        @media print {
+            .no-print { display: none !important; }
+            .print-only { display: block !important; }
+            body { background: white; color: black; padding: 0; margin: 0; }
+        }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        #reader video { object-fit: cover !important; border-radius: 1rem; width: 100% !important; }
+    </style>
+</head>
+<body class="h-full flex flex-col bg-slate-100 text-slate-800 antialiased selection:bg-brand-500 selection:text-white pb-20 md:pb-6">
+
+    <!-- PWA Install Banner Header -->
+    <div id="pwa-install-banner" class="hidden bg-gradient-to-r from-amber-500 via-amber-600 to-amber-500 text-white px-4 py-2.5 shadow-md sticky top-0 z-50">
+        <div class="max-w-5xl mx-auto flex items-center justify-between gap-3 text-sm">
+            <div class="flex items-center gap-2">
+                <i class="fa-solid fa-mobile-screen-button text-xl animate-bounce shrink-0"></i>
+                <div class="leading-tight">
+                    <span class="font-black block text-xs sm:text-sm">Pasang E-Jimpitan ke Layar Utama HP</span>
+                    <span class="text-[10px] sm:text-xs opacity-95">Buka full-screen tanpa baris URL Chrome</span>
+                </div>
+            </div>
+            <div class="flex items-center gap-1.5 shrink-0">
+                <button onclick="triggerPWAInstall()" class="bg-white text-amber-900 font-extrabold px-3 py-1.5 rounded-lg text-xs hover:bg-amber-50 transition shadow flex items-center gap-1 active:scale-95">
+                    <i class="fa-solid fa-download"></i> Instal
+                </button>
+                <button onclick="dismissPWABanner()" class="text-white opacity-80 hover:opacity-100 p-1">
+                    <i class="fa-solid fa-xmark text-base"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Clean Modern Main Header -->
+    <header class="bg-gradient-to-r from-brand-900 via-brand-800 to-brand-900 text-white shadow-md sticky top-0 z-40 border-b border-brand-700/50">
+        <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
+            <!-- Simplified Brand Logo and Title -->
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 sm:w-11 sm:h-11 bg-white rounded-2xl flex items-center justify-center shadow-md border-2 border-brand-200 p-1 shrink-0">
+                    <svg viewBox="0 0 100 100" class="w-full h-full text-brand-700">
+                        <path d="M50 8 L85 22 V46 C85 68 50 90 50 90 C50 90 15 68 15 46 V22 L50 8 Z" fill="#047857"/>
+                        <circle cx="50" cy="42" r="16" fill="#FACC15"/>
+                        <text x="50" y="47" font-size="16" font-weight="900" fill="#064E3B" text-anchor="middle">Rp</text>
+                        <path d="M32 66 C32 60 68 60 68 66 L70 78 C70 82 30 82 30 78 Z" fill="#FFFFFF"/>
+                        <ellipse cx="50" cy="66" rx="15" ry="3" fill="#CBD5E1"/>
+                        <line x1="42" y1="72" x2="58" y2="72" stroke="#047857" stroke-width="2.5" stroke-linecap="round"/>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-base sm:text-lg font-black tracking-wide leading-none text-white flex items-center gap-1.5">
+                        E-JIMPITAN
+                    </h1>
+                    <p class="text-xs text-brand-200 font-bold tracking-tight mt-0.5">Panggungrejo Utara</p>
+                </div>
+            </div>
+
+            <!-- Header Controls -->
+            <div class="flex items-center space-x-2">
+                <button onclick="openPWAHelpModal()" class="bg-amber-400/20 hover:bg-amber-400/30 text-amber-200 border border-amber-400/40 text-xs font-bold px-2.5 py-1.5 rounded-xl flex items-center gap-1.5 transition active:scale-95" title="Petunjuk Mode Fullscreen App">
+                    <i class="fa-solid fa-mobile-screen text-xs"></i>
+                    <span class="hidden sm:inline">Mode App</span>
+                </button>
+                <div id="connection-status" class="flex items-center gap-1 bg-emerald-950/70 text-emerald-200 text-xs px-2.5 py-1.5 rounded-xl border border-emerald-500/40 font-bold">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <span id="status-text" class="hidden sm:inline">Online</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 max-w-5xl w-full mx-auto p-3 sm:p-5">
+
+        <!-- Responsive Navigation Bar -->
+        <nav class="flex bg-white p-1.5 rounded-2xl shadow-sm border border-slate-200/80 mb-4 overflow-x-auto no-scrollbar no-print gap-1">
+            <button id="tab-btn-scan" onclick="switchTab('scan')" class="tab-btn flex-1 min-w-[85px] py-2.5 px-3 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition bg-brand-700 text-white shadow">
+                <i class="fa-solid fa-qrcode text-base"></i>
+                <span>Scan QR</span>
+            </button>
+            <button id="tab-btn-warga" onclick="switchTab('warga')" class="tab-btn flex-1 min-w-[85px] py-2.5 px-3 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition text-slate-600 hover:bg-slate-100">
+                <i class="fa-solid fa-users text-base"></i>
+                <span>Data Warga</span>
+            </button>
+            <button id="tab-btn-rekap" onclick="switchTab('rekap')" class="tab-btn flex-1 min-w-[85px] py-2.5 px-3 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition text-slate-600 hover:bg-slate-100">
+                <i class="fa-solid fa-chart-pie text-base"></i>
+                <span>Rekap Kas</span>
+            </button>
+            <button id="tab-btn-cetak" onclick="switchTab('cetak')" class="tab-btn flex-1 min-w-[85px] py-2.5 px-3 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition text-slate-600 hover:bg-slate-100">
+                <i class="fa-solid fa-print text-base"></i>
+                <span>Cetak QR</span>
+            </button>
+            <button id="tab-btn-settings" onclick="switchTab('settings')" class="tab-btn flex-1 min-w-[85px] py-2.5 px-3 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition text-slate-600 hover:bg-slate-100">
+                <i class="fa-solid fa-gear text-base"></i>
+                <span>Pengaturan</span>
+            </button>
+        </nav>
+
+        <!-- TAB 1: SCANNER & INPUT JIMPITAN -->
+        <div id="tab-scan" class="tab-content space-y-4">
+            
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+                
+                <!-- Camera Scanner Window -->
+                <div class="lg:col-span-6 bg-white p-4 sm:p-5 rounded-2xl shadow-sm border border-slate-200/80 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <h2 class="font-bold text-slate-800 text-sm sm:text-base flex items-center gap-2">
+                                <i class="fa-solid fa-camera text-brand-600"></i> Kamera Scanner QR Warga
+                            </h2>
+                            <span class="text-xs bg-slate-100 text-slate-600 px-2.5 py-1 rounded-lg font-semibold" id="camera-status-badge">Kamera Nonaktif</span>
+                        </div>
+
+                        <!-- Browser camera boundary alert -->
+                        <div id="unsecure-origin-alert" class="hidden mb-3 p-3 bg-amber-50 border border-amber-300 rounded-xl text-amber-900 text-xs leading-relaxed space-y-1">
+                            <p class="font-bold flex items-center gap-1 text-amber-800">
+                                <i class="fa-solid fa-triangle-exclamation text-amber-600"></i> Izin Kamera Dibatasi
+                            </p>
+                            <p class="opacity-90">Kamera membutuhkan akses <b>HTTPS</b> atau browser Chrome standar. Jika bermasalah, gunakan tombol <b>"Upload Foto QR"</b> di bawah.</p>
+                        </div>
+
+                        <!-- Scanner Viewport Frame -->
+                        <div id="reader-wrapper" class="relative bg-slate-950 rounded-2xl overflow-hidden min-h-[270px] flex items-center justify-center border-2 border-dashed border-slate-300 shadow-inner">
+                            <div id="reader" class="w-full"></div>
+                            
+                            <!-- Laser Overlay -->
+                            <div id="scanner-overlay" class="absolute inset-0 pointer-events-none hidden">
+                                <div class="w-full h-1 bg-gradient-to-r from-transparent via-brand-500 to-transparent absolute scan-laser shadow-lg"></div>
+                                <div class="absolute inset-6 border-2 border-brand-400/80 rounded-2xl"></div>
+                            </div>
+
+                            <!-- Initial Placeholder UI -->
+                            <div id="scanner-placeholder" class="text-center p-6 text-slate-400">
+                                <div class="w-16 h-16 bg-slate-800/80 rounded-2xl flex items-center justify-center mx-auto mb-3 text-brand-400 text-3xl shadow-md border border-slate-700">
+                                    <i class="fa-solid fa-qrcode"></i>
+                                </div>
+                                <p class="text-xs sm:text-sm font-bold text-slate-200 mb-1">Arahkan Kamera ke Kode QR Rumah Warga</p>
+                                <p class="text-[11px] text-slate-400 mb-3">Tekan tombol nyalakan kamera di bawah ini</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Camera Action Controls -->
+                    <div class="mt-4 space-y-2">
+                        <div class="flex flex-wrap gap-2">
+                            <button id="btn-toggle-cam" onclick="toggleCamera()" class="flex-1 bg-brand-700 hover:bg-brand-800 text-white font-bold py-3 px-4 rounded-xl text-xs sm:text-sm transition flex items-center justify-center gap-2 shadow-sm active:scale-95">
+                                <i class="fa-solid fa-power-off text-base"></i>
+                                <span id="btn-cam-text">Nyalakan Kamera</span>
+                            </button>
+                            <button onclick="switchCameraFacing()" id="btn-flip-cam" class="hidden bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold p-3 rounded-xl text-xs sm:text-sm transition active:scale-95" title="Ganti Kamera">
+                                <i class="fa-solid fa-camera-rotate text-base"></i>
+                            </button>
+                        </div>
+
+                        <!-- Gallery Fallback -->
+                        <div class="pt-2 border-t border-slate-100 flex items-center justify-between gap-2">
+                            <span class="text-[11px] font-medium text-slate-500">Pindai foto dari Galeri HP:</span>
+                            <label class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-3 py-2 rounded-xl text-xs transition cursor-pointer flex items-center gap-1.5 shrink-0 active:scale-95">
+                                <i class="fa-solid fa-image text-brand-600"></i>
+                                <span>Upload Foto QR</span>
+                                <input type="file" id="qr-file-input" accept="image/*" class="hidden" onchange="scanQRFromFile(this)">
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Input Nominal & Form -->
+                <div class="lg:col-span-6 bg-white p-4 sm:p-5 rounded-2xl shadow-sm border border-slate-200/80" id="section-form-jimpitan">
+                    
+                    <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-100">
+                        <h2 class="font-bold text-slate-800 text-sm sm:text-base flex items-center gap-2">
+                            <i class="fa-solid fa-hand-holding-dollar text-brand-600"></i> Form Input Nominal Jimpitan
+                        </h2>
+                        <span class="text-xs font-bold text-brand-700 bg-brand-50 px-2.5 py-1 rounded-lg border border-brand-200">Langkah 2: Isi Nominal</span>
+                    </div>
+
+                    <form id="form-jimpitan" onsubmit="handleSaveTransaction(event)" class="space-y-4">
+                        
+                        <!-- Resident Selector -->
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1.5">Pilih / Pindai Warga <span class="text-rose-500">*</span></label>
+                            <div class="relative">
+                                <select id="input-warga-id" required onchange="onResidentSelectedManual(this.value)" class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-xs sm:text-sm rounded-xl focus:ring-brand-500 focus:border-brand-500 p-3 pr-10 font-semibold appearance-none">
+                                    <option value="">-- Cari atau Pilih Nama Warga --</option>
+                                </select>
+                                <div class="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none text-slate-400">
+                                    <i class="fa-solid fa-chevron-down text-xs"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Scanned Resident Card Preview -->
+                        <div id="resident-info-card" class="bg-gradient-to-br from-brand-50 to-emerald-50 border border-brand-200 rounded-2xl p-3.5 flex items-center justify-between shadow-sm transition-all duration-300">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 rounded-xl bg-brand-700 text-white flex items-center justify-center font-black text-sm shadow shrink-0">
+                                    <i class="fa-solid fa-house-user"></i>
+                                </div>
+                                <div class="min-w-0">
+                                    <h3 id="card-warga-nama" class="font-bold text-slate-800 text-xs sm:text-sm truncate">Belum Ada Warga Terpilih</h3>
+                                    <p id="card-warga-sub" class="text-[11px] text-slate-500 truncate">Scan QR atau pilih nama dari dropdown di atas</p>
+                                </div>
+                            </div>
+                            <span id="card-warga-rt" class="text-xs font-bold bg-brand-700 text-white px-2.5 py-1 rounded-lg shrink-0">RT -</span>
+                        </div>
+
+                        <!-- Nominal Buttons -->
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1.5">Pilih Nominal Uang Jimpitan <span class="text-rose-500">*</span></label>
+                            <div class="grid grid-cols-3 gap-2 mb-2.5">
+                                <button type="button" onclick="setNominal(500)" class="btn-nominal py-2.5 px-2 bg-slate-100 hover:bg-brand-100 hover:text-brand-800 text-slate-700 font-bold rounded-xl text-xs border border-slate-200 transition active:scale-95">Rp 500</button>
+                                <button type="button" onclick="setNominal(1000)" class="btn-nominal py-2.5 px-2 bg-brand-100 text-brand-900 font-black rounded-xl text-xs border border-brand-300 transition active:scale-95 shadow-sm">Rp 1.000</button>
+                                <button type="button" onclick="setNominal(2000)" class="btn-nominal py-2.5 px-2 bg-slate-100 hover:bg-brand-100 hover:text-brand-800 text-slate-700 font-bold rounded-xl text-xs border border-slate-200 transition active:scale-95">Rp 2.000</button>
+                                <button type="button" onclick="setNominal(5000)" class="btn-nominal py-2.5 px-2 bg-slate-100 hover:bg-brand-100 hover:text-brand-800 text-slate-700 font-bold rounded-xl text-xs border border-slate-200 transition active:scale-95">Rp 5.000</button>
+                                <button type="button" onclick="setNominal(10000)" class="btn-nominal py-2.5 px-2 bg-slate-100 hover:bg-brand-100 hover:text-brand-800 text-slate-700 font-bold rounded-xl text-xs border border-slate-200 transition active:scale-95">Rp 10.000</button>
+                                <button type="button" onclick="focusCustomNominal()" class="py-2.5 px-2 bg-amber-50 hover:bg-amber-100 text-amber-800 font-bold rounded-xl text-xs border border-amber-300 transition active:scale-95">Kustom</button>
+                            </div>
+                            
+                            <!-- Direct Nominal Input -->
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-xs font-bold text-slate-400">Rp</span>
+                                <input type="number" id="input-nominal" required min="100" step="100" placeholder="Masukkan Nominal" class="w-full bg-slate-50 border border-slate-300 text-slate-900 font-black text-base sm:text-lg rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500 pl-10 p-3 shadow-inner">
+                            </div>
+                        </div>
+
+                        <!-- Officer Name Input -->
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1.5">Nama Petugas Ronda <span class="text-rose-500">*</span></label>
+                            <input type="text" id="input-petugas" required placeholder="Contoh: Pak Budi / Regu A" class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-xs sm:text-sm font-semibold rounded-xl p-3 focus:ring-brand-500 focus:border-brand-500">
+                        </div>
+
+                        <!-- Save Submit Button -->
+                        <button type="submit" id="btn-submit-transaksi" class="w-full bg-gradient-to-r from-brand-600 via-brand-700 to-brand-800 hover:from-brand-700 hover:to-brand-900 text-white font-bold py-3.5 px-4 rounded-xl text-sm transition shadow-md shadow-brand-600/20 flex items-center justify-center gap-2 active:scale-98">
+                            <i class="fa-solid fa-floppy-disk text-base"></i>
+                            <span>Simpan Transaksi Jimpitan</span>
+                        </button>
+                    </form>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- TAB 2: DATA WARGA PEKON -->
+        <div id="tab-warga" class="tab-content hidden space-y-4">
+            
+            <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200/80 flex flex-col sm:flex-row gap-3 items-center justify-between">
+                <div class="flex-1 w-full sm:w-auto flex items-center gap-2">
+                    <div class="relative flex-1">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3.5 text-slate-400 text-xs"></i>
+                        <input type="text" id="search-warga" oninput="renderResidentList()" placeholder="Cari nama warga, RT, atau no rumah..." class="w-full bg-slate-50 border border-slate-300 text-xs sm:text-sm rounded-xl pl-9 p-2.5 focus:ring-brand-500 focus:border-brand-500">
+                    </div>
+                    <select id="filter-rt-warga" onchange="renderResidentList()" class="bg-slate-50 border border-slate-300 text-xs sm:text-sm rounded-xl p-2.5 font-bold text-slate-700">
+                        <option value="">Semua RT</option>
+                        <option value="RT 01">RT 01</option>
+                        <option value="RT 02">RT 02</option>
+                        <option value="RT 03">RT 03</option>
+                        <option value="RT 04">RT 04</option>
+                        <option value="RT 05">RT 05</option>
+                    </select>
+                </div>
+                
+                <button onclick="openModalAddWarga()" class="w-full sm:w-auto bg-brand-700 hover:bg-brand-800 text-white font-bold px-4 py-2.5 rounded-xl text-xs sm:text-sm flex items-center justify-center gap-2 transition shadow-sm active:scale-95">
+                    <i class="fa-solid fa-user-plus"></i>
+                    <span>Tambah Warga Baru</span>
+                </button>
+            </div>
+
+            <div id="resident-cards-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                <!-- Dynamically Populated -->
+            </div>
+
+        </div>
+
+        <!-- TAB 3: REKAPITULASI KAS JIMPITAN -->
+        <div id="tab-rekap" class="tab-content hidden space-y-4">
+            
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Total Hari Ini</span>
+                    <h3 id="stat-hari-ini" class="text-base sm:text-lg font-black text-brand-700">Rp 0</h3>
+                </div>
+                <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Total Bulan Ini</span>
+                    <h3 id="stat-bulan-ini" class="text-base sm:text-lg font-black text-slate-800">Rp 0</h3>
+                </div>
+                <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Total Transaksi</span>
+                    <h3 id="stat-total-trx" class="text-base sm:text-lg font-black text-slate-800">0</h3>
+                </div>
+                <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Status Sync Cloud</span>
+                    <h3 id="stat-pending-sync" class="text-base sm:text-lg font-black text-amber-600">0 Pending</h3>
+                </div>
+            </div>
+
+            <div class="bg-white p-4 sm:p-5 rounded-2xl shadow-sm border border-slate-200/80">
+                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4 pb-3 border-b border-slate-100">
+                    <div>
+                        <h2 class="font-bold text-slate-800 text-sm sm:text-base">Riwayat Kas Jimpitan Pekon</h2>
+                        <p class="text-xs text-slate-500">Catatan masuk kas jimpitan dari ronda warga</p>
+                    </div>
+                    
+                    <div class="flex flex-wrap gap-2 w-full sm:w-auto">
+                        <button onclick="syncTransactionsWithCloud()" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 font-bold text-xs px-3 py-2 rounded-xl flex items-center gap-1.5 transition active:scale-95">
+                            <i class="fa-solid fa-cloud-arrow-up"></i> Sync Cloud
+                        </button>
+                        <button onclick="exportToCSV()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs px-3 py-2 rounded-xl flex items-center gap-1.5 transition active:scale-95">
+                            <i class="fa-solid fa-file-excel text-emerald-600"></i> Ekspor CSV
+                        </button>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="border-b border-slate-200 text-[11px] font-bold uppercase text-slate-400 bg-slate-50">
+                                <th class="p-3">Waktu</th>
+                                <th class="p-3">Warga / Rumah</th>
+                                <th class="p-3">RT</th>
+                                <th class="p-3">Nominal</th>
+                                <th class="p-3">Petugas</th>
+                                <th class="p-3">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-history-body" class="text-xs font-medium text-slate-700 divide-y divide-slate-100">
+                            <!-- Populated Dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- TAB 4: CETAK KARTU QR WARGA -->
+        <div id="tab-cetak" class="tab-content hidden space-y-4">
+            
+            <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200/80 flex flex-col sm:flex-row items-center justify-between gap-3 no-print">
+                <div>
+                    <h2 class="font-bold text-slate-800 text-sm sm:text-base">Cetak Kartu QR Jimpitan Rumah</h2>
+                    <p class="text-xs text-slate-500">Tempelkan kartu ini di depan pintu/tiang rumah warga untuk di-scan petugas</p>
+                </div>
+                <div class="flex gap-2 w-full sm:w-auto">
+                    <select id="select-print-rt" onchange="renderPrintableCards()" class="bg-slate-50 border border-slate-300 text-xs rounded-xl p-2.5 font-bold text-slate-700 flex-1 sm:flex-none">
+                        <option value="">Semua RT</option>
+                        <option value="RT 01">RT 01</option>
+                        <option value="RT 02">RT 02</option>
+                        <option value="RT 03">RT 03</option>
+                        <option value="RT 04">RT 04</option>
+                        <option value="RT 05">RT 05</option>
+                    </select>
+                    <button onclick="window.print()" class="bg-brand-700 hover:bg-brand-800 text-white font-bold px-4 py-2.5 rounded-xl text-xs flex items-center justify-center gap-2 shadow active:scale-95">
+                        <i class="fa-solid fa-print"></i> Cetak / Print PDF
+                    </button>
+                </div>
+            </div>
+
+            <div id="printable-cards-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <!-- Dynamically generated Badges -->
+            </div>
+
+        </div>
+
+        <!-- TAB 5: PENGATURAN & INTEGRASI GOOGLE SHEETS -->
+        <div id="tab-settings" class="tab-content hidden space-y-5">
+
+            <!-- PWA Standalone Mode Info Card -->
+            <div class="bg-gradient-to-r from-emerald-800 to-brand-900 text-white p-5 rounded-2xl shadow-sm space-y-3">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2.5">
+                        <i class="fa-solid fa-mobile-screen-button text-2xl text-emerald-300"></i>
+                        <div>
+                            <h3 class="font-bold text-sm sm:text-base">Status Mode Tampilan Fullscreen</h3>
+                            <p class="text-xs text-brand-200" id="pwa-status-description">Mengecek status mode aplikasi...</p>
+                        </div>
+                    </div>
+                    <span id="pwa-standalone-badge" class="bg-amber-400 text-amber-950 text-xs font-black px-2.5 py-1 rounded-md uppercase">Mode Browser</span>
+                </div>
+                
+                <button onclick="openPWAHelpModal()" class="w-full bg-white/10 hover:bg-white/20 text-white font-bold py-2.5 px-3 rounded-xl text-xs border border-white/20 flex items-center justify-center gap-2 transition active:scale-95">
+                    <i class="fa-solid fa-circle-info text-amber-300"></i> Petunjuk Lengkap Cara Instal Aplikasi di HP
+                </button>
+            </div>
+            
+            <!-- Google Sheets Integration -->
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 space-y-4">
+                <div class="flex items-center space-x-3 pb-3 border-b border-slate-100">
+                    <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-lg">
+                        <i class="fa-solid fa-file-csv"></i>
+                    </div>
+                    <div>
+                        <h2 class="font-bold text-slate-800 text-sm sm:text-base">Koneksi Database Google Sheets</h2>
+                        <p class="text-xs text-slate-500">Hubungkan aplikasi dengan Google Sheets Anda secara gratis</p>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">URL Web App Google Apps Script</label>
+                    <input type="url" id="input-script-url" placeholder="https://script.google.com/macros/s/AKfycbx.../exec" class="w-full bg-slate-50 border border-slate-300 text-xs sm:text-sm font-mono rounded-xl p-3 focus:ring-brand-500 focus:border-brand-500">
+                    <p class="text-[11px] text-slate-400 mt-1">Masukkan URL Web App (*Deploy as Web App, Access: Anyone*)</p>
+                </div>
+
+                <div class="flex gap-2">
+                    <button onclick="saveSettings()" class="bg-brand-700 hover:bg-brand-800 text-white font-bold px-4 py-2.5 rounded-xl text-xs flex items-center gap-2 active:scale-95">
+                        <i class="fa-solid fa-floppy-disk"></i> Simpan URL
+                    </button>
+                    <button onclick="testGoogleSheetsConnection()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-4 py-2.5 rounded-xl text-xs flex items-center gap-2 active:scale-95">
+                        <i class="fa-solid fa-network-wired"></i> Tes Koneksi
+                    </button>
+                </div>
+            </div>
+
+            <!-- Apps Script Helper Code -->
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 space-y-3">
+                <div class="flex items-center justify-between">
+                    <h3 class="font-bold text-slate-800 text-xs sm:text-sm">Kode Google Apps Script</h3>
+                    <button onclick="copyAppsScriptCode()" class="bg-brand-50 hover:bg-brand-100 text-brand-800 border border-brand-200 font-bold text-xs px-3 py-1.5 rounded-lg flex items-center gap-1 active:scale-95">
+                        <i class="fa-solid fa-copy"></i> Salin Kode
+                    </button>
+                </div>
+                <pre class="bg-slate-900 text-emerald-400 p-3.5 rounded-xl text-[11px] font-mono overflow-x-auto max-h-48 border border-slate-800 leading-relaxed" id="apps-script-code-block">
+function doPost(e) {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  var data = JSON.parse(e.postData.contents);
+  sheet.appendRow([
+    new Date(),
+    data.id_transaksi,
+    data.id_warga,
+    data.nama_warga,
+    data.rt,
+    data.nominal,
+    data.petugas
+  ]);
+  return ContentService.createTextOutput(JSON.stringify({"result": "success"}))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+                </pre>
+            </div>
+
+            <!-- Local Data Reset -->
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 space-y-3">
+                <h3 class="font-bold text-slate-800 text-xs sm:text-sm">Pemeliharaan Data Lokal</h3>
+                <div class="flex flex-wrap gap-2">
+                    <button onclick="loadSampleData()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-3.5 py-2 rounded-xl text-xs active:scale-95">
+                        <i class="fa-solid fa-database mr-1"></i> Muat Data Warga Pekon
+                    </button>
+                    <button onclick="confirmResetData()" class="bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 font-bold px-3.5 py-2 rounded-xl text-xs active:scale-95">
+                        <i class="fa-solid fa-trash mr-1"></i> Reset Semua Data
+                    </button>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- Modal: Add Resident -->
+    <div id="modal-add-warga" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-5 shadow-2xl space-y-4">
+            <div class="flex items-center justify-between pb-2 border-b border-slate-100">
+                <h3 class="font-bold text-slate-800 text-base">Tambah Warga Pekon Baru</h3>
+                <button onclick="closeModalAddWarga()" class="text-slate-400 hover:text-slate-600 p-1"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <form onsubmit="handleSaveNewWarga(event)" class="space-y-3">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Nama Kepala Keluarga / Warga</label>
+                    <input type="text" id="add-nama" required placeholder="Contoh: Pak Supriyadi" class="w-full bg-slate-50 border border-slate-300 text-xs sm:text-sm rounded-xl p-2.5">
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Rukun Tetangga (RT)</label>
+                        <select id="add-rt" required class="w-full bg-slate-50 border border-slate-300 text-xs sm:text-sm rounded-xl p-2.5 font-bold">
+                            <option value="RT 01">RT 01</option>
+                            <option value="RT 02">RT 02</option>
+                            <option value="RT 03">RT 03</option>
+                            <option value="RT 04">RT 04</option>
+                            <option value="RT 05">RT 05</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Nomor / Blok Rumah</label>
+                        <input type="text" id="add-rumah" required placeholder="No. 12 B" class="w-full bg-slate-50 border border-slate-300 text-xs sm:text-sm rounded-xl p-2.5">
+                    </div>
+                </div>
+                <button type="submit" class="w-full bg-brand-700 hover:bg-brand-800 text-white font-bold py-3 rounded-xl text-xs sm:text-sm transition shadow-md active:scale-95">
+                    Simpan Data Warga
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: View Resident QR Code -->
+    <div id="modal-qr-preview" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-sm w-full p-6 text-center shadow-2xl space-y-4">
+            <h3 id="modal-qr-title" class="font-black text-slate-800 text-base">QR Code Warga</h3>
+            <p id="modal-qr-sub" class="text-xs text-slate-500">Pekon Panggungrejo Utara</p>
+            <div id="qrcode-modal-container" class="flex justify-center p-3 bg-slate-50 rounded-xl border border-slate-200 my-2"></div>
+            <button onclick="closeModalQRPreview()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold py-2.5 rounded-xl text-xs active:scale-95">Tutup</button>
+        </div>
+    </div>
+
+    <!-- Modal: PWA Fullscreen Installation Help Guide -->
+    <div id="modal-pwa-help" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-5 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between pb-2 border-b border-slate-100">
+                <h3 class="font-bold text-slate-800 text-sm sm:text-base flex items-center gap-2">
+                    <i class="fa-solid fa-mobile-screen text-brand-600"></i> Cara Instal Aplikasi di HP (Full Screen)
+                </h3>
+                <button onclick="closePWAHelpModal()" class="text-slate-400 hover:text-slate-600 p-1"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+
+            <div class="space-y-3 text-xs text-slate-700">
+                <div class="bg-amber-50 border border-amber-200 p-3 rounded-xl text-amber-900 space-y-1">
+                    <p class="font-bold flex items-center gap-1.5 text-amber-800">
+                        <i class="fa-solid fa-lightbulb"></i> Mengapa harus di-instal?
+                    </p>
+                    <p class="leading-relaxed">Agar aplikasi dapat dibuka langsung dari layar HP tanpa tampilan baris URL / address bar Chrome, dan bekerja lebih cepat layaknya aplikasi Play Store.</p>
+                </div>
+
+                <div class="space-y-2">
+                    <p class="font-extrabold text-slate-800">Langkah-langkah untuk Google Chrome Android:</p>
+                    <ol class="list-decimal pl-4 space-y-1.5 font-medium leading-relaxed">
+                        <li>Buka tautan website ini menggunakan browser <b>Google Chrome</b>.</li>
+                        <li>Tekan tombol menu <b>Titik Tiga (⋮)</b> di pojok kanan atas Chrome.</li>
+                        <li>Pilih opsi <b>"Instal aplikasi"</b> (atau <i>"Tambahkan ke Layar Utama"</i>).</li>
+                        <li>Tekan <b>Instal</b> saat muncul konfirmasi pop-up.</li>
+                        <li>Tutup browser, lalu buka ikon <b>E-Jimpitan</b> baru dari menu aplikasi HP Anda!</li>
+                    </ol>
+                </div>
+
+                <div class="pt-2 border-t border-slate-100 space-y-2">
+                    <p class="font-extrabold text-slate-800">Untuk iPhone / Safari (iOS):</p>
+                    <ol class="list-decimal pl-4 space-y-1.5 font-medium leading-relaxed">
+                        <li>Buka link di browser <b>Safari</b>.</li>
+                        <li>Tekan tombol <b>Share / Bagikan</b> (Ikon kotak dengan panah ke atas).</li>
+                        <li>Gulir ke bawah lalu pilih <b>"Tambah ke Layar Utama"</b> (<i>Add to Home Screen</i>).</li>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="pt-2">
+                <button onclick="triggerPWAInstall(); closePWAHelpModal();" class="w-full bg-brand-700 hover:bg-brand-800 text-white font-bold py-3 rounded-xl text-xs sm:text-sm transition shadow active:scale-95 flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-download"></i> Coba Instal Otomatis Sekarang
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Toast Notification Container -->
+    <div id="toast-container" class="fixed bottom-20 left-1/2 -translate-x-1/2 z-50 flex flex-col gap-2 pointer-events-none w-11/12 max-w-md"></div>
+
+    <script>
+        let residentsData = [];
+        let transactionsData = [];
+        let html5QrCodeScanner = null;
+        let isScannerRunning = false;
+        let facingMode = "environment";
+        let deferredPWAInstallPrompt = null;
+        let googleScriptUrl = "";
+
+        // Scanning Debounce & Duplicate Prevention State
+        let lastScannedCode = "";
+        let lastScanTime = 0;
+        let isProcessingScan = false;
+
+        /* Default Pekon Panggungrejo Utara Sample Residents */
+        const defaultSampleResidents = [
+            { id_warga: "W-001", kode_qr: "QR-PGR-RT01-001", nama: "Pak Supriyadi", rt: "RT 01", no_rumah: "No. 01" },
+            { id_warga: "W-002", kode_qr: "QR-PGR-RT01-002", nama: "Pak Handoko", rt: "RT 01", no_rumah: "No. 05" },
+            { id_warga: "W-003", kode_qr: "QR-PGR-RT02-001", nama: "Ibu Maryati", rt: "RT 02", no_rumah: "No. 12" },
+            { id_warga: "W-004", kode_qr: "QR-PGR-RT03-001", nama: "Pak Bambang S.", rt: "RT 03", no_rumah: "No. 08" },
+            { id_warga: "W-005", kode_qr: "QR-PGR-RT04-001", nama: "Pak Sugeng", rt: "RT 04", no_rumah: "No. 20" },
+            { id_warga: "W-006", kode_qr: "QR-PGR-RT05-001", nama: "Pak Slamet", rt: "RT 05", no_rumah: "No. 03" }
+        ];
+
+        /* Application Initialization */
+        window.addEventListener('DOMContentLoaded', () => {
+            registerInlineServiceWorker();
+            loadInitialStorage();
+            updateNetworkStatus();
+            checkPWAStandaloneMode();
+            checkSecureOrigin();
+            renderResidentDropdown();
+            renderResidentList();
+            renderTransactionHistory();
+            renderPrintableCards();
+            setupPWAInstallPrompt();
+
+            window.addEventListener('online', updateNetworkStatus);
+            window.addEventListener('offline', updateNetworkStatus);
+        });
+
+        /* Inline Service Worker Registration for PWA Compliance */
+        function registerInlineServiceWorker() {
+            if ('serviceWorker' in navigator) {
+                try {
+                    const swScript = `
+                        const CACHE_NAME = 'ejimpitan-v1';
+                        self.addEventListener('install', (e) => self.skipWaiting());
+                        self.addEventListener('activate', (e) => e.waitUntil(clients.claim()));
+                        self.addEventListener('fetch', (e) => {
+                            e.respondWith(fetch(e.request).catch(() => new Response('Offline')));
+                        });
+                    `;
+                    const blob = new Blob([swScript], { type: 'application/javascript' });
+                    const blobUrl = URL.createObjectURL(blob);
+                    navigator.serviceWorker.register(blobUrl).catch(() => {});
+                } catch(e) {}
+            }
+        }
+
+        function checkSecureOrigin() {
+            const isLocal = window.location.protocol === 'file:';
+            const isUnsecureHttp = window.location.protocol === 'http:' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
+            if (isLocal || isUnsecureHttp || !window.isSecureContext) {
+                const alertEl = document.getElementById('unsecure-origin-alert');
+                if (alertEl) alertEl.classList.remove('hidden');
+            }
+        }
+
+        /* Web Audio API Beep Synthesizer */
+        function playBeepSound(type = 'success') {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+
+                if (type === 'success') {
+                    osc.frequency.setValueAtTime(880, ctx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(1200, ctx.currentTime + 0.1);
+                    gain.gain.setValueAtTime(0.3, ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.15);
+                    osc.start();
+                    osc.stop(ctx.currentTime + 0.15);
+                } else if (type === 'chime') {
+                    osc.frequency.setValueAtTime(523.25, ctx.currentTime);
+                    osc.frequency.setValueAtTime(659.25, ctx.currentTime + 0.1);
+                    gain.gain.setValueAtTime(0.25, ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
+                    osc.start();
+                    osc.stop(ctx.currentTime + 0.3);
+                } else if (type === 'error') {
+                    osc.frequency.setValueAtTime(300, ctx.currentTime);
+                    osc.frequency.setValueAtTime(200, ctx.currentTime + 0.1);
+                    gain.gain.setValueAtTime(0.3, ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.2);
+                    osc.start();
+                    osc.stop(ctx.currentTime + 0.2);
+                }
+            } catch (e) { console.log('Audio error:', e); }
+        }
+
+        /* Storage Helper */
+        function loadInitialStorage() {
+            const storedWarga = localStorage.getItem('ejimpitan_warga');
+            residentsData = storedWarga ? JSON.parse(storedWarga) : defaultSampleResidents;
+            if (!storedWarga) localStorage.setItem('ejimpitan_warga', JSON.stringify(residentsData));
+
+            const storedTrx = localStorage.getItem('ejimpitan_transactions');
+            transactionsData = storedTrx ? JSON.parse(storedTrx) : [];
+
+            googleScriptUrl = localStorage.getItem('ejimpitan_script_url') || "";
+            document.getElementById('input-script-url').value = googleScriptUrl;
+
+            const lastPetugas = localStorage.getItem('ejimpitan_last_petugas');
+            if (lastPetugas) document.getElementById('input-petugas').value = lastPetugas;
+        }
+
+        function saveWargaToStorage() {
+            localStorage.setItem('ejimpitan_warga', JSON.stringify(residentsData));
+        }
+
+        function saveTrxToStorage() {
+            localStorage.setItem('ejimpitan_transactions', JSON.stringify(transactionsData));
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('bg-brand-700', 'text-white', 'shadow');
+                btn.classList.add('text-slate-600');
+            });
+
+            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+            const activeBtn = document.getElementById(`tab-btn-${tabId}`);
+            if (activeBtn) {
+                activeBtn.classList.add('bg-brand-700', 'text-white', 'shadow');
+                activeBtn.classList.remove('text-slate-600');
+            }
+
+            if (tabId !== 'scan' && isScannerRunning) {
+                stopCamera();
+            }
+        }
+
+        /* Camera Scanner Functions */
+        function toggleCamera() {
+            if (isScannerRunning) {
+                stopCamera();
+            } else {
+                startCamera();
+            }
+        }
+
+        function startCamera() {
+            document.getElementById('scanner-placeholder').classList.add('hidden');
+            document.getElementById('scanner-overlay').classList.remove('hidden');
+
+            const readerElement = document.getElementById('reader');
+            readerElement.innerHTML = '';
+
+            html5QrCodeScanner = new Html5Qrcode("reader");
+
+            const qrboxFunction = function(viewfinderWidth, viewfinderHeight) {
+                let minEdgePercentage = 0.68;
+                let minEdgeSize = Math.min(viewfinderWidth, viewfinderHeight);
+                let qrboxSize = Math.floor(minEdgeSize * minEdgePercentage);
+                return {
+                    width: Math.max(qrboxSize, 180),
+                    height: Math.max(qrboxSize, 180)
+                };
+            };
+
+            const config = { 
+                fps: 10, 
+                qrbox: qrboxFunction,
+                aspectRatio: 1.0,
+                experimentalFeatures: { useBarCodeDetectorIfSupported: true }
+            };
+
+            html5QrCodeScanner.start({ facingMode: facingMode }, config, onQrScanSuccess, onQrScanError)
+                .then(() => {
+                    isScannerRunning = true;
+                    document.getElementById('btn-cam-text').innerText = "Matikan Kamera";
+                    document.getElementById('btn-flip-cam').classList.remove('hidden');
+                    document.getElementById('camera-status-badge').innerText = "Kamera Aktif";
+                    document.getElementById('camera-status-badge').className = "text-xs bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-lg font-bold";
+                })
+                .catch(err => {
+                    html5QrCodeScanner.start({ facingMode: "user" }, config, onQrScanSuccess, onQrScanError)
+                        .then(() => {
+                            isScannerRunning = true;
+                            document.getElementById('btn-cam-text').innerText = "Matikan Kamera";
+                            document.getElementById('btn-flip-cam').classList.remove('hidden');
+                            document.getElementById('camera-status-badge').innerText = "Kamera Aktif";
+                            document.getElementById('camera-status-badge').className = "text-xs bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-lg font-bold";
+                        })
+                        .catch(() => {
+                            showToast("Gagal membuka kamera HP! Gunakan fitur Upload Foto QR.", "error");
+                            document.getElementById('scanner-placeholder').classList.remove('hidden');
+                            document.getElementById('scanner-overlay').classList.add('hidden');
+                        });
+                });
+        }
+
+        function stopCamera() {
+            if (html5QrCodeScanner && isScannerRunning) {
+                html5QrCodeScanner.stop().then(() => {
+                    html5QrCodeScanner.clear();
+                    isScannerRunning = false;
+                    document.getElementById('btn-cam-text').innerText = "Nyalakan Kamera";
+                    document.getElementById('btn-flip-cam').classList.add('hidden');
+                    document.getElementById('camera-status-badge').innerText = "Kamera Nonaktif";
+                    document.getElementById('camera-status-badge').className = "text-xs bg-slate-100 text-slate-600 px-2.5 py-1 rounded-lg font-semibold";
+                    document.getElementById('scanner-placeholder').classList.remove('hidden');
+                    document.getElementById('scanner-overlay').classList.add('hidden');
+                }).catch(() => {
+                    isScannerRunning = false;
+                });
+            }
+        }
+
+        function switchCameraFacing() {
+            facingMode = (facingMode === "environment") ? "user" : "environment";
+            if (isScannerRunning) {
+                stopCamera();
+                setTimeout(startCamera, 300);
+            }
+        }
+
+        function scanQRFromFile(fileInput) {
+            if (!fileInput.files || fileInput.files.length === 0) return;
+            const imageFile = fileInput.files[0];
+
+            showToast("Membaca kode QR dari foto...", "info");
+
+            const tempScanner = new Html5Qrcode("reader");
+            tempScanner.scanFile(imageFile, true)
+                .then(decodedText => {
+                    onQrScanSuccess(decodedText);
+                    fileInput.value = "";
+                })
+                .catch(() => {
+                    showToast("Tidak dapat membaca QR Code pada gambar tersebut!", "error");
+                    fileInput.value = "";
+                });
+        }
+
+        /* Fixed QR Scan Handler - Single Notification & Auto Focus to Nominal Input */
+        function onQrScanSuccess(decodedText) {
+            const now = Date.now();
+            
+            // Prevent duplicate triggers within 3 seconds or while processing
+            if (isProcessingScan || (decodedText === lastScannedCode && (now - lastScanTime < 3000))) {
+                return;
+            }
+
+            isProcessingScan = true;
+            lastScannedCode = decodedText;
+            lastScanTime = now;
+
+            // Pause camera loop temporarily
+            if (html5QrCodeScanner) {
+                try { html5QrCodeScanner.pause(true); } catch(e){}
+            }
+
+            const resident = residentsData.find(r => r.kode_qr === decodedText || r.id_warga === decodedText);
+            
+            if (resident) {
+                // Single Success Beep Sound
+                playBeepSound('success');
+                
+                // Single Toast Notification
+                showToast(`Scan Berhasil! Warga: ${resident.nama}`, "success");
+
+                // Auto select resident
+                document.getElementById('input-warga-id').value = resident.id_warga;
+                updateResidentInfoCard(resident);
+
+                // Auto Scroll directly to Form & Focus on Nominal Input Box
+                const formSection = document.getElementById('section-form-jimpitan');
+                if (formSection) {
+                    formSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+
+                setTimeout(() => {
+                    const nominalInput = document.getElementById('input-nominal');
+                    if (nominalInput) {
+                        nominalInput.focus();
+                        nominalInput.select();
+                    }
+                    isProcessingScan = false;
+                }, 400);
+
+                // Resume camera scanning after 3.5 seconds delay
+                setTimeout(() => {
+                    if (html5QrCodeScanner && isScannerRunning) {
+                        try { html5QrCodeScanner.resume(); } catch(e){}
+                    }
+                }, 3500);
+
+            } else {
+                playBeepSound('error');
+                showToast("Kode QR tidak terdaftar di Pekon Panggungrejo Utara!", "error");
+                setTimeout(() => {
+                    isProcessingScan = false;
+                    if (html5QrCodeScanner && isScannerRunning) {
+                        try { html5QrCodeScanner.resume(); } catch(e){}
+                    }
+                }, 2000);
+            }
+        }
+
+        function onQrScanError(errorMessage) {
+            // Scanner frame noise suppression
+        }
+
+        function onResidentSelectedManual(wargaId) {
+            const resident = residentsData.find(r => r.id_warga === wargaId);
+            if (resident) {
+                updateResidentInfoCard(resident);
+            } else {
+                resetResidentInfoCard();
+            }
+        }
+
+        function updateResidentInfoCard(r) {
+            document.getElementById('card-warga-nama').innerText = r.nama;
+            document.getElementById('card-warga-sub').innerText = `Rumah: ${r.no_rumah} | QR: ${r.kode_qr}`;
+            document.getElementById('card-warga-rt').innerText = r.rt;
+        }
+
+        function resetResidentInfoCard() {
+            document.getElementById('card-warga-nama').innerText = "Belum Ada Warga Terpilih";
+            document.getElementById('card-warga-sub').innerText = "Scan QR atau pilih nama dari dropdown di atas";
+            document.getElementById('card-warga-rt').innerText = "RT -";
+        }
+
+        function setNominal(val) {
+            document.getElementById('input-nominal').value = val;
+        }
+
+        function focusCustomNominal() {
+            const inp = document.getElementById('input-nominal');
+            inp.value = '';
+            inp.focus();
+        }
+
+        /* Transaction Form Submission */
+        function handleSaveTransaction(e) {
+            e.preventDefault();
+
+            const wargaId = document.getElementById('input-warga-id').value;
+            const nominal = parseInt(document.getElementById('input-nominal').value);
+            const petugas = document.getElementById('input-petugas').value.trim();
+
+            if (!wargaId || !nominal || !petugas) {
+                showToast("Mohon isi semua data form jimpitan!", "error");
+                return;
+            }
+
+            const resident = residentsData.find(r => r.id_warga === wargaId);
+            if (!resident) return;
+
+            const newTrx = {
+                id_transaksi: "TRX-" + Date.now(),
+                timestamp: new Date().toISOString(),
+                id_warga: resident.id_warga,
+                nama_warga: resident.nama,
+                rt: resident.rt,
+                no_rumah: resident.no_rumah,
+                nominal: nominal,
+                petugas: petugas,
+                synced: false
+            };
+
+            transactionsData.unshift(newTrx);
+            saveTrxToStorage();
+            localStorage.setItem('ejimpitan_last_petugas', petugas);
+
+            playBeepSound('chime');
+            showToast(`Uang Jimpitan Rp ${nominal.toLocaleString('id-ID')} tersimpan!`, "success");
+
+            if (googleScriptUrl && navigator.onLine) {
+                postTransactionToCloud(newTrx);
+            }
+
+            document.getElementById('input-nominal').value = '';
+            document.getElementById('input-warga-id').value = '';
+            resetResidentInfoCard();
+            renderTransactionHistory();
+
+            // Resume scanner ready for next scan
+            if (html5QrCodeScanner && isScannerRunning) {
+                try { html5QrCodeScanner.resume(); } catch(err){}
+            }
+        }
+
+        function postTransactionToCloud(trxObj) {
+            if (!googleScriptUrl) return;
+
+            fetch(googleScriptUrl, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(trxObj)
+            }).then(() => {
+                trxObj.synced = true;
+                saveTrxToStorage();
+                renderTransactionHistory();
+            }).catch(err => {
+                console.log("Cloud sync delayed:", err);
+            });
+        }
+
+        function syncTransactionsWithCloud() {
+            if (!googleScriptUrl) {
+                showToast("URL Google Apps Script belum diatur!", "error");
+                return;
+            }
+            if (!navigator.onLine) {
+                showToast("Perangkat Anda sedang offline!", "error");
+                return;
+            }
+
+            const pendingList = transactionsData.filter(t => !t.synced);
+            if (pendingList.length === 0) {
+                showToast("Semua data transaksi sudah tersinkron!", "info");
+                return;
+            }
+
+            let count = 0;
+            pendingList.forEach(trx => {
+                postTransactionToCloud(trx);
+                count++;
+            });
+
+            showToast(`Mengirim ${count} transaksi ke Google Sheets...`, "info");
+        }
+
+        function renderResidentDropdown() {
+            const select = document.getElementById('input-warga-id');
+            select.innerHTML = '<option value="">-- Cari atau Pilih Nama Warga --</option>';
+            residentsData.forEach(r => {
+                select.innerHTML += `<option value="${r.id_warga}">${r.nama} (${r.rt} - ${r.no_rumah})</option>`;
+            });
+        }
+
+        function renderResidentList() {
+            const container = document.getElementById('resident-cards-grid');
+            const search = document.getElementById('search-warga').value.toLowerCase();
+            const filterRt = document.getElementById('filter-rt-warga').value;
+
+            const filtered = residentsData.filter(r => {
+                const matchSearch = r.nama.toLowerCase().includes(search) || r.no_rumah.toLowerCase().includes(search) || r.rt.toLowerCase().includes(search);
+                const matchRt = !filterRt || r.rt === filterRt;
+                return matchSearch && matchRt;
+            });
+
+            container.innerHTML = '';
+            if (filtered.length === 0) {
+                container.innerHTML = '<div class="col-span-full py-8 text-center text-slate-400 text-xs font-semibold">Tidak ada data warga ditemukan</div>';
+                return;
+            }
+
+            filtered.forEach(r => {
+                container.innerHTML += `
+                    <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm flex items-center justify-between">
+                        <div class="space-y-1">
+                            <span class="text-[10px] font-black bg-brand-100 text-brand-800 px-2 py-0.5 rounded">${r.rt}</span>
+                            <h4 class="font-bold text-slate-800 text-sm">${r.nama}</h4>
+                            <p class="text-xs text-slate-500">Rumah: ${r.no_rumah}</p>
+                            <p class="text-[11px] font-mono text-slate-400">${r.kode_qr}</p>
+                        </div>
+                        <button onclick="previewQRModal('${r.nama}', '${r.rt}', '${r.kode_qr}')" class="w-10 h-10 rounded-xl bg-slate-100 hover:bg-brand-50 text-slate-700 hover:text-brand-700 flex items-center justify-center transition active:scale-95">
+                            <i class="fa-solid fa-qrcode text-lg"></i>
+                        </button>
+                    </div>
+                `;
+            });
+        }
+
+        function renderTransactionHistory() {
+            const tbody = document.getElementById('table-history-body');
+            tbody.innerHTML = '';
+
+            let todayTotal = 0;
+            let monthTotal = 0;
+            let pendingCount = 0;
+
+            const now = new Date();
+            const todayStr = now.toISOString().split('T')[0];
+
+            transactionsData.forEach(t => {
+                const dateObj = new Date(t.timestamp);
+                const isToday = t.timestamp.startsWith(todayStr);
+                
+                if (isToday) todayTotal += t.nominal;
+                if (dateObj.getMonth() === now.getMonth() && dateObj.getFullYear() === now.getFullYear()) {
+                    monthTotal += t.nominal;
+                }
+                if (!t.synced) pendingCount++;
+
+                const formattedTime = dateObj.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
+
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50">
+                        <td class="p-3 text-slate-500 font-mono text-[11px]">${formattedTime}</td>
+                        <td class="p-3 font-bold text-slate-800">${t.nama_warga} <span class="text-[10px] text-slate-400 block font-normal">${t.no_rumah}</span></td>
+                        <td class="p-3"><span class="bg-slate-100 text-slate-700 font-bold px-2 py-0.5 rounded text-[10px]">${t.rt}</span></td>
+                        <td class="p-3 font-black text-brand-700">Rp ${t.nominal.toLocaleString('id-ID')}</td>
+                        <td class="p-3 text-slate-600">${t.petugas}</td>
+                        <td class="p-3">
+                            ${t.synced 
+                                ? '<span class="text-[10px] font-bold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full"><i class="fa-solid fa-check mr-1"></i>Cloud</span>'
+                                : '<span class="text-[10px] font-bold bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full"><i class="fa-solid fa-clock mr-1"></i>Lokal</span>'}
+                        </td>
+                    </tr>
+                `;
+            });
+
+            document.getElementById('stat-hari-ini').innerText = `Rp ${todayTotal.toLocaleString('id-ID')}`;
+            document.getElementById('stat-bulan-ini').innerText = `Rp ${monthTotal.toLocaleString('id-ID')}`;
+            document.getElementById('stat-total-trx').innerText = transactionsData.length;
+            document.getElementById('stat-pending-sync').innerText = `${pendingCount} Pending`;
+        }
+
+        function renderPrintableCards() {
+            const container = document.getElementById('printable-cards-grid');
+            const filterRt = document.getElementById('select-print-rt').value;
+            container.innerHTML = '';
+
+            const list = residentsData.filter(r => !filterRt || r.rt === filterRt);
+
+            list.forEach((r, idx) => {
+                const qrDivId = `qr-card-gen-${idx}`;
+                container.innerHTML += `
+                    <div class="bg-white border-2 border-slate-800 rounded-2xl p-4 text-center space-y-3 relative overflow-hidden shadow-sm">
+                        <div class="bg-brand-800 text-white p-2 rounded-xl">
+                            <h4 class="font-black text-xs uppercase tracking-wider">E-JIMPITAN PEKON</h4>
+                            <p class="text-[10px] text-brand-100">Panggungrejo Utara</p>
+                        </div>
+                        <div id="${qrDivId}" class="flex justify-center my-2"></div>
+                        <div>
+                            <h3 class="font-black text-slate-900 text-sm">${r.nama}</h3>
+                            <p class="text-xs font-bold text-brand-700">${r.rt} — Rumah ${r.no_rumah}</p>
+                            <p class="text-[10px] font-mono text-slate-400 mt-1">${r.kode_qr}</p>
+                        </div>
+                    </div>
+                `;
+
+                setTimeout(() => {
+                    const el = document.getElementById(qrDivId);
+                    if (el) {
+                        el.innerHTML = '';
+                        new QRCode(el, { text: r.kode_qr, width: 110, height: 110 });
+                    }
+                }, 100);
+            });
+        }
+
+        function openModalAddWarga() {
+            document.getElementById('modal-add-warga').classList.remove('hidden');
+        }
+        function closeModalAddWarga() {
+            document.getElementById('modal-add-warga').classList.add('hidden');
+        }
+
+        function handleSaveNewWarga(e) {
+            e.preventDefault();
+            const nama = document.getElementById('add-nama').value.trim();
+            const rt = document.getElementById('add-rt').value;
+            const rumah = document.getElementById('add-rumah').value.trim();
+
+            const newId = "W-" + String(residentsData.length + 1).padStart(3, '0');
+            const newQr = `QR-PGR-${rt.replace(/\s+/g, '')}-${String(residentsData.length + 1).padStart(3, '0')}`;
+
+            residentsData.push({
+                id_warga: newId,
+                kode_qr: newQr,
+                nama: nama,
+                rt: rt,
+                no_rumah: rumah
+            });
+
+            saveWargaToStorage();
+            renderResidentDropdown();
+            renderResidentList();
+            renderPrintableCards();
+            closeModalAddWarga();
+
+            showToast("Data warga baru berhasil ditambahkan!", "success");
+            document.getElementById('add-nama').value = '';
+            document.getElementById('add-rumah').value = '';
+        }
+
+        function previewQRModal(nama, rt, qrCode) {
+            document.getElementById('modal-qr-title').innerText = nama;
+            document.getElementById('modal-qr-sub').innerText = `${rt} — Kode: ${qrCode}`;
+            const container = document.getElementById('qrcode-modal-container');
+            container.innerHTML = '';
+            new QRCode(container, { text: qrCode, width: 160, height: 160 });
+            document.getElementById('modal-qr-preview').classList.remove('hidden');
+        }
+
+        function closeModalQRPreview() {
+            document.getElementById('modal-qr-preview').classList.add('hidden');
+        }
+
+        function openPWAHelpModal() {
+            document.getElementById('modal-pwa-help').classList.remove('hidden');
+        }
+
+        function closePWAHelpModal() {
+            document.getElementById('modal-pwa-help').classList.add('hidden');
+        }
+
+        function saveSettings() {
+            const url = document.getElementById('input-script-url').value.trim();
+            googleScriptUrl = url;
+            localStorage.setItem('ejimpitan_script_url', url);
+            showToast("URL Google Apps Script disimpan!", "success");
+        }
+
+        function testGoogleSheetsConnection() {
+            if (!googleScriptUrl) {
+                showToast("Masukkan URL Apps Script terlebih dahulu!", "error");
+                return;
+            }
+            showToast("Menguji koneksi ke Google Sheets...", "info");
+            fetch(googleScriptUrl, { method: 'GET', mode: 'no-cors' })
+                .then(() => showToast("Terhubung dengan server Google Sheets!", "success"))
+                .catch(() => showToast("Gagal terhubung ke URL Apps Script", "error"));
+        }
+
+        function copyAppsScriptCode() {
+            const code = document.getElementById('apps-script-code-block').innerText;
+            navigator.clipboard.writeText(code);
+            showToast("Kode skrip tersalin ke clipboard!", "success");
+        }
+
+        function exportToCSV() {
+            if (transactionsData.length === 0) {
+                showToast("Belum ada data transaksi untuk diekspor!", "error");
+                return;
+            }
+
+            let csvContent = "data:text/csv;charset=utf-8,ID Transaksi,Tanggal Waktu,ID Warga,Nama Warga,RT,No Rumah,Nominal,Petugas\n";
+            transactionsData.forEach(t => {
+                csvContent += `"${t.id_transaksi}","${t.timestamp}","${t.id_warga}","${t.nama_warga}","${t.rt}","${t.no_rumah}",${t.nominal},"${t.petugas}"\n`;
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `Rekap_Jimpitan_Pekon_Panggungrejo_Utara_${new Date().toISOString().split('T')[0]}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function loadSampleData() {
+            residentsData = defaultSampleResidents;
+            saveWargaToStorage();
+            renderResidentDropdown();
+            renderResidentList();
+            renderPrintableCards();
+            showToast("Data contoh Pekon berhasil dimuat!", "success");
+        }
+
+        function confirmResetData() {
+            if (window.confirm("Apakah Anda yakin ingin menghapus semua data transaksi & warga lokal?")) {
+                localStorage.clear();
+                residentsData = [];
+                transactionsData = [];
+                renderResidentDropdown();
+                renderResidentList();
+                renderTransactionHistory();
+                renderPrintableCards();
+                showToast("Semua data lokal telah dibersihkan!", "info");
+            }
+        }
+
+        function updateNetworkStatus() {
+            const badge = document.getElementById('connection-status');
+            const statusText = document.getElementById('status-text');
+            if (navigator.onLine) {
+                statusText.innerText = "Online";
+                badge.className = "flex items-center gap-1 bg-emerald-950/70 text-emerald-200 text-xs px-2.5 py-1.5 rounded-xl border border-emerald-500/40 font-bold";
+            } else {
+                statusText.innerText = "Offline";
+                badge.className = "flex items-center gap-1 bg-amber-950/70 text-amber-200 text-xs px-2.5 py-1.5 rounded-xl border border-amber-500/40 font-bold";
+            }
+        }
+
+        function checkPWAStandaloneMode() {
+            const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+            const statusDesc = document.getElementById('pwa-status-description');
+            const pwaStandaloneBadge = document.getElementById('pwa-standalone-badge');
+
+            if (isStandalone) {
+                if (statusDesc) statusDesc.innerText = "Aplikasi berjalan dalam mode Standalone App (Bebas Bar Browser Chrome)";
+                if (pwaStandaloneBadge) {
+                    pwaStandaloneBadge.innerText = "Standalone App";
+                    pwaStandaloneBadge.className = "bg-emerald-400 text-emerald-950 text-xs font-black px-2.5 py-1 rounded-md uppercase";
+                }
+            } else {
+                if (statusDesc) statusDesc.innerText = "Aplikasi terbuka dalam browser tab (Belum terpasang sebagai App di HP)";
+            }
+        }
+
+        function setupPWAInstallPrompt() {
+            window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                deferredPWAInstallPrompt = e;
+                const banner = document.getElementById('pwa-install-banner');
+                if (banner) banner.classList.remove('hidden');
+            });
+        }
+
+        function triggerPWAInstall() {
+            if (deferredPWAInstallPrompt) {
+                deferredPWAInstallPrompt.prompt();
+                deferredPWAInstallPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        showToast("Aplikasi E-Jimpitan berhasil dipasang!", "success");
+                    }
+                    deferredPWAInstallPrompt = null;
+                    dismissPWABanner();
+                });
+            } else {
+                openPWAHelpModal();
+            }
+        }
+
+        function dismissPWABanner() {
+            const banner = document.getElementById('pwa-install-banner');
+            if (banner) banner.classList.add('hidden');
+        }
+
+        /* Toast Message Engine */
+        function showToast(msg, type = "info") {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+
+            let bg = "bg-slate-900 text-white border border-slate-700";
+            if (type === "success") bg = "bg-emerald-800 text-white border border-emerald-600";
+            if (type === "error") bg = "bg-rose-800 text-white border border-rose-600";
+
+            toast.className = `${bg} px-4 py-3 rounded-2xl text-xs sm:text-sm font-bold shadow-2xl flex items-center gap-2.5 transition-all duration-300 opacity-0 transform translate-y-3`;
+            toast.innerHTML = `<i class="fa-solid fa-circle-info text-base shrink-0"></i> <span>${msg}</span>`;
+
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.classList.remove('opacity-0', 'translate-y-3');
+            }, 10);
+
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-3');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
