@@ -3,14 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>E-Jimpitan Panggungrejo Utara</title>
+    <title>E-Jimpitan Panggungrejo Utara - Web App</title>
     
+    <!-- Meta Aplikasi Web Standalone / PWA -->
     <meta name="theme-color" content="#16a34a">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="E-Jimpitan">
+    <meta name="application-name" content="E-Jimpitan">
+    <meta name="description" content="Sistem Informasi & E-Jimpitan Warga Pekon Panggungrejo Utara">
     <link id="manifest-link" rel="manifest" href="">
-    <link rel="apple-touch-icon" href="https://placehold.co/192x192/16a34a/ffffff?text=EJ">
+    <link rel="apple-touch-icon" href="https://placehold.co/192x192/16a34a/ffffff?text=E-Jim">
+    <link rel="icon" type="image/png" href="https://placehold.co/192x192/16a34a/ffffff?text=E-Jim">
 
+    <!-- CSS & JS External Libraries -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
@@ -65,35 +71,55 @@
             0% { background-color: rgba(34, 197, 94, 0.5); }
             100% { background-color: transparent; }
         }
+
+        .bounce-subtle { animation: bounceSubtle 2s infinite; }
+        @keyframes bounceSubtle {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-4px); }
+        }
     </style>
 </head>
 <body class="text-slate-800 antialiased h-screen flex flex-col overflow-hidden transition-colors duration-300">
 
-    <div id="pwa-banner" class="hidden bg-brand-600 text-white px-4 py-3 flex justify-between items-center shadow-md z-30">
+    <!-- Top PWA Install Banner -->
+    <div id="pwa-banner" class="hidden bg-gradient-to-r from-brand-700 to-brand-600 text-white px-4 py-3 flex justify-between items-center shadow-lg z-50">
         <div class="flex items-center gap-3">
-            <i class="fa-solid fa-mobile-screen-button text-xl"></i>
+            <div class="w-9 h-9 bg-white/20 rounded-xl flex items-center justify-center font-bold bounce-subtle">
+                <i class="fa-solid fa-download text-lg"></i>
+            </div>
             <div class="text-sm">
-                <p class="font-bold">Instal E-Jimpitan</p>
-                <p class="text-xs opacity-90">Pasang di HP agar lebih praktis!</p>
+                <p class="font-bold leading-tight">Instal Aplikasi E-Jimpitan</p>
+                <p class="text-xs text-brand-100">Pasang di layar HP/Laptop agar mudah diakses!</p>
             </div>
         </div>
-        <button id="btn-install-pwa" class="bg-white text-brand-700 px-3 py-1.5 rounded-lg text-sm font-bold shadow-sm hover:bg-brand-50 transition">
-            Instal
-        </button>
+        <div class="flex items-center gap-2">
+            <button id="btn-install-pwa" class="bg-white text-brand-800 px-3.5 py-1.5 rounded-xl text-xs font-bold shadow hover:bg-brand-50 transition active:scale-95">
+                Instal Sekarang
+            </button>
+            <button onclick="dismissPwaBanner()" class="text-brand-100 hover:text-white p-1 text-sm">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
     </div>
 
+    <!-- Header Utama -->
     <header class="bg-white shadow-sm border-b border-slate-100 z-40 relative no-print">
         <div class="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
             <div class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-brand-500 rounded-xl flex items-center justify-center shadow-inner">
+                <div class="w-10 h-10 bg-brand-500 rounded-xl flex items-center justify-center shadow-inner relative">
                     <i class="fa-solid fa-leaf text-white text-lg"></i>
+                    <span id="pwa-status-dot" class="absolute -top-1 -right-1 w-3 h-3 bg-emerald-400 border-2 border-white rounded-full" title="Mode Online"></span>
                 </div>
                 <div>
                     <h1 class="font-bold text-lg leading-tight text-slate-800">E-Jimpitan</h1>
-                    <p class="text-[10px] font-medium text-slate-500 uppercase tracking-wider">Panggungrejo Utara</p>
+                    <p class="text-[10px] font-medium text-slate-500 uppercase tracking-wider">Panggungrejo Utara • WebApp</p>
                 </div>
             </div>
-            <div class="flex items-center gap-3">
+            <div class="flex items-center gap-2">
+                <button onclick="openModalPwaInfo()" class="px-2.5 py-1.5 bg-brand-50 hover:bg-brand-100 text-brand-700 rounded-xl text-xs font-semibold border border-brand-200 transition flex items-center gap-1.5" title="Status PWA & Unduh">
+                    <i class="fa-solid fa-mobile-screen-button"></i>
+                    <span class="hidden sm:inline">Aplikasi Web</span>
+                </button>
                 <span id="user-role-badge" class="hidden px-2.5 py-1 bg-brand-100 text-brand-700 rounded-lg text-xs font-bold border border-brand-200"></span>
                 <button id="btn-logout" onclick="promptLogout()" class="hidden text-slate-400 hover:text-red-500 transition p-1.5" title="Keluar Aplikasi">
                     <i class="fa-solid fa-arrow-right-from-bracket text-lg"></i>
@@ -104,14 +130,15 @@
 
     <main class="flex-1 overflow-y-auto relative no-print bg-slate-50" id="main-container">
         
-        <section id="sec-login" class="max-w-md mx-auto p-6 mt-6">
+        <!-- Login Section -->
+        <section id="sec-login" class="max-w-md mx-auto p-6 mt-4">
             <div class="bg-white rounded-2xl shadow-xl border border-slate-100 p-6 md:p-8">
                 <div class="text-center mb-6">
                     <div class="w-16 h-16 bg-brand-100 text-brand-600 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-inner">
                         <i class="fa-solid fa-hand-holding-dollar text-2xl"></i>
                     </div>
                     <h2 class="text-2xl font-bold text-slate-800">Selamat Datang</h2>
-                    <p class="text-sm text-slate-500 mt-1">Silakan masuk ke sistem E-Jimpitan</p>
+                    <p class="text-sm text-slate-500 mt-1">Masuk ke Aplikasi E-Jimpitan Warga</p>
                 </div>
                 
                 <form id="login-form" onsubmit="handleLogin(event)" class="space-y-4">
@@ -134,15 +161,16 @@
                     </button>
                 </form>
 
-                <div class="mt-6 pt-6 border-t border-slate-100 text-center">
-                    <p class="text-xs text-slate-500 mb-3">Informasi Transparansi Warga</p>
+                <div class="mt-6 pt-6 border-t border-slate-100 text-center space-y-2">
+                    <p class="text-xs text-slate-500">Informasi Transparansi Warga</p>
                     <button onclick="loginAsWarga()" class="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl transition text-sm flex items-center justify-center gap-2">
-                        <i class="fa-regular fa-eye"></i> Akses Mode Warga
+                        <i class="fa-regular fa-eye"></i> Akses Mode Warga (Publik)
                     </button>
                 </div>
             </div>
         </section>
 
+        <!-- Main Application View -->
         <section id="sec-app" class="hidden max-w-5xl mx-auto p-4 pb-24 space-y-6">
             
             <div id="nav-tabs" class="flex overflow-x-auto hide-scrollbar gap-2 pb-2 border-b border-slate-200">
@@ -150,9 +178,10 @@
                 <button onclick="switchTab('scan')" id="tab-btn-scan" class="tab-btn px-4 py-2 rounded-xl text-sm font-semibold whitespace-nowrap transition hidden" data-target="tab-scan"><i class="fa-solid fa-qrcode mr-1.5"></i> Scan Jimpitan</button>
                 <button onclick="switchTab('warga')" id="tab-btn-warga" class="tab-btn px-4 py-2 rounded-xl text-sm font-semibold whitespace-nowrap transition hidden" data-target="tab-warga"><i class="fa-solid fa-users mr-1.5"></i> Data Warga</button>
                 <button onclick="switchTab('petugas')" id="tab-btn-petugas" class="tab-btn px-4 py-2 rounded-xl text-sm font-semibold whitespace-nowrap transition hidden" data-target="tab-petugas"><i class="fa-solid fa-user-shield mr-1.5"></i> Hak Akses</button>
-                <button onclick="switchTab('settings')" id="tab-btn-settings" class="tab-btn px-4 py-2 rounded-xl text-sm font-semibold whitespace-nowrap transition hidden" data-target="tab-settings"><i class="fa-solid fa-gear mr-1.5"></i> Database Server</button>
+                <button onclick="switchTab('settings')" id="tab-btn-settings" class="tab-btn px-4 py-2 rounded-xl text-sm font-semibold whitespace-nowrap transition hidden" data-target="tab-settings"><i class="fa-solid fa-floppy-disk mr-1.5"></i> Database & App</button>
             </div>
 
+            <!-- Tab Dashboard -->
             <div id="tab-dashboard" class="tab-content block space-y-6">
                 <div class="bg-gradient-to-br from-brand-600 to-brand-800 rounded-2xl p-6 text-white shadow-lg relative overflow-hidden">
                     <div class="absolute -right-10 -top-10 opacity-10">
@@ -160,7 +189,7 @@
                     </div>
                     <div class="relative z-10">
                         <h2 class="text-xl md:text-2xl font-bold" id="dash-greeting">Halo, Pengguna!</h2>
-                        <p class="text-brand-100 text-sm mt-1 mb-4" id="dash-role-desc">Sistem Informasi E-Jimpitan.</p>
+                        <p class="text-brand-100 text-sm mt-1 mb-4" id="dash-role-desc">Sistem Informasi E-Jimpitan PWA.</p>
                         <div class="bg-white/20 backdrop-blur-md rounded-xl p-4 inline-block border border-white/20">
                             <p class="text-xs text-brand-100 uppercase tracking-wider mb-1 font-semibold">Total Dana Terkumpul</p>
                             <p class="text-3xl font-bold font-mono" id="dash-total-dana">Rp 0</p>
@@ -216,6 +245,7 @@
                 </div>
             </div>
 
+            <!-- Tab QR Scanner -->
             <div id="tab-scan" class="tab-content hidden space-y-4">
                 <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-4 md:p-6 text-center">
                     <h2 class="text-xl font-bold text-slate-800 mb-1">Scanner QR Code Jimpitan</h2>
@@ -255,6 +285,7 @@
                 </div>
             </div>
 
+            <!-- Tab Data Warga -->
             <div id="tab-warga" class="tab-content hidden space-y-4">
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
                     <div>
@@ -298,6 +329,7 @@
                 </div>
             </div>
 
+            <!-- Tab Hak Akses -->
             <div id="tab-petugas" class="tab-content hidden space-y-4">
                  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
                     <div>
@@ -327,32 +359,80 @@
                 </div>
             </div>
 
+            <!-- Tab Database & Web App Download -->
             <div id="tab-settings" class="tab-content hidden space-y-4">
-                <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
-                    <h2 class="text-lg font-bold text-slate-800 mb-2 flex items-center gap-2">
-                        <i class="fa-brands fa-google-drive text-brand-600"></i> Integrasi Google Sheets Server
-                    </h2>
-                    <p class="text-sm text-slate-600 mb-4">Aplikasi ini dapat mensinkronkan data induk dan riwayat transaksi secara terpusat melalui Google Apps Script Web App Endpoint.</p>
-                    
-                    <div class="space-y-3">
-                        <label class="block text-xs font-bold text-slate-700">URL Apps Script Web App</label>
-                        <div class="flex flex-col sm:flex-row gap-2">
-                            <input type="url" id="setting-gsheet-url" placeholder="https://script.google.com/macros/s/.../exec" class="flex-1 px-4 py-2.5 border border-slate-200 bg-slate-50 text-slate-800 rounded-xl focus:outline-none focus:border-brand-500 text-sm font-mono">
-                            <button onclick="saveCustomGSheetUrl()" class="bg-slate-800 hover:bg-slate-900 text-white px-4 py-2.5 rounded-xl text-sm font-semibold transition">
-                                Simpan URL
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 space-y-6">
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-800 mb-1 flex items-center gap-2">
+                            <i class="fa-solid fa-download text-brand-600"></i> Unduh & Paket Aplikasi Web App
+                        </h2>
+                        <p class="text-sm text-slate-600 mb-4">Simpan aplikasi ini sebagai file mandiri atau pasang di HP Anda agar dapat digunakan offline kapan saja.</p>
+                        
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <button onclick="openModalPwaInfo()" class="p-4 bg-brand-50 border border-brand-200 rounded-xl text-left hover:bg-brand-100 transition flex items-center gap-3">
+                                <div class="w-10 h-10 bg-brand-600 text-white rounded-xl flex items-center justify-center font-bold text-lg">
+                                    <i class="fa-solid fa-mobile-screen-button"></i>
+                                </div>
+                                <div>
+                                    <p class="font-bold text-sm text-brand-900">Instal di Layar Utama HP</p>
+                                    <p class="text-xs text-brand-700">Petunjuk instalasi Android & iOS</p>
+                                </div>
+                            </button>
+                            
+                            <button onclick="downloadAppBundle()" class="p-4 bg-slate-50 border border-slate-200 rounded-xl text-left hover:bg-slate-100 transition flex items-center gap-3">
+                                <div class="w-10 h-10 bg-slate-800 text-white rounded-xl flex items-center justify-center font-bold text-lg">
+                                    <i class="fa-solid fa-file-arrow-down"></i>
+                                </div>
+                                <div>
+                                    <p class="font-bold text-sm text-slate-800">Unduh File HTML Offline</p>
+                                    <p class="text-xs text-slate-500">Simpan master file aplikasi lengkap</p>
+                                </div>
                             </button>
                         </div>
                     </div>
-                    
-                    <div class="mt-6 p-4 bg-blue-50 border border-blue-100 rounded-xl text-xs text-blue-800">
-                        <p class="font-bold mb-1 flex items-center gap-1.5 text-sm">
-                            <i class="fa-solid fa-circle-info"></i> Status Sinkronisasi Server:
-                        </p>
-                        <p id="sync-status" class="mt-1 text-slate-700 font-medium">Memeriksa koneksi database...</p>
-                        <div class="mt-4 flex flex-wrap gap-2">
-                            <button onclick="syncAllWithGSheet()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-xs font-bold transition shadow-sm flex items-center gap-1.5">
-                                <i class="fa-solid fa-cloud-arrow-down"></i> Sinkronkan Data dari Server
+
+                    <hr class="border-slate-100">
+
+                    <div>
+                        <h3 class="text-base font-bold text-slate-800 mb-2 flex items-center gap-2">
+                            <i class="fa-solid fa-database text-brand-600"></i> Backup & Restore Data Lokal
+                        </h3>
+                        <p class="text-xs text-slate-500 mb-3">Ekspor atau impor seluruh basis data warga dan transaksi dalam format JSON.</p>
+                        
+                        <div class="flex flex-wrap gap-2">
+                            <button onclick="exportDataJson()" class="bg-slate-800 hover:bg-slate-900 text-white px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5">
+                                <i class="fa-solid fa-file-export"></i> Ekspor Backup (JSON)
                             </button>
+                            <label class="bg-slate-200 hover:bg-slate-300 text-slate-800 px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer">
+                                <i class="fa-solid fa-file-import"></i> Impor Restore (JSON)
+                                <input type="file" id="import-json-file" accept=".json" onchange="importDataJson(event)" class="hidden">
+                            </label>
+                        </div>
+                    </div>
+
+                    <hr class="border-slate-100">
+
+                    <div>
+                        <h3 class="text-base font-bold text-slate-800 mb-2 flex items-center gap-2">
+                            <i class="fa-brands fa-google-drive text-brand-600"></i> Server Cloud (Google Sheets)
+                        </h3>
+                        <p class="text-sm text-slate-600 mb-3">Terhubung secara otomatis ke server Google Sheets terpusat Pekon Panggungrejo Utara.</p>
+                        
+                        <div class="space-y-3">
+                            <label class="block text-xs font-bold text-slate-700">URL Server Web App</label>
+                            <input type="url" id="setting-gsheet-url" readonly class="w-full px-4 py-2.5 border border-slate-200 bg-slate-100 text-slate-600 rounded-xl text-sm font-mono cursor-not-allowed">
+                        </div>
+                        
+                        <div class="mt-4 p-4 bg-blue-50 border border-blue-100 rounded-xl text-xs text-blue-800">
+                            <p class="font-bold mb-1 flex items-center gap-1.5 text-sm">
+                                <i class="fa-solid fa-circle-info"></i> Status Sinkronisasi Server:
+                            </p>
+                            <p id="sync-status" class="mt-1 text-slate-700 font-medium">Memeriksa koneksi database...</p>
+                            <div class="mt-4 flex flex-wrap gap-2">
+                                <button onclick="syncAllWithGSheet()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-xs font-bold transition shadow-sm flex items-center gap-1.5">
+                                    <i class="fa-solid fa-cloud-arrow-down"></i> Sinkronkan Data Server Sekarang
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -363,6 +443,47 @@
 
     <!-- Overlay Global Backdrop -->
     <div id="overlay" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 transition-opacity"></div>
+
+    <!-- Modal PWA / Informasi Unduh Aplikasi -->
+    <div id="modal-pwa-info" class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-11/12 max-w-md bg-white rounded-2xl shadow-2xl p-6 hidden z-50 transform scale-95 transition-all max-h-[90vh] overflow-y-auto">
+        <div class="flex justify-between items-center mb-4 border-b pb-2">
+            <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                <i class="fa-solid fa-mobile-screen-button text-brand-600"></i> Pemasangan Web App
+            </h3>
+            <button onclick="closeModal('modal-pwa-info')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-xl"></i></button>
+        </div>
+        
+        <div class="space-y-4 text-xs text-slate-600">
+            <div class="bg-brand-50 p-3.5 rounded-xl border border-brand-200">
+                <p class="font-bold text-brand-900 text-sm mb-1">Status Aplikasi Saat Ini:</p>
+                <p id="pwa-mode-text" class="text-brand-700 font-semibold">Tersedia sebagai Aplikasi Web Siap Instal</p>
+            </div>
+
+            <div>
+                <p class="font-bold text-slate-800 text-sm mb-2">A. Panduan Instalasi di HP Android / Chrome:</p>
+                <ol class="list-decimal pl-4 space-y-1">
+                    <li>Tekan tombol <span class="font-bold text-brand-600">"Instal Aplikasi"</span> di bawah ini atau di banner bagian atas.</li>
+                    <li>Jika tombol tidak muncul, tekan menu titik tiga <b class="text-slate-800">(⋮)</b> di pojok kanan atas browser.</li>
+                    <li>Pilih menu <b>"Tambahkan ke Layar Utama"</b> atau <b>"Instal Aplikasi"</b>.</li>
+                </ol>
+            </div>
+
+            <div>
+                <p class="font-bold text-slate-800 text-sm mb-2">B. Panduan Instalasi di iPhone / iPad (Safari):</p>
+                <ol class="list-decimal pl-4 space-y-1">
+                    <li>Buka tautan web ini menggunakan browser <b>Safari</b>.</li>
+                    <li>Tekan tombol <b>Bagikan (Share)</b> <i class="fa-solid fa-share-nodes text-brand-600"></i> di bagian bawah layar.</li>
+                    <li>Pilih menu <b>"Tambahkan ke Layar Utama" (Add to Home Screen)</b>.</li>
+                </ol>
+            </div>
+
+            <div class="pt-2 flex flex-col gap-2">
+                <button onclick="triggerPwaPromptFromModal()" id="btn-modal-install" class="w-full py-3 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl shadow-lg transition flex items-center justify-center gap-2 text-sm">
+                    <i class="fa-solid fa-download"></i> Instal Aplikasi ke HP
+                </button>
+            </div>
+        </div>
+    </div>
 
     <!-- Modal Input Jimpitan -->
     <div id="modal-jimpitan" class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-11/12 max-w-sm bg-white rounded-2xl shadow-2xl p-6 hidden z-50 transform scale-95 transition-all">
@@ -379,7 +500,6 @@
             <label class="block text-xs font-bold text-slate-700 mb-1">Nominal Iuran (Rp)</label>
             <input type="number" id="input-nominal" value="1000" class="w-full text-xl font-bold text-center px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500">
             
-            <!-- Quick Nominal Chips -->
             <div class="flex flex-wrap gap-1.5 mt-2 justify-center">
                 <button type="button" onclick="setNominalQuick(1000)" class="px-2.5 py-1 bg-slate-100 hover:bg-brand-100 hover:text-brand-700 text-xs font-bold rounded-lg transition">+1rb</button>
                 <button type="button" onclick="setNominalQuick(2000)" class="px-2.5 py-1 bg-slate-100 hover:bg-brand-100 hover:text-brand-700 text-xs font-bold rounded-lg transition">+2rb</button>
@@ -503,21 +623,17 @@
         </form>
     </div>
 
-    <!-- Modal Detail Riwayat Warga (Hasil Cari Dashboard) -->
+    <!-- Modal Detail Riwayat Warga -->
     <div id="modal-riwayat-warga" class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-11/12 max-w-md bg-white rounded-2xl shadow-2xl p-6 hidden z-50 transform scale-95 transition-all">
         <div class="flex justify-between items-center mb-3 border-b pb-2">
             <h3 class="text-lg font-bold text-slate-800">Detail Riwayat Warga</h3>
             <button onclick="closeModal('modal-riwayat-warga')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-xl"></i></button>
         </div>
-        <div id="riwayat-warga-info" class="bg-brand-50 p-3 rounded-xl border border-brand-100 mb-4">
-            <!-- Dynamic Info -->
-        </div>
-        <div class="space-y-2 max-h-60 overflow-y-auto pr-1" id="riwayat-warga-list">
-            <!-- Dynamic list -->
-        </div>
+        <div id="riwayat-warga-info" class="bg-brand-50 p-3 rounded-xl border border-brand-100 mb-4"></div>
+        <div class="space-y-2 max-h-60 overflow-y-auto pr-1" id="riwayat-warga-list"></div>
     </div>
 
-    <!-- Modal Konfirmasi Hapus / Tindakan -->
+    <!-- Modal Konfirmasi Hapus -->
     <div id="modal-confirm" class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-11/12 max-w-xs bg-white rounded-2xl shadow-2xl p-6 hidden z-50 text-center transform scale-95 transition-all">
         <div class="w-12 h-12 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-3 text-xl"><i class="fa-solid fa-triangle-exclamation"></i></div>
         <h3 class="text-lg font-bold text-slate-800 mb-1" id="confirm-title">Konfirmasi</h3>
@@ -614,47 +730,127 @@
         let html5QrcodeScanner = null;
         let scanThrottle = false;
         let confirmActionCb = null;
+        let deferredPrompt = null;
 
+        // Inisialisasi Web App Manifest & Service Worker untuk PWA Offline
         function initPWA() {
             try {
                 const manifestData = {
                     name: "E-Jimpitan Panggungrejo Utara",
                     short_name: "E-Jimpitan",
-                    start_url: window.location.href,
+                    description: "Aplikasi E-Jimpitan & Transparansi Keuangan Warga Pekon Panggungrejo Utara",
+                    start_url: window.location.href.split('#')[0],
                     display: "standalone",
+                    orientation: "portrait",
                     background_color: "#f8fafc",
                     theme_color: "#16a34a",
                     icons: [
-                        { src: "https://placehold.co/192x192/16a34a/ffffff?text=EJ", sizes: "192x192", type: "image/png" },
-                        { src: "https://placehold.co/512x512/16a34a/ffffff?text=EJ", sizes: "512x512", type: "image/png" }
+                        { src: "https://placehold.co/192x192/16a34a/ffffff?text=EJ", sizes: "192x192", type: "image/png", purpose: "any maskable" },
+                        { src: "https://placehold.co/512x512/16a34a/ffffff?text=EJ", sizes: "512x512", type: "image/png", purpose: "any maskable" }
                     ]
                 };
                 const manifestBlob = new Blob([JSON.stringify(manifestData)], {type: 'application/manifest+json'});
                 document.getElementById('manifest-link').href = URL.createObjectURL(manifestBlob);
                 
-                const swCode = `self.addEventListener('fetch', function(e) {});`;
+                // Embedded Service Worker Script untuk Dukungan Offline
+                const swCode = `
+                    const CACHE_NAME = 'ejimpitan-pwa-cache-v1';
+                    self.addEventListener('install', (e) => {
+                        self.skipWaiting();
+                    });
+                    self.addEventListener('activate', (e) => {
+                        e.waitUntil(clients.claim());
+                    });
+                    self.addEventListener('fetch', (e) => {
+                        if (e.request.method !== 'GET') return;
+                        e.respondWith(
+                            fetch(e.request).catch(() => caches.match(e.request))
+                        );
+                    });
+                `;
                 const swBlob = new Blob([swCode], {type: 'application/javascript'});
                 if ('serviceWorker' in navigator) {
                     navigator.serviceWorker.register(URL.createObjectURL(swBlob)).catch(()=>{});
                 }
-            } catch(e) { console.log('PWA init skipped', e); }
+            } catch(e) { console.log('PWA Manifest/SW setup bypassed:', e); }
+
+            // Deteksi Status Koneksi
+            window.addEventListener('online', updateNetworkStatus);
+            window.addEventListener('offline', updateNetworkStatus);
+            updateNetworkStatus();
         }
 
-        let deferredPrompt;
+        function updateNetworkStatus() {
+            const dot = document.getElementById('pwa-status-dot');
+            if (navigator.onLine) {
+                if (dot) {
+                    dot.className = "absolute -top-1 -right-1 w-3 h-3 bg-emerald-400 border-2 border-white rounded-full";
+                    dot.title = "Mode Online";
+                }
+            } else {
+                if (dot) {
+                    dot.className = "absolute -top-1 -right-1 w-3 h-3 bg-amber-400 border-2 border-white rounded-full";
+                    dot.title = "Mode Offline (Data tersimpan di perangkat)";
+                }
+                showToast("Anda dalam Mode Offline. Aplikasi tetap dapat digunakan!", "error");
+            }
+        }
+
+        // Listener Event PWA Install Prompt
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
-            document.getElementById('pwa-banner').classList.remove('hidden');
+            const banner = document.getElementById('pwa-banner');
+            if (banner) banner.classList.remove('hidden');
+            
+            const btnModal = document.getElementById('btn-modal-install');
+            if (btnModal) {
+                btnModal.innerHTML = '<i class="fa-solid fa-download"></i> Instal Aplikasi ke Layar Utama HP';
+                btnModal.classList.remove('opacity-50');
+            }
         });
-        
-        document.getElementById('btn-install-pwa').addEventListener('click', async () => {
+
+        document.getElementById('btn-install-pwa').addEventListener('click', triggerPwaPrompt);
+
+        async function triggerPwaPrompt() {
             if (deferredPrompt) {
                 deferredPrompt.prompt();
                 const { outcome } = await deferredPrompt.userChoice;
-                if (outcome === 'accepted') document.getElementById('pwa-banner').classList.add('hidden');
+                if (outcome === 'accepted') {
+                    dismissPwaBanner();
+                    showToast('Aplikasi E-Jimpitan berhasil dipasang!');
+                }
                 deferredPrompt = null;
+            } else {
+                openModalPwaInfo();
             }
-        });
+        }
+
+        function triggerPwaPromptFromModal() {
+            closeModal('modal-pwa-info');
+            if (deferredPrompt) {
+                triggerPwaPrompt();
+            } else {
+                showToast('Petunjuk instalasi telah ditampilkan di layar.');
+            }
+        }
+
+        function dismissPwaBanner() {
+            document.getElementById('pwa-banner').classList.add('hidden');
+        }
+
+        function openModalPwaInfo() {
+            const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+            const txt = document.getElementById('pwa-mode-text');
+            if (txt) {
+                if (isStandalone) {
+                    txt.innerText = 'Aplikasi telah terinstal dan berjalan dalam Mode Standalone (App).';
+                } else {
+                    txt.innerText = 'Tersedia sebagai Aplikasi Web Siap Pasang.';
+                }
+            }
+            openModal('modal-pwa-info');
+        }
 
         function triggerSuccessIndicator() {
             try {
@@ -685,27 +881,20 @@
             setTimeout(() => t.classList.add('translate-y-24', 'opacity-0'), 3500);
         }
 
-        // PERBAIKAN BUG OVERLAY: Penyeleksian elemen modal dibuat spesifik
         function openModal(id) {
             document.getElementById('overlay').classList.remove('hidden');
             const m = document.getElementById(id);
             if(m) {
                 m.classList.remove('hidden');
-                setTimeout(() => {
-                    m.classList.remove('scale-95');
-                }, 10);
+                setTimeout(() => { m.classList.remove('scale-95'); }, 10);
             }
         }
         
         function closeModal(id) {
             const m = document.getElementById(id);
-            if(m) {
-                m.classList.add('scale-95');
-            }
+            if(m) m.classList.add('scale-95');
             setTimeout(() => {
                 if(m) m.classList.add('hidden');
-                
-                // Cari modal lain yang sedang terbuka selain overlay dan toast
                 const activeModals = document.querySelectorAll('.fixed.z-50:not(#overlay):not(#toast):not(.hidden)');
                 if(activeModals.length === 0) {
                     document.getElementById('overlay').classList.add('hidden');
@@ -713,7 +902,6 @@
             }, 200);
         }
 
-        // Menutup semua modal saat overlay atau Escape diklik
         document.getElementById('overlay').addEventListener('click', () => {
             const activeModals = document.querySelectorAll('.fixed.z-50:not(#overlay):not(#toast):not(.hidden)');
             activeModals.forEach(m => closeModal(m.id));
@@ -744,10 +932,7 @@
         });
 
         function switchTab(tabId) {
-            // Matikan scanner jika pengguna keluar dari tab scan
-            if (tabId !== 'scan') {
-                stopScanner();
-            }
+            if (tabId !== 'scan') stopScanner();
 
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
             document.querySelectorAll('.tab-btn').forEach(el => {
@@ -771,11 +956,15 @@
 
         function initApp() {
             initPWA();
+            
+            APP_STATE.googleSheetUrl = DEFAULT_GSHEET_URL;
+            localStorage.setItem(STORAGE_KEYS.GSHEET_URL, DEFAULT_GSHEET_URL);
+
             APP_STATE.wargaList = JSON.parse(localStorage.getItem(STORAGE_KEYS.WARGA) || '[]');
             APP_STATE.transaksiList = JSON.parse(localStorage.getItem(STORAGE_KEYS.TX) || '[]');
-            APP_STATE.googleSheetUrl = localStorage.getItem(STORAGE_KEYS.GSHEET_URL) || DEFAULT_GSHEET_URL;
 
-            document.getElementById('setting-gsheet-url').value = APP_STATE.googleSheetUrl;
+            const settingInput = document.getElementById('setting-gsheet-url');
+            if(settingInput) settingInput.value = APP_STATE.googleSheetUrl;
 
             const savedPetugas = localStorage.getItem(STORAGE_KEYS.PETUGAS);
             if(savedPetugas) {
@@ -797,7 +986,9 @@
                 applyUserRoleUI();
             }
 
-            syncAllWithGSheet();
+            if (navigator.onLine) {
+                syncAllWithGSheet();
+            }
         }
 
         function handleLogin(e) {
@@ -845,14 +1036,11 @@
                     document.getElementById('btn-logout').classList.add('hidden');
                     document.getElementById('user-role-badge').classList.add('hidden');
                     
-                    // Tutup semua modal jika ada
                     document.querySelectorAll('.fixed.z-50:not(#overlay):not(#toast)').forEach(m => m.classList.add('hidden'));
                     document.getElementById('overlay').classList.add('hidden');
                     
                     showToast('Berhasil Log Out.');
-                } catch(err) {
-                    console.log('Logout handler done', err);
-                }
+                } catch(err) { console.log('Logout executed', err); }
             });
         }
 
@@ -1032,8 +1220,6 @@
                 localStorage.setItem(STORAGE_KEYS.TX, JSON.stringify(APP_STATE.transaksiList));
                 renderDashboard();
                 showToast('Transaksi iuran berhasil dihapus.');
-                
-                // Refresh modal riwayat warga jika terbuka
                 if (!document.getElementById('modal-riwayat-warga').classList.contains('hidden')) {
                     searchRiwayatDash();
                 }
@@ -1050,9 +1236,7 @@
 
             let total = 0;
             APP_STATE.transaksiList.forEach(t => total += parseInt(t.nominal) || 0);
-            if (nom > total) {
-                return showToast('Saldo tidak mencukupi untuk penarikan ini!', 'error');
-            }
+            if (nom > total) return showToast('Saldo tidak mencukupi!', 'error');
 
             const tx = {
                 id: 'TX' + Date.now(),
@@ -1073,7 +1257,7 @@
             showToast(`Berhasil menarik dana Rp${nom.toLocaleString('id-ID')}.`);
             renderDashboard();
             
-            if(APP_STATE.googleSheetUrl) pushDataToGSheet('addTransaksi', tx);
+            if(APP_STATE.googleSheetUrl && navigator.onLine) pushDataToGSheet('addTransaksi', tx);
         }
 
         function renderWargaTable() {
@@ -1084,7 +1268,6 @@
             
             let filtered = APP_STATE.wargaList;
             
-            // Batasi data jika petugas RT
             if(APP_STATE.currentUser && APP_STATE.currentUser.role === 'PETUGAS') {
                 filtered = filtered.filter(w => w.rt === APP_STATE.currentUser.rt);
             } else if(rt !== 'ALL') {
@@ -1155,7 +1338,7 @@
             renderWargaTable();
             showToast('Data warga berhasil disimpan!');
             
-            if(APP_STATE.googleSheetUrl) pushDataToGSheet('saveWarga', w);
+            if(APP_STATE.googleSheetUrl && navigator.onLine) pushDataToGSheet('saveWarga', w);
         }
 
         function promptDeleteWarga(id) {
@@ -1217,7 +1400,7 @@
 
         function processManualInput() {
             const wId = document.getElementById('manual-warga-select').value;
-            if(!wId) return showToast('Pilih nama warga terlebih dahulu pada dropdown!', 'error');
+            if(!wId) return showToast('Pilih nama warga terlebih dahulu!', 'error');
             triggerSuccessIndicator();
             processScannedQR(wId);
         }
@@ -1226,9 +1409,9 @@
             const u = APP_STATE.currentUser;
             const w = APP_STATE.wargaList.find(x => x.id === qrId);
             
-            if(!w) return showToast('Error: QR Code Warga tidak terdaftar dalam sistem.', 'error');
+            if(!w) return showToast('Error: QR Code Warga tidak terdaftar.', 'error');
             if(u.role === 'PETUGAS' && w.rt !== u.rt) {
-                return showToast(`Gagal: Warga berada di ${w.rt}, wilayah tugas Anda adalah ${u.rt}`, 'error');
+                return showToast(`Gagal: Wilayah tugas Anda adalah ${u.rt}`, 'error');
             }
             
             document.getElementById('input-warga-id').value = w.id;
@@ -1266,7 +1449,7 @@
             closeModal('modal-jimpitan');
             showToast(`Sukses! Jimpitan Rp${tx.nominal.toLocaleString('id-ID')} tersimpan.`);
             
-            if(APP_STATE.googleSheetUrl) pushDataToGSheet('addTransaksi', tx);
+            if(APP_STATE.googleSheetUrl && navigator.onLine) pushDataToGSheet('addTransaksi', tx);
         }
 
         function executePrintLaporan() {
@@ -1284,7 +1467,7 @@
             const sorted = filtered.sort((a,b) => new Date(a.date) - new Date(b.date));
 
             if(sorted.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" class="text-center p-3 border border-black italic">Tidak ada transaksi ditemukan pada filter/periode ini.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center p-3 border border-black italic">Tidak ada transaksi ditemukan pada periode ini.</td></tr>';
             } else {
                 sorted.forEach((t, i) => {
                     const isWithdrawal = parseInt(t.nominal) < 0;
@@ -1305,7 +1488,7 @@
 
             document.getElementById('print-lap-rt').innerText = rt === 'ALL' ? 'Seluruh Keseluruhan RT (01 - 06)' : rt;
             
-            let perLabel = 'Keseluruhan Waktu (Semua Riwayat)';
+            let perLabel = 'Keseluruhan Waktu';
             if(bulan) {
                 const [y, m] = bulan.split('-');
                 const dObj = new Date(y, m-1);
@@ -1380,24 +1563,13 @@
             }, 600);
         }
 
-        function saveCustomGSheetUrl() {
-            const url = document.getElementById('setting-gsheet-url').value.trim();
-            if(!url) return showToast('URL tidak boleh kosong!', 'error');
-            
-            APP_STATE.googleSheetUrl = url;
-            localStorage.setItem(STORAGE_KEYS.GSHEET_URL, url);
-            showToast('URL Server berhasil diperbarui.');
-            syncAllWithGSheet();
-        }
-
         function syncAllWithGSheet() {
-            if(!APP_STATE.googleSheetUrl) return showToast('URL Google Sheets belum diatur!', 'error');
             const sts = document.getElementById('sync-status');
-            sts.innerText = "Mengunduh data dari Server... Mohon tunggu.";
+            if(sts) sts.innerText = "Mengunduh data dari Server... Mohon tunggu.";
             
             fetch(APP_STATE.googleSheetUrl + '?op=getData')
                 .then(r => {
-                    if (!r.ok) throw new Error('Respons jaringan bermasalah.');
+                    if (!r.ok) throw new Error('Jaringan bermasalah.');
                     return r.json();
                 })
                 .then(data => {
@@ -1418,26 +1590,26 @@
                         localStorage.setItem(STORAGE_KEYS.PETUGAS, JSON.stringify(APP_STATE.petugasList));
                     }
 
-                    sts.innerText = `Sinkronisasi berhasil pada ${new Date().toLocaleTimeString('id-ID')}`;
-                    showToast('Data berhasil disinkronkan dari Server.');
+                    if(sts) sts.innerText = `Terhubung & tersinkronisasi pada ${new Date().toLocaleTimeString('id-ID')}`;
+                    showToast('Status Online.');
                     
                     if(APP_STATE.currentUser && APP_STATE.currentUser.role === 'SUPERADMIN'){
                         renderWargaTable(); renderPetugasTable();
                     }
                     renderDashboard();
                 }).catch(e => {
-                    sts.innerText = "Gagal Sinkron. Pastikan URL Apps Script benar dan izin deployment adalah 'Anyone'.";
+                    if(sts) sts.innerText = "Gagal terhubung ke database server. Memakai data lokal sementara.";
                     console.log('GSheet Sync Err:', e);
                 });
         }
 
         function pushDataToGSheet(actionName, payload) {
-            if(!APP_STATE.googleSheetUrl) return;
+            if(!APP_STATE.googleSheetUrl || !navigator.onLine) return;
             fetch(APP_STATE.googleSheetUrl, {
                 method: 'POST', mode: 'no-cors',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({ action: actionName, data: payload })
-            }).catch(e => console.log('Push data background err:', e));
+            }).catch(e => console.log('Push background error:', e));
         }
 
         function renderPetugasTable() {
@@ -1496,7 +1668,7 @@
             const rtSelect = document.getElementById('form-petugas-rt').value;
             
             if(APP_STATE.petugasList.some(x => x.username.toLowerCase() === uname.toLowerCase() && x.id !== id)) {
-                return showToast('Username tersebut sudah digunakan orang lain!', 'error');
+                return showToast('Username tersebut sudah digunakan!', 'error');
             }
 
             let finalRole = 'PETUGAS';
@@ -1526,7 +1698,7 @@
             renderPetugasTable();
             showToast('Akun Pengguna berhasil disimpan!');
             
-            if(APP_STATE.googleSheetUrl) pushDataToGSheet('savePetugas', p);
+            if(APP_STATE.googleSheetUrl && navigator.onLine) pushDataToGSheet('savePetugas', p);
         }
 
         function promptDeletePetugas(id, nama) {
@@ -1536,6 +1708,75 @@
                 renderPetugasTable();
                 showToast(`Akun ${nama} dihapus.`);
             });
+        }
+
+        // Unduh Master File Web App (.html) Standalone Offline
+        function downloadAppBundle() {
+            try {
+                const htmlContent = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+                const blob = new Blob([htmlContent], { type: 'text/html' });
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(blob);
+                a.download = 'E-Jimpitan-Panggungrejo-Utara.html';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                showToast('File Aplikasi HTML berhasil diunduh.');
+            } catch(e) {
+                showToast('Gagal mengunduh file aplikasi.', 'error');
+            }
+        }
+
+        // Ekspor Backup Data JSON
+        function exportDataJson() {
+            const dataToExport = {
+                app: "E-Jimpitan Panggungrejo Utara",
+                version: "2.0",
+                exportedAt: new Date().toISOString(),
+                warga: APP_STATE.wargaList,
+                transaksi: APP_STATE.transaksiList,
+                petugas: APP_STATE.petugasList
+            };
+            const str = JSON.stringify(dataToExport, null, 2);
+            const blob = new Blob([str], { type: 'application/json' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `Backup-E-Jimpitan-${new Date().toISOString().slice(0,10)}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            showToast('Backup data berhasil diunduh.');
+        }
+
+        // Impor Restore Data JSON
+        function importDataJson(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                try {
+                    const imported = JSON.parse(evt.target.result);
+                    if (imported.warga && Array.isArray(imported.warga)) {
+                        APP_STATE.wargaList = imported.warga;
+                        localStorage.setItem(STORAGE_KEYS.WARGA, JSON.stringify(imported.warga));
+                    }
+                    if (imported.transaksi && Array.isArray(imported.transaksi)) {
+                        APP_STATE.transaksiList = imported.transaksi;
+                        localStorage.setItem(STORAGE_KEYS.TX, JSON.stringify(imported.transaksi));
+                    }
+                    if (imported.petugas && Array.isArray(imported.petugas)) {
+                        APP_STATE.petugasList = imported.petugas;
+                        localStorage.setItem(STORAGE_KEYS.PETUGAS, JSON.stringify(imported.petugas));
+                    }
+                    showToast('Data berhasil dipulihkan!');
+                    renderDashboard();
+                    renderWargaTable();
+                    renderPetugasTable();
+                } catch(err) {
+                    showToast('Format file backup JSON tidak valid!', 'error');
+                }
+            };
+            reader.readAsText(file);
         }
 
         window.addEventListener('DOMContentLoaded', initApp);
