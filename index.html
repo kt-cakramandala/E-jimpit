@@ -112,13 +112,13 @@
                 </div>
                 <div>
                     <h1 class="font-bold text-lg leading-tight text-slate-800">E-Jimpitan</h1>
-                    <p class="text-[10px] font-medium text-slate-500 uppercase tracking-wider">Panggungrejo Utara • WebApp</p>
+                    <p class="text-[10px] font-medium text-slate-500 uppercase tracking-wider">Panggungrejo Utara • </p>
                 </div>
             </div>
             <div class="flex items-center gap-2">
                 <button onclick="openModalPwaInfo()" class="px-2.5 py-1.5 bg-brand-50 hover:bg-brand-100 text-brand-700 rounded-xl text-xs font-semibold border border-brand-200 transition flex items-center gap-1.5" title="Status PWA & Unduh">
                     <i class="fa-solid fa-mobile-screen-button"></i>
-                    <span class="hidden sm:inline">Aplikasi Web</span>
+                    <span class="hidden sm:inline">Unduh</span>
                 </button>
                 <span id="user-role-badge" class="hidden px-2.5 py-1 bg-brand-100 text-brand-700 rounded-lg text-xs font-bold border border-brand-200"></span>
                 <button id="btn-logout" onclick="promptLogout()" class="hidden text-slate-400 hover:text-red-500 transition p-1.5" title="Keluar Aplikasi">
@@ -195,10 +195,10 @@
                             <p class="text-3xl font-bold font-mono" id="dash-total-dana">Rp 0</p>
                         </div>
                         <div class="mt-4 flex flex-wrap gap-2">
-                            <button onclick="openModal('modal-laporan')" id="btn-cetak-lap" class="hidden bg-white text-brand-800 px-4 py-2 rounded-lg text-sm font-bold shadow hover:bg-brand-50 transition items-center gap-1.5">
+                            <button onclick="openModal('modal-laporan')" id="btn-cetak-lap" class="bg-white text-brand-800 px-4 py-2 rounded-lg text-sm font-bold shadow hover:bg-brand-50 transition flex items-center gap-1.5">
                                 <i class="fa-solid fa-print"></i> Cetak Laporan PDF
                             </button>
-                            <button onclick="openModal('modal-tarik-dana')" id="btn-tarik-dana" class="hidden bg-red-50 text-red-600 px-4 py-2 rounded-lg text-sm font-bold shadow hover:bg-red-100 transition items-center gap-1.5">
+                            <button onclick="openModal('modal-tarik-dana')" id="btn-tarik-dana" class="hidden bg-red-50 text-red-600 px-4 py-2 rounded-lg text-sm font-bold shadow hover:bg-red-100 transition flex items-center gap-1.5">
                                 <i class="fa-solid fa-money-bill-transfer"></i> Tarik Dana
                             </button>
                         </div>
@@ -290,9 +290,12 @@
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
                     <div>
                         <h2 class="text-lg font-bold text-slate-800">Manajemen Data Warga</h2>
-                        <p class="text-xs text-slate-500">Kelola data induk dan cetak QR Code Warga.</p>
+                        <p class="text-xs text-slate-500">Kelola data induk, upload batch JSON, dan cetak QR Code Warga.</p>
                     </div>
-                    <div class="flex gap-2 w-full sm:w-auto" id="warga-action-buttons">
+                    <div class="flex flex-wrap gap-2 w-full sm:w-auto" id="warga-action-buttons">
+                        <button onclick="openModalUploadJson()" id="btn-upload-json-warga" class="hidden flex-1 sm:flex-none bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition shadow flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-file-import"></i> Upload JSON
+                        </button>
                         <button onclick="openModalCetakQRMassal()" class="flex-1 sm:flex-none bg-slate-800 hover:bg-slate-900 text-white px-4 py-2 rounded-xl text-sm font-semibold transition flex items-center justify-center gap-2">
                             <i class="fa-solid fa-qrcode"></i> Cetak QR Warga
                         </button>
@@ -349,7 +352,7 @@
                                     <th class="p-3 pl-4">Nama Pengguna</th>
                                     <th class="p-3">Username Login</th>
                                     <th class="p-3">Hak Akses</th>
-                                    <th class="p-3">Wilayah</th>
+                                    <th class="p-3">Wilayah Tugas</th>
                                     <th class="p-3 text-right pr-4">Aksi</th>
                                 </tr>
                             </thead>
@@ -405,7 +408,7 @@
                             </button>
                             <label class="bg-slate-200 hover:bg-slate-300 text-slate-800 px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer">
                                 <i class="fa-solid fa-file-import"></i> Impor Restore (JSON)
-                                <input type="file" id="import-json-file" accept=".json" onchange="importDataJson(event)" class="hidden">
+                                <input type="file" accept=".json" onchange="importDataJson(event)" class="hidden">
                             </label>
                         </div>
                     </div>
@@ -443,6 +446,54 @@
 
     <!-- Overlay Global Backdrop -->
     <div id="overlay" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 transition-opacity"></div>
+
+    <!-- Modal Upload Data Warga JSON (Khusus Superadmin) -->
+    <div id="modal-upload-json" class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-11/12 max-w-md bg-white rounded-2xl shadow-2xl p-6 hidden z-50 transform scale-95 transition-all max-h-[90vh] overflow-y-auto">
+        <div class="flex justify-between items-center mb-4 border-b pb-2">
+            <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                <i class="fa-solid fa-file-import text-blue-600"></i> Upload Data Warga (JSON)
+            </h3>
+            <button onclick="closeModal('modal-upload-json')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-xl"></i></button>
+        </div>
+        
+        <div class="space-y-4">
+            <p class="text-xs text-slate-600 leading-relaxed">
+                Fitur ini memudahkan Anda menambah banyak data warga secara sekaligus dengan mengunggah file berkas format JSON.
+            </p>
+
+            <div class="bg-blue-50 border border-blue-200 rounded-xl p-3.5 text-xs text-blue-900">
+                <p class="font-bold mb-1 flex items-center gap-1">
+                    <i class="fa-solid fa-lightbulb text-amber-500"></i> Contoh Format Isi File JSON:
+                </p>
+                <pre class="bg-white/80 p-2.5 rounded-lg border border-blue-100 font-mono text-[11px] overflow-x-auto text-slate-800">[
+  { "nik": "1801012345670001", "nama": "Ahmad Subagyo", "rt": "RT 01" },
+  { "nik": "1801012345670002", "nama": "Budi Santoso", "rt": "RT 02" }
+]</pre>
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Metode Impor</label>
+                <select id="json-import-mode" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs bg-slate-50 focus:outline-none">
+                    <option value="append">Tambahkan (Gabungkan dengan data lama)</option>
+                    <option value="overwrite">Timpa / Ganti Semua Data Warga</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Pilih File JSON (.json)</label>
+                <input type="file" id="input-file-json-warga" accept=".json" class="w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 border border-slate-200 rounded-xl p-1 bg-slate-50 cursor-pointer">
+            </div>
+
+            <div class="pt-2 flex flex-col sm:flex-row gap-2">
+                <button type="button" onclick="downloadJsonTemplate()" class="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl text-xs transition flex items-center justify-center gap-1.5">
+                    <i class="fa-solid fa-download"></i> Unduh Template
+                </button>
+                <button type="button" onclick="executeUploadJsonWarga()" class="flex-1 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg text-xs transition flex items-center justify-center gap-1.5">
+                    <i class="fa-solid fa-upload"></i> Proses Impor Data
+                </button>
+            </div>
+        </div>
+    </div>
 
     <!-- Modal PWA / Informasi Unduh Aplikasi -->
     <div id="modal-pwa-info" class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-11/12 max-w-md bg-white rounded-2xl shadow-2xl p-6 hidden z-50 transform scale-95 transition-all max-h-[90vh] overflow-y-auto">
@@ -536,7 +587,9 @@
     <!-- Modal Cetak Laporan PDF -->
     <div id="modal-laporan" class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-11/12 max-w-md bg-white rounded-2xl shadow-2xl p-6 hidden z-50 transform scale-95 transition-all">
         <div class="flex justify-between items-center mb-4 border-b pb-2">
-            <h3 class="text-lg font-bold text-slate-800">Cetak Laporan Keuangan</h3>
+            <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                <i class="fa-solid fa-print text-brand-600"></i> Cetak Laporan Keuangan
+            </h3>
             <button onclick="closeModal('modal-laporan')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-xl"></i></button>
         </div>
         <div class="space-y-4 mb-6">
@@ -588,7 +641,7 @@
         </form>
     </div>
 
-    <!-- Modal Form Petugas -->
+    <!-- Modal Form Petugas / Hak Akses -->
     <div id="modal-petugas" class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-11/12 max-w-sm bg-white rounded-2xl shadow-2xl p-6 hidden z-50 transform scale-95 transition-all overflow-y-auto max-h-[90vh]">
         <h3 class="text-lg font-bold text-slate-800 mb-4 border-b pb-2" id="modal-petugas-title">Form Hak Akses</h3>
         <form onsubmit="handleSavePetugas(event)" class="space-y-3">
@@ -609,8 +662,8 @@
             <div>
                 <label class="block text-xs font-bold text-slate-700 mb-1">Peran / Wilayah Tugas</label>
                 <select id="form-petugas-rt" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm bg-slate-50 focus:outline-none focus:border-brand-500">
-                    <option value="ALL">SUPERADMIN (Seluruh Akses)</option>
-                    <option value="WARGA">WARGA (Hanya Laporan)</option>
+                    <option value="ALL">SUPERADMIN (Seluruh Akses System)</option>
+                    <option value="WARGA">WARGA (Pengunjung Transparansi)</option>
                     <option value="RT 01">Petugas RT 01</option><option value="RT 02">Petugas RT 02</option>
                     <option value="RT 03">Petugas RT 03</option><option value="RT 04">Petugas RT 04</option>
                     <option value="RT 05">Petugas RT 05</option><option value="RT 06">Petugas RT 06</option>
@@ -706,14 +759,14 @@
         </div>
     </div>
 
-
+    <!-- Script Utama Aplikasi -->
     <script>
         const STORAGE_KEYS = {
-            WARGA: 'ejimpitan_warga_v2',
-            TX: 'ejimpitan_tx_v2',
-            PETUGAS: 'ejimpitan_petugas_v2',
+            WARGA: 'ejimpitan_warga_v3',
+            TX: 'ejimpitan_tx_v3',
+            PETUGAS: 'ejimpitan_petugas_v3',
             USER: 'ejimpitan_user_session',
-            GSHEET_URL: 'ejimpitan_gsheet_url_v2'
+            GSHEET_URL: 'ejimpitan_gsheet_url_v3'
         };
 
         const DEFAULT_GSHEET_URL = 'https://script.google.com/macros/s/AKfycbz9igqT7bb6gDVdPYQBHI7ETyGlSfSjixfbhM-RuU1zLxLOBR_jH_dQezbMaXJVd9TzAA/exec';
@@ -752,29 +805,21 @@
                 const manifestBlob = new Blob([JSON.stringify(manifestData)], {type: 'application/manifest+json'});
                 document.getElementById('manifest-link').href = URL.createObjectURL(manifestBlob);
                 
-                // Embedded Service Worker Script untuk Dukungan Offline
                 const swCode = `
-                    const CACHE_NAME = 'ejimpitan-pwa-cache-v1';
-                    self.addEventListener('install', (e) => {
-                        self.skipWaiting();
-                    });
-                    self.addEventListener('activate', (e) => {
-                        e.waitUntil(clients.claim());
-                    });
+                    const CACHE_NAME = 'ejimpitan-pwa-cache-v2';
+                    self.addEventListener('install', (e) => { self.skipWaiting(); });
+                    self.addEventListener('activate', (e) => { e.waitUntil(clients.claim()); });
                     self.addEventListener('fetch', (e) => {
                         if (e.request.method !== 'GET') return;
-                        e.respondWith(
-                            fetch(e.request).catch(() => caches.match(e.request))
-                        );
+                        e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
                     });
                 `;
                 const swBlob = new Blob([swCode], {type: 'application/javascript'});
                 if ('serviceWorker' in navigator) {
                     navigator.serviceWorker.register(URL.createObjectURL(swBlob)).catch(()=>{});
                 }
-            } catch(e) { console.log('PWA Manifest/SW setup bypassed:', e); }
+            } catch(e) { console.log('PWA setup bypass:', e); }
 
-            // Deteksi Status Koneksi
             window.addEventListener('online', updateNetworkStatus);
             window.addEventListener('offline', updateNetworkStatus);
             updateNetworkStatus();
@@ -792,25 +837,18 @@
                     dot.className = "absolute -top-1 -right-1 w-3 h-3 bg-amber-400 border-2 border-white rounded-full";
                     dot.title = "Mode Offline (Data tersimpan di perangkat)";
                 }
-                showToast("Anda dalam Mode Offline. Aplikasi tetap dapat digunakan!", "error");
+                showToast("Mode Offline aktif. Data tersimpan di HP/Browser!", "error");
             }
         }
 
-        // Listener Event PWA Install Prompt
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
             const banner = document.getElementById('pwa-banner');
             if (banner) banner.classList.remove('hidden');
-            
-            const btnModal = document.getElementById('btn-modal-install');
-            if (btnModal) {
-                btnModal.innerHTML = '<i class="fa-solid fa-download"></i> Instal Aplikasi ke Layar Utama HP';
-                btnModal.classList.remove('opacity-50');
-            }
         });
 
-        document.getElementById('btn-install-pwa').addEventListener('click', triggerPwaPrompt);
+        document.getElementById('btn-install-pwa')?.addEventListener('click', triggerPwaPrompt);
 
         async function triggerPwaPrompt() {
             if (deferredPrompt) {
@@ -828,26 +866,19 @@
 
         function triggerPwaPromptFromModal() {
             closeModal('modal-pwa-info');
-            if (deferredPrompt) {
-                triggerPwaPrompt();
-            } else {
-                showToast('Petunjuk instalasi telah ditampilkan di layar.');
-            }
+            if (deferredPrompt) triggerPwaPrompt();
+            else showToast('Petunjuk instalasi telah ditampilkan.');
         }
 
         function dismissPwaBanner() {
-            document.getElementById('pwa-banner').classList.add('hidden');
+            document.getElementById('pwa-banner')?.classList.add('hidden');
         }
 
         function openModalPwaInfo() {
             const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
             const txt = document.getElementById('pwa-mode-text');
             if (txt) {
-                if (isStandalone) {
-                    txt.innerText = 'Aplikasi telah terinstal dan berjalan dalam Mode Standalone (App).';
-                } else {
-                    txt.innerText = 'Tersedia sebagai Aplikasi Web Siap Pasang.';
-                }
+                txt.innerText = isStandalone ? 'Aplikasi telah terinstal & berjalan Standalone.' : 'Tersedia sebagai Aplikasi Web Siap Pasang.';
             }
             openModal('modal-pwa-info');
         }
@@ -903,14 +934,12 @@
         }
 
         document.getElementById('overlay').addEventListener('click', () => {
-            const activeModals = document.querySelectorAll('.fixed.z-50:not(#overlay):not(#toast):not(.hidden)');
-            activeModals.forEach(m => closeModal(m.id));
+            document.querySelectorAll('.fixed.z-50:not(#overlay):not(#toast):not(.hidden)').forEach(m => closeModal(m.id));
         });
 
         window.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
-                const activeModals = document.querySelectorAll('.fixed.z-50:not(#overlay):not(#toast):not(.hidden)');
-                activeModals.forEach(m => closeModal(m.id));
+                document.querySelectorAll('.fixed.z-50:not(#overlay):not(#toast):not(.hidden)').forEach(m => closeModal(m.id));
             }
         });
 
@@ -954,8 +983,35 @@
             if (tabId === 'petugas') renderPetugasTable();
         }
 
+        function initSeedData() {
+            const sampleWarga = [
+                { id: 'W101', nik: '1801012345670001', nama: 'Bambang Sukaryo', rt: 'RT 01' },
+                { id: 'W102', nik: '1801012345670002', nama: 'Siti Aminah', rt: 'RT 01' },
+                { id: 'W103', nik: '1801012345670003', nama: 'Joko Widodo', rt: 'RT 02' },
+                { id: 'W104', nik: '1801012345670004', nama: 'Sri Rahayu', rt: 'RT 02' },
+                { id: 'W105', nik: '1801012345670005', nama: 'Ahmad Subagyo', rt: 'RT 03' },
+                { id: 'W106', nik: '1801012345670006', nama: 'Dewi Kartika', rt: 'RT 04' },
+                { id: 'W107', nik: '1801012345670007', nama: 'Hendra Setiawan', rt: 'RT 05' },
+                { id: 'W108', nik: '1801012345670008', nama: 'Eko Prasetyo', rt: 'RT 06' }
+            ];
+
+            const sampleTx = [
+                { id: 'TX01', date: new Date().toISOString(), wargaId: 'W101', nama: 'Bambang Sukaryo', rt: 'RT 01', nominal: 1000, petugas: 'Petugas RT 01' },
+                { id: 'TX02', date: new Date().toISOString(), wargaId: 'W103', nama: 'Joko Widodo', rt: 'RT 02', nominal: 2000, petugas: 'Petugas RT 02' },
+                { id: 'TX03', date: new Date().toISOString(), wargaId: 'W105', nama: 'Ahmad Subagyo', rt: 'RT 03', nominal: 1000, petugas: 'Petugas RT 03' }
+            ];
+
+            if (!localStorage.getItem(STORAGE_KEYS.WARGA)) {
+                localStorage.setItem(STORAGE_KEYS.WARGA, JSON.stringify(sampleWarga));
+            }
+            if (!localStorage.getItem(STORAGE_KEYS.TX)) {
+                localStorage.setItem(STORAGE_KEYS.TX, JSON.stringify(sampleTx));
+            }
+        }
+
         function initApp() {
             initPWA();
+            initSeedData();
             
             APP_STATE.googleSheetUrl = DEFAULT_GSHEET_URL;
             localStorage.setItem(STORAGE_KEYS.GSHEET_URL, DEFAULT_GSHEET_URL);
@@ -1009,8 +1065,8 @@
         }
 
         function loginAsWarga() {
-            const w = APP_STATE.petugasList.find(x => x.username === 'warga');
-            if(w) doLogin(w);
+            const w = APP_STATE.petugasList.find(x => x.username === 'warga') || { id: 'WRG', nama: 'Masyarakat Umum', username: 'warga', role: 'WARGA', rt: 'ALL' };
+            doLogin(w);
         }
 
         function doLogin(userData) {
@@ -1060,13 +1116,14 @@
             document.getElementById('dash-role-desc').innerText = u.role === 'WARGA' ? 'Transparansi Data E-Jimpitan Warga Panggungrejo Utara' : `Sistem Pendataan E-Jimpitan Wilayah ${u.rt}`;
 
             ['scan','warga','petugas','settings'].forEach(id => document.getElementById(`tab-btn-${id}`).classList.add('hidden'));
-            document.getElementById('btn-cetak-lap').classList.add('hidden');
+            document.getElementById('btn-cetak-lap').classList.remove('hidden');
             document.getElementById('btn-tarik-dana').classList.add('hidden');
+            document.getElementById('btn-upload-json-warga').classList.add('hidden');
 
             if(u.role === 'SUPERADMIN') {
                 ['scan','warga','petugas','settings'].forEach(id => document.getElementById(`tab-btn-${id}`).classList.remove('hidden'));
-                document.getElementById('btn-cetak-lap').classList.remove('hidden');
                 document.getElementById('btn-tarik-dana').classList.remove('hidden');
+                document.getElementById('btn-upload-json-warga').classList.remove('hidden');
                 document.getElementById('scan-rt-label').innerText = '(Semua Wilayah)';
                 document.getElementById('btn-tambah-warga').classList.remove('hidden');
                 populateManualSelect('ALL');
@@ -1077,9 +1134,6 @@
                 document.getElementById('scan-rt-label').innerText = u.rt;
                 document.getElementById('btn-tambah-warga').classList.add('hidden');
                 populateManualSelect(u.rt);
-            }
-            else if (u.role === 'WARGA') {
-                document.getElementById('btn-cetak-lap').classList.remove('hidden');
             }
 
             switchTab('dashboard');
@@ -1127,7 +1181,6 @@
                         </div>
                         <div class="text-right flex items-center gap-2">
                             <span class="font-bold ${nomClass}">${nomStr}</span>
-                            ${canDelete ? `<button onclick="promptDeleteTx('${t.id}')" title="Hapus Transaksi" class="text-slate-300 hover:text-red-500"><i class="fa-solid fa-trash text-xs"></i></button>` : ''}
                         </div>
                     </div>`;
             });
@@ -1202,10 +1255,6 @@
                                 <p class="font-bold text-slate-800">Rp ${parseInt(t.nominal).toLocaleString('id-ID')}</p>
                                 <p class="text-[10px] text-slate-500">${d}</p>
                             </div>
-                            <div class="flex items-center gap-2">
-                                <span class="text-[10px] bg-slate-200 text-slate-700 px-2 py-0.5 rounded font-medium">Petugas: ${t.petugas}</span>
-                                ${isSuperadmin ? `<button onclick="promptDeleteTx('${t.id}')" title="Hapus Transaksi" class="text-slate-300 hover:text-red-500 p-1 rounded transition"><i class="fa-solid fa-trash"></i></button>` : ''}
-                            </div>
                         </div>
                     `;
                 });
@@ -1214,18 +1263,6 @@
             openModal('modal-riwayat-warga');
         }
 
-        function promptDeleteTx(txId) {
-            confirmAction("Hapus Transaksi", "Apakah Anda yakin ingin menghapus catatan transaksi iuran ini?", "Ya, Hapus", true, () => {
-                APP_STATE.transaksiList = APP_STATE.transaksiList.filter(x => x.id !== txId);
-                localStorage.setItem(STORAGE_KEYS.TX, JSON.stringify(APP_STATE.transaksiList));
-                renderDashboard();
-                showToast('Transaksi iuran berhasil dihapus.');
-                if (!document.getElementById('modal-riwayat-warga').classList.contains('hidden')) {
-                    searchRiwayatDash();
-                }
-            });
-        }
-        
         function saveTarikDana() {
             const nomStr = document.getElementById('input-tarik-nominal').value;
             const ket = document.getElementById('input-tarik-ket').value.trim();
@@ -1336,6 +1373,7 @@
             localStorage.setItem(STORAGE_KEYS.WARGA, JSON.stringify(APP_STATE.wargaList));
             closeModal('modal-warga');
             renderWargaTable();
+            populateManualSelect(APP_STATE.currentUser ? APP_STATE.currentUser.rt : 'ALL');
             showToast('Data warga berhasil disimpan!');
             
             if(APP_STATE.googleSheetUrl && navigator.onLine) pushDataToGSheet('saveWarga', w);
@@ -1346,8 +1384,108 @@
                 APP_STATE.wargaList = APP_STATE.wargaList.filter(x => x.id !== id);
                 localStorage.setItem(STORAGE_KEYS.WARGA, JSON.stringify(APP_STATE.wargaList));
                 renderWargaTable();
+                populateManualSelect(APP_STATE.currentUser ? APP_STATE.currentUser.rt : 'ALL');
                 showToast('Data warga dihapus.');
+                
+                if(APP_STATE.googleSheetUrl && navigator.onLine) pushDataToGSheet('deleteWarga', { id: id });
             });
+        }
+
+        /* --- FITUR UPLOAD DATA WARGA JSON (KHUSUS SUPERADMIN) --- */
+        function openModalUploadJson() {
+            document.getElementById('input-file-json-warga').value = '';
+            openModal('modal-upload-json');
+        }
+
+        function downloadJsonTemplate() {
+            const template = [
+                { "nik": "1801012345670001", "nama": "Ahmad Subagyo", "rt": "RT 01" },
+                { "nik": "1801012345670002", "nama": "Budi Santoso", "rt": "RT 02" },
+                { "nik": "1801012345670003", "nama": "Siti Aminah", "rt": "RT 03" }
+            ];
+            const str = JSON.stringify(template, null, 2);
+            const blob = new Blob([str], { type: 'application/json' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'Template_Data_Warga_E-Jimpitan.json';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            showToast('Template JSON berhasil diunduh.');
+        }
+
+        function executeUploadJsonWarga() {
+            const fileInput = document.getElementById('input-file-json-warga');
+            const file = fileInput.files[0];
+            
+            if(!file) return showToast('Pilih file JSON terlebih dahulu!', 'error');
+
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                try {
+                    const imported = JSON.parse(evt.target.result);
+                    let listToImport = [];
+
+                    if (Array.isArray(imported)) {
+                        listToImport = imported;
+                    } else if (imported.warga && Array.isArray(imported.warga)) {
+                        listToImport = imported.warga;
+                    } else {
+                        throw new Error('Format JSON tidak valid. Harus berisi Array data warga.');
+                    }
+
+                    const mode = document.getElementById('json-import-mode').value;
+                    let toSync = []; // Menyimpan data spesifik yang baru ditambahkan
+
+                    // Menangani overwrite data keseluruhan
+                    if (mode === 'overwrite') {
+                        APP_STATE.wargaList = [];
+                        if (APP_STATE.googleSheetUrl && navigator.onLine) {
+                            // Menginstruksikan server untuk menghapus tabel agar sinkron
+                            pushDataToGSheet('clearWarga', {}); 
+                        }
+                    }
+
+                    let addedCount = 0;
+                    listToImport.forEach((item, index) => {
+                        if (item.nama && item.rt) {
+                            // index dan addedCount dipakai untuk memastikan ID pasti unik meskipun looping sangat cepat
+                            const newWarga = {
+                                id: item.id || ('W' + Date.now() + index + Math.floor(Math.random() * 1000)),
+                                nik: item.nik ? String(item.nik) : ('1801' + Math.floor(1000000000 + Math.random() * 9000000000)),
+                                nama: String(item.nama).trim(),
+                                rt: String(item.rt).trim()
+                            };
+                            APP_STATE.wargaList.push(newWarga);
+                            toSync.push(newWarga);
+                            addedCount++;
+                        }
+                    });
+
+                    localStorage.setItem(STORAGE_KEYS.WARGA, JSON.stringify(APP_STATE.wargaList));
+                    closeModal('modal-upload-json');
+                    renderWargaTable();
+                    renderDashboard();
+                    populateManualSelect(APP_STATE.currentUser ? APP_STATE.currentUser.rt : 'ALL');
+                    
+                    showToast(`Sukses mengimpor ${addedCount} data warga baru! Sinkronisasi server dimulai...`);
+
+                    // PROSES PUSH KE SERVER GOOGLE SHEETS
+                    if (APP_STATE.googleSheetUrl && navigator.onLine) {
+                        // Menggunakan setTimeout untuk mengirim 1 per 1 dengan delay ringan 
+                        // Menghindari limit "Too many concurrent requests" di Google Apps Script
+                        toSync.forEach((w, index) => {
+                            setTimeout(() => {
+                                pushDataToGSheet('saveWarga', w);
+                            }, index * 250); // 250 ms delay antar push
+                        });
+                    }
+
+                } catch(err) {
+                    showToast('Gagal membaca JSON: ' + err.message, 'error');
+                }
+            };
+            reader.readAsText(file);
         }
 
         function startScanner() {
@@ -1380,7 +1518,7 @@
                     html5QrcodeScanner.stop().then(() => {
                         html5QrcodeScanner.clear();
                         html5QrcodeScanner = null;
-                        document.getElementById('qr-placeholder').classList.remove('hidden');
+                        document.getElementById('qr-placeholder')?.classList.remove('hidden');
                     }).catch(e => console.log('Scanner stop err', e));
                 } catch(e) { console.log(e); }
             }
@@ -1388,6 +1526,7 @@
 
         function populateManualSelect(rt) {
             const sel = document.getElementById('manual-warga-select');
+            if(!sel) return;
             sel.innerHTML = '<option value="">-- Pilih Manual Warga --</option>';
             
             let list = APP_STATE.wargaList;
@@ -1498,7 +1637,7 @@
             
             const n = new Date();
             document.getElementById('print-lap-date').innerText = n.toLocaleDateString('id-ID', {day:'numeric',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'});
-            document.getElementById('print-lap-user').innerText = APP_STATE.currentUser ? APP_STATE.currentUser.nama : 'Sistem Admin';
+            document.getElementById('print-lap-user').innerText = APP_STATE.currentUser ? APP_STATE.currentUser.nama : 'Petugas/Sistem';
             document.getElementById('print-ttd-date').innerText = n.toLocaleDateString('id-ID', {day:'numeric',month:'long',year:'numeric'});
             document.getElementById('print-lap-total').innerText = `Rp ${total.toLocaleString('id-ID')}`;
 
@@ -1598,8 +1737,8 @@
                     }
                     renderDashboard();
                 }).catch(e => {
-                    if(sts) sts.innerText = "Gagal terhubung ke database server. Memakai data lokal sementara.";
-                    console.log('GSheet Sync Err:', e);
+                    if(sts) sts.innerText = "Menggunakan data lokal tersimpan.";
+                    console.log('GSheet Sync:', e);
                 });
         }
 
@@ -1707,10 +1846,11 @@
                 localStorage.setItem(STORAGE_KEYS.PETUGAS, JSON.stringify(APP_STATE.petugasList));
                 renderPetugasTable();
                 showToast(`Akun ${nama} dihapus.`);
+                
+                if(APP_STATE.googleSheetUrl && navigator.onLine) pushDataToGSheet('deletePetugas', { id: id });
             });
         }
 
-        // Unduh Master File Web App (.html) Standalone Offline
         function downloadAppBundle() {
             try {
                 const htmlContent = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
@@ -1727,11 +1867,10 @@
             }
         }
 
-        // Ekspor Backup Data JSON
         function exportDataJson() {
             const dataToExport = {
                 app: "E-Jimpitan Panggungrejo Utara",
-                version: "2.0",
+                version: "3.0",
                 exportedAt: new Date().toISOString(),
                 warga: APP_STATE.wargaList,
                 transaksi: APP_STATE.transaksiList,
@@ -1748,7 +1887,6 @@
             showToast('Backup data berhasil diunduh.');
         }
 
-        // Impor Restore Data JSON
         function importDataJson(e) {
             const file = e.target.files[0];
             if (!file) return;
@@ -1768,18 +1906,29 @@
                         APP_STATE.petugasList = imported.petugas;
                         localStorage.setItem(STORAGE_KEYS.PETUGAS, JSON.stringify(imported.petugas));
                     }
-                    showToast('Data berhasil dipulihkan!');
+                    showToast('Data berhasil di-restore!');
                     renderDashboard();
                     renderWargaTable();
                     renderPetugasTable();
+
+                    // Mendorong seluruh data ke server GSheets jika Online saat restore penuh
+                    if(APP_STATE.googleSheetUrl && navigator.onLine) {
+                        pushDataToGSheet('restoreAllData', {
+                            warga: APP_STATE.wargaList,
+                            transaksi: APP_STATE.transaksiList,
+                            petugas: APP_STATE.petugasList
+                        });
+                        showToast('Permintaan pemulihan/restore data ke server dikirim.');
+                    }
                 } catch(err) {
-                    showToast('Format file backup JSON tidak valid!', 'error');
+                    showToast('Gagal memuat file backup JSON.', 'error');
                 }
             };
             reader.readAsText(file);
         }
 
-        window.addEventListener('DOMContentLoaded', initApp);
+        window.onload = initApp;
     </script>
 </body>
 </html>
+```eof
