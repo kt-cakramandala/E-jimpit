@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>E-Jimpitan Panggungrejo Utara - Web App</title>
+    <title>E-Jimpitan - Realtime Web App</title>
     
     <!-- Meta Aplikasi Web Standalone / PWA -->
     <meta name="theme-color" content="#16a34a">
@@ -112,7 +112,7 @@
                 </div>
                 <div>
                     <h1 class="font-bold text-lg leading-tight text-slate-800">E-Jimpitan</h1>
-                    <p class="text-[10px] font-medium text-slate-500 uppercase tracking-wider">Panggungrejo Utara • WebApp</p>
+                    <p class="text-[10px] font-medium text-slate-500 uppercase tracking-wider">Panggungrejo Utara • Realtime</p>
                 </div>
             </div>
             <div class="flex items-center gap-2">
@@ -178,7 +178,7 @@
                 <button onclick="switchTab('scan')" id="tab-btn-scan" class="tab-btn px-4 py-2 rounded-xl text-sm font-semibold whitespace-nowrap transition hidden" data-target="tab-scan"><i class="fa-solid fa-qrcode mr-1.5"></i> Scan Jimpitan</button>
                 <button onclick="switchTab('warga')" id="tab-btn-warga" class="tab-btn px-4 py-2 rounded-xl text-sm font-semibold whitespace-nowrap transition hidden" data-target="tab-warga"><i class="fa-solid fa-users mr-1.5"></i> Data Warga</button>
                 <button onclick="switchTab('petugas')" id="tab-btn-petugas" class="tab-btn px-4 py-2 rounded-xl text-sm font-semibold whitespace-nowrap transition hidden" data-target="tab-petugas"><i class="fa-solid fa-user-shield mr-1.5"></i> Hak Akses</button>
-                <button onclick="switchTab('settings')" id="tab-btn-settings" class="tab-btn px-4 py-2 rounded-xl text-sm font-semibold whitespace-nowrap transition hidden" data-target="tab-settings"><i class="fa-solid fa-floppy-disk mr-1.5"></i> Database & App</button>
+                <button onclick="switchTab('settings')" id="tab-btn-settings" class="tab-btn px-4 py-2 rounded-xl text-sm font-semibold whitespace-nowrap transition hidden" data-target="tab-settings"><i class="fa-solid fa-server mr-1.5"></i> Server & Data</button>
             </div>
 
             <!-- Tab Dashboard -->
@@ -366,6 +366,37 @@
             <div id="tab-settings" class="tab-content hidden space-y-4">
                 <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 space-y-6">
                     <div>
+                        <h3 class="text-base font-bold text-slate-800 mb-2 flex items-center gap-2">
+                            <i class="fa-brands fa-google-drive text-brand-600"></i> Server Cloud (Google Sheets)
+                        </h3>
+                        <p class="text-sm text-slate-600 mb-3">Terhubung secara otomatis ke server Google Sheets terpusat Pekon Panggungrejo Utara. Anda dapat mengganti URL ini dengan URL Apps Script Anda sendiri.</p>
+                        
+                        <div class="space-y-3">
+                            <label class="block text-xs font-bold text-slate-700">URL Server Web App (Apps Script)</label>
+                            <div class="flex flex-col sm:flex-row gap-2">
+                                <input type="url" id="setting-gsheet-url" placeholder="https://script.google.com/macros/s/.../exec" class="w-full px-4 py-2.5 border border-slate-300 bg-white text-slate-800 rounded-xl text-sm font-mono focus:outline-none focus:border-brand-500">
+                                <button onclick="saveGSheetUrl()" class="bg-brand-600 hover:bg-brand-700 text-white px-4 py-2.5 rounded-xl text-sm font-bold transition shadow-sm whitespace-nowrap flex-shrink-0">
+                                    Simpan URL
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4 p-4 bg-blue-50 border border-blue-100 rounded-xl text-xs text-blue-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                            <div>
+                                <p class="font-bold mb-1 flex items-center gap-1.5 text-sm">
+                                    <i class="fa-solid fa-circle-info"></i> Status Sinkronisasi Server:
+                                </p>
+                                <p id="sync-status" class="mt-1 text-slate-700 font-medium">Memeriksa koneksi database...</p>
+                            </div>
+                            <button onclick="syncAllWithGSheet(false)" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-xs font-bold transition shadow-sm flex items-center gap-1.5 whitespace-nowrap">
+                                <i class="fa-solid fa-cloud-arrow-down"></i> Tarik Data Sekarang
+                            </button>
+                        </div>
+                    </div>
+
+                    <hr class="border-slate-100">
+
+                    <div>
                         <h2 class="text-lg font-bold text-slate-800 mb-1 flex items-center gap-2">
                             <i class="fa-solid fa-download text-brand-600"></i> Unduh & Paket Aplikasi Web App
                         </h2>
@@ -373,7 +404,7 @@
                         
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             <button onclick="openModalPwaInfo()" class="p-4 bg-brand-50 border border-brand-200 rounded-xl text-left hover:bg-brand-100 transition flex items-center gap-3">
-                                <div class="w-10 h-10 bg-brand-600 text-white rounded-xl flex items-center justify-center font-bold text-lg">
+                                <div class="w-10 h-10 bg-brand-600 text-white rounded-xl flex items-center justify-center font-bold text-lg flex-shrink-0">
                                     <i class="fa-solid fa-mobile-screen-button"></i>
                                 </div>
                                 <div>
@@ -383,7 +414,7 @@
                             </button>
                             
                             <button onclick="downloadAppBundle()" class="p-4 bg-slate-50 border border-slate-200 rounded-xl text-left hover:bg-slate-100 transition flex items-center gap-3">
-                                <div class="w-10 h-10 bg-slate-800 text-white rounded-xl flex items-center justify-center font-bold text-lg">
+                                <div class="w-10 h-10 bg-slate-800 text-white rounded-xl flex items-center justify-center font-bold text-lg flex-shrink-0">
                                     <i class="fa-solid fa-file-arrow-down"></i>
                                 </div>
                                 <div>
@@ -410,32 +441,6 @@
                                 <i class="fa-solid fa-file-import"></i> Impor Restore (JSON)
                                 <input type="file" accept=".json" onchange="importDataJson(event)" class="hidden">
                             </label>
-                        </div>
-                    </div>
-
-                    <hr class="border-slate-100">
-
-                    <div>
-                        <h3 class="text-base font-bold text-slate-800 mb-2 flex items-center gap-2">
-                            <i class="fa-brands fa-google-drive text-brand-600"></i> Server Cloud (Google Sheets)
-                        </h3>
-                        <p class="text-sm text-slate-600 mb-3">Terhubung secara otomatis ke server Google Sheets terpusat Pekon Panggungrejo Utara.</p>
-                        
-                        <div class="space-y-3">
-                            <label class="block text-xs font-bold text-slate-700">URL Server Web App</label>
-                            <input type="url" id="setting-gsheet-url" readonly class="w-full px-4 py-2.5 border border-slate-200 bg-slate-100 text-slate-600 rounded-xl text-sm font-mono cursor-not-allowed">
-                        </div>
-                        
-                        <div class="mt-4 p-4 bg-blue-50 border border-blue-100 rounded-xl text-xs text-blue-800">
-                            <p class="font-bold mb-1 flex items-center gap-1.5 text-sm">
-                                <i class="fa-solid fa-circle-info"></i> Status Sinkronisasi Server:
-                            </p>
-                            <p id="sync-status" class="mt-1 text-slate-700 font-medium">Memeriksa koneksi database...</p>
-                            <div class="mt-4 flex flex-wrap gap-2">
-                                <button onclick="syncAllWithGSheet()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-xs font-bold transition shadow-sm flex items-center gap-1.5">
-                                    <i class="fa-solid fa-cloud-arrow-down"></i> Sinkronkan Data Server Sekarang
-                                </button>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -762,14 +767,14 @@
     <!-- Script Utama Aplikasi -->
     <script>
         const STORAGE_KEYS = {
-            WARGA: 'ejimpitan_warga_v3',
-            TX: 'ejimpitan_tx_v3',
-            PETUGAS: 'ejimpitan_petugas_v3',
+            WARGA: 'ejimpitan_warga_v4',
+            TX: 'ejimpitan_tx_v4',
+            PETUGAS: 'ejimpitan_petugas_v4',
             USER: 'ejimpitan_user_session',
-            GSHEET_URL: 'ejimpitan_gsheet_url_v3'
+            GSHEET_URL: 'ejimpitan_gsheet_url_v4'
         };
 
-        const DEFAULT_GSHEET_URL = 'https://script.google.com/macros/s/AKfycbz9igqT7bb6gDVdPYQBHI7ETyGlSfSjixfbhM-RuU1zLxLOBR_jH_dQezbMaXJVd9TzAA/exec';
+        const DEFAULT_GSHEET_URL = 'https://script.google.com/macros/s/AKfycbyp35EvdPGkgDYmCYP94CDYL-hYBbP7mzT_yhCLwffnT5qGE6b-cAuPRjviJ1WBME_Qsw/exec';
 
         let APP_STATE = {
             wargaList: [],
@@ -806,7 +811,7 @@
                 document.getElementById('manifest-link').href = URL.createObjectURL(manifestBlob);
                 
                 const swCode = `
-                    const CACHE_NAME = 'ejimpitan-pwa-cache-v2';
+                    const CACHE_NAME = 'ejimpitan-pwa-cache-v3';
                     self.addEventListener('install', (e) => { self.skipWaiting(); });
                     self.addEventListener('activate', (e) => { e.waitUntil(clients.claim()); });
                     self.addEventListener('fetch', (e) => {
@@ -837,7 +842,7 @@
                     dot.className = "absolute -top-1 -right-1 w-3 h-3 bg-amber-400 border-2 border-white rounded-full";
                     dot.title = "Mode Offline (Data tersimpan di perangkat)";
                 }
-                showToast("Mode Offline aktif. Data tersimpan di HP/Browser!", "error");
+                showToast("Mode Offline aktif. Data akan tersimpan di perangkat lokal!", "error");
             }
         }
 
@@ -983,44 +988,35 @@
             if (tabId === 'petugas') renderPetugasTable();
         }
 
-        function initSeedData() {
-            const sampleWarga = [
-                { id: 'W101', nik: '1801012345670001', nama: 'Bambang Sukaryo', rt: 'RT 01' },
-                { id: 'W102', nik: '1801012345670002', nama: 'Siti Aminah', rt: 'RT 01' },
-                { id: 'W103', nik: '1801012345670003', nama: 'Joko Widodo', rt: 'RT 02' },
-                { id: 'W104', nik: '1801012345670004', nama: 'Sri Rahayu', rt: 'RT 02' },
-                { id: 'W105', nik: '1801012345670005', nama: 'Ahmad Subagyo', rt: 'RT 03' },
-                { id: 'W106', nik: '1801012345670006', nama: 'Dewi Kartika', rt: 'RT 04' },
-                { id: 'W107', nik: '1801012345670007', nama: 'Hendra Setiawan', rt: 'RT 05' },
-                { id: 'W108', nik: '1801012345670008', nama: 'Eko Prasetyo', rt: 'RT 06' }
-            ];
-
-            const sampleTx = [
-                { id: 'TX01', date: new Date().toISOString(), wargaId: 'W101', nama: 'Bambang Sukaryo', rt: 'RT 01', nominal: 1000, petugas: 'Petugas RT 01' },
-                { id: 'TX02', date: new Date().toISOString(), wargaId: 'W103', nama: 'Joko Widodo', rt: 'RT 02', nominal: 2000, petugas: 'Petugas RT 02' },
-                { id: 'TX03', date: new Date().toISOString(), wargaId: 'W105', nama: 'Ahmad Subagyo', rt: 'RT 03', nominal: 1000, petugas: 'Petugas RT 03' }
-            ];
-
-            if (!localStorage.getItem(STORAGE_KEYS.WARGA)) {
-                localStorage.setItem(STORAGE_KEYS.WARGA, JSON.stringify(sampleWarga));
-            }
-            if (!localStorage.getItem(STORAGE_KEYS.TX)) {
-                localStorage.setItem(STORAGE_KEYS.TX, JSON.stringify(sampleTx));
+        function saveGSheetUrl() {
+            const url = document.getElementById('setting-gsheet-url').value.trim();
+            if(url && url.startsWith('https://script.google.com/')) {
+                APP_STATE.googleSheetUrl = url;
+                localStorage.setItem(STORAGE_KEYS.GSHEET_URL, url);
+                showToast('URL Google Sheets berhasil disimpan!');
+                syncAllWithGSheet(false);
+            } else {
+                showToast('Format URL Apps Script tidak valid!', 'error');
             }
         }
 
         function initApp() {
             initPWA();
-            initSeedData();
             
-            APP_STATE.googleSheetUrl = DEFAULT_GSHEET_URL;
-            localStorage.setItem(STORAGE_KEYS.GSHEET_URL, DEFAULT_GSHEET_URL);
-
-            APP_STATE.wargaList = JSON.parse(localStorage.getItem(STORAGE_KEYS.WARGA) || '[]');
-            APP_STATE.transaksiList = JSON.parse(localStorage.getItem(STORAGE_KEYS.TX) || '[]');
-
+            // Inisialisasi Settings URL
+            const savedUrl = localStorage.getItem(STORAGE_KEYS.GSHEET_URL);
+            if(savedUrl) {
+                APP_STATE.googleSheetUrl = savedUrl;
+            } else {
+                APP_STATE.googleSheetUrl = DEFAULT_GSHEET_URL;
+                localStorage.setItem(STORAGE_KEYS.GSHEET_URL, DEFAULT_GSHEET_URL);
+            }
             const settingInput = document.getElementById('setting-gsheet-url');
             if(settingInput) settingInput.value = APP_STATE.googleSheetUrl;
+
+            // Load Data Lokal
+            APP_STATE.wargaList = JSON.parse(localStorage.getItem(STORAGE_KEYS.WARGA) || '[]');
+            APP_STATE.transaksiList = JSON.parse(localStorage.getItem(STORAGE_KEYS.TX) || '[]');
 
             const savedPetugas = localStorage.getItem(STORAGE_KEYS.PETUGAS);
             if(savedPetugas) {
@@ -1036,16 +1032,128 @@
                 localStorage.setItem(STORAGE_KEYS.PETUGAS, JSON.stringify(APP_STATE.petugasList));
             }
 
+            // Cek status sesi login
             const savedUser = localStorage.getItem(STORAGE_KEYS.USER);
             if(savedUser) {
                 APP_STATE.currentUser = JSON.parse(savedUser);
                 applyUserRoleUI();
             }
 
+            // Sync awal ketika online
             if (navigator.onLine) {
-                syncAllWithGSheet();
+                syncAllWithGSheet(true);
+            }
+
+            // Polling Real-time Auto-Sync setiap 10 Detik
+            setInterval(() => {
+                if (navigator.onLine && APP_STATE.currentUser && APP_STATE.googleSheetUrl && document.visibilityState === 'visible') {
+                    syncAllWithGSheet(true);
+                }
+            }, 10000);
+        }
+
+        // --- SISTEM KOMUNIKASI GOOGLE SHEETS TERBARU (MENGHINDARI CORS ERROR) --- //
+        
+        async function pushDataToGSheet(actionName, payload) {
+            if(!APP_STATE.googleSheetUrl || !navigator.onLine) return;
+            const sts = document.getElementById('sync-status');
+            if(sts) sts.innerText = "Menyimpan perubahan ke server...";
+            
+            try {
+                // Gunakan mode text/plain agar Apps Script tidak menolak permintaan dengan CORS Preflight
+                const response = await fetch(APP_STATE.googleSheetUrl, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'text/plain;charset=utf-8'},
+                    body: JSON.stringify({ action: actionName, data: payload })
+                });
+                
+                const text = await response.text();
+                let result;
+                try {
+                    result = JSON.parse(text);
+                } catch(err) {
+                    throw new Error('Respon server tidak valid.');
+                }
+                
+                if(result.status === 'success') {
+                    if(sts) sts.innerText = `Tersinkron pada ${new Date().toLocaleTimeString('id-ID')}`;
+                    syncAllWithGSheet(true); // Memastikan perangkat sinkron sepenuhnya paska input
+                } else {
+                    console.error('Push server error:', result.message);
+                    if(sts) sts.innerText = "Gagal memproses di server.";
+                }
+            } catch(e) {
+                console.error('Push background error:', e);
+                if(sts) sts.innerText = "Offline, data saat ini tersimpan di perangkat (lokal).";
             }
         }
+
+        function syncAllWithGSheet(silent = false) {
+            if(!APP_STATE.googleSheetUrl || !navigator.onLine) return;
+            const sts = document.getElementById('sync-status');
+            if(sts && !silent) sts.innerText = "Mengunduh pembaruan data dari Server... Mohon tunggu.";
+            
+            fetch(APP_STATE.googleSheetUrl + '?op=getData')
+                .then(r => r.text())
+                .then(text => {
+                    let data;
+                    try {
+                        data = JSON.parse(text);
+                    } catch(err) {
+                        throw new Error('Format JSON dari server salah.');
+                    }
+                    let updated = false;
+                    
+                    if(data.warga && data.warga.length > 0) {
+                        const serverWarga = data.warga.slice(1).map(r => ({ id: String(r[0]), nik: String(r[1]), nama: String(r[2]), rt: String(r[3]) }));
+                        if(JSON.stringify(APP_STATE.wargaList) !== JSON.stringify(serverWarga)) {
+                            APP_STATE.wargaList = serverWarga;
+                            localStorage.setItem(STORAGE_KEYS.WARGA, JSON.stringify(APP_STATE.wargaList));
+                            updated = true;
+                        }
+                    }
+                    
+                    if(data.transaksi && data.transaksi.length > 0) {
+                        const serverTx = data.transaksi.slice(1).map(r => ({
+                            id: String(r[0]), date: String(r[1]), wargaId: String(r[2]), nama: String(r[3]), rt: String(r[4]), nominal: parseInt(r[5]), petugas: String(r[6])
+                        }));
+                        if(JSON.stringify(APP_STATE.transaksiList) !== JSON.stringify(serverTx)) {
+                            APP_STATE.transaksiList = serverTx;
+                            localStorage.setItem(STORAGE_KEYS.TX, JSON.stringify(APP_STATE.transaksiList));
+                            updated = true;
+                        }
+                    }
+                    
+                    if(data.petugas && data.petugas.length > 0) {
+                        const serverPetugas = data.petugas.slice(1).map(r => ({
+                            id: String(r[0]), nama: String(r[1]), username: String(r[2]), password: String(r[3]), role: String(r[4]), rt: String(r[5])
+                        }));
+                        if(JSON.stringify(APP_STATE.petugasList) !== JSON.stringify(serverPetugas)) {
+                            APP_STATE.petugasList = serverPetugas;
+                            localStorage.setItem(STORAGE_KEYS.PETUGAS, JSON.stringify(APP_STATE.petugasList));
+                            updated = true;
+                        }
+                    }
+
+                    if(sts && !silent) sts.innerText = `Terhubung & tersinkronisasi pada ${new Date().toLocaleTimeString('id-ID')}`;
+                    if(!silent) showToast('Sinkronisasi server berhasil.');
+                    
+                    // Render ulang antarmuka jika ada pembaruan dari perangkat lain
+                    if(updated) {
+                        if(APP_STATE.currentUser && APP_STATE.currentUser.role === 'SUPERADMIN'){
+                            renderWargaTable(); 
+                            renderPetugasTable();
+                        }
+                        renderDashboard();
+                        populateManualSelect(APP_STATE.currentUser ? APP_STATE.currentUser.rt : 'ALL');
+                    }
+                }).catch(e => {
+                    if(sts && !silent) sts.innerText = "Gagal terhubung ke Server, menggunakan data lokal.";
+                    console.log('GSheet Sync Error:', e);
+                });
+        }
+
+        // --- CORE UI FUNCTIONS --- //
 
         function handleLogin(e) {
             e.preventDefault();
@@ -1277,9 +1385,7 @@
                 if (!document.getElementById('modal-riwayat-warga').classList.contains('hidden')) {
                     searchRiwayatDash();
                 }
-                if(APP_STATE.googleSheetUrl && navigator.onLine) {
-                    pushDataToGSheet('deleteTransaksi', { id: txId });
-                }
+                pushDataToGSheet('deleteTransaksi', { id: txId });
             });
         }
         
@@ -1314,7 +1420,7 @@
             showToast(`Berhasil menarik dana Rp${nom.toLocaleString('id-ID')}.`);
             renderDashboard();
             
-            if(APP_STATE.googleSheetUrl && navigator.onLine) pushDataToGSheet('addTransaksi', tx);
+            pushDataToGSheet('addTransaksi', tx);
         }
 
         function renderWargaTable() {
@@ -1373,14 +1479,26 @@
             openModal('modal-warga');
         }
 
-        function handleSaveWarga(e) {
+function handleSaveWarga(e) {
             e.preventDefault();
             const id = document.getElementById('form-warga-id').value;
+            const nikInput = document.getElementById('form-warga-nik').value.trim();
+            const namaInput = document.getElementById('form-warga-nama').value.trim();
+            const rtInput = document.getElementById('form-warga-rt').value;
+
+            // TAMBAHAN: Validasi NIK agar tidak duplikat dengan data yang sudah ada
+            // (Pengecekan w.id !== id memastikan jika sedang mode 'edit', NIK miliknya sendiri tidak dianggap duplikat)
+            const isNikExists = APP_STATE.wargaList.some(w => w.nik === nikInput && w.id !== id);
+            if (isNikExists) {
+                showToast('Gagal: NIK tersebut sudah terdaftar di database!', 'error');
+                return; // Hentikan proses simpan
+            }
+
             const w = {
                 id: id || 'W' + Date.now(),
-                nik: document.getElementById('form-warga-nik').value.trim(),
-                nama: document.getElementById('form-warga-nama').value.trim(),
-                rt: document.getElementById('form-warga-rt').value
+                nik: nikInput,
+                nama: namaInput,
+                rt: rtInput
             };
 
             if (id) {
@@ -1396,7 +1514,7 @@
             populateManualSelect(APP_STATE.currentUser ? APP_STATE.currentUser.rt : 'ALL');
             showToast('Data warga berhasil disimpan!');
             
-            if(APP_STATE.googleSheetUrl && navigator.onLine) pushDataToGSheet('saveWarga', w);
+            pushDataToGSheet('saveWarga', w);
         }
 
         function promptDeleteWarga(id) {
@@ -1406,9 +1524,8 @@
                 renderWargaTable();
                 populateManualSelect(APP_STATE.currentUser ? APP_STATE.currentUser.rt : 'ALL');
                 showToast('Data warga dihapus.');
-                if(APP_STATE.googleSheetUrl && navigator.onLine) {
-                    pushDataToGSheet('deleteWarga', { id: id });
-                }
+                
+                pushDataToGSheet('deleteWarga', { id: id });
             });
         }
 
@@ -1421,8 +1538,7 @@
         function downloadJsonTemplate() {
             const template = [
                 { "nik": "1801012345670001", "nama": "Ahmad Subagyo", "rt": "RT 01" },
-                { "nik": "1801012345670002", "nama": "Budi Santoso", "rt": "RT 02" },
-                { "nik": "1801012345670003", "nama": "Siti Aminah", "rt": "RT 03" }
+                { "nik": "1801012345670002", "nama": "Budi Santoso", "rt": "RT 02" }
             ];
             const str = JSON.stringify(template, null, 2);
             const blob = new Blob([str], { type: 'application/json' });
@@ -1481,19 +1597,11 @@
                     populateManualSelect(APP_STATE.currentUser ? APP_STATE.currentUser.rt : 'ALL');
                     showToast(`Sukses mengimpor ${addedCount} data warga baru!`);
 
-                    // Integrasi langsung dan cepat secara realtime ke Google Sheets
-                    if(APP_STATE.googleSheetUrl && navigator.onLine) {
-                        const sts = document.getElementById('sync-status');
-                        if (sts) sts.innerText = "SINKRONISASI: Mengirim data massal ke server...";
-                        pushDataToGSheet('syncFullDatabase', {
-                            warga: APP_STATE.wargaList,
-                            transaksi: APP_STATE.transaksiList,
-                            petugas: APP_STATE.petugasList
-                        });
-                        setTimeout(() => {
-                            if (sts) sts.innerText = `Data massal berhasil tersinkron ke server.`;
-                        }, 2000);
-                    }
+                    pushDataToGSheet('syncFullDatabase', {
+                        warga: APP_STATE.wargaList,
+                        transaksi: APP_STATE.transaksiList,
+                        petugas: APP_STATE.petugasList
+                    });
                 } catch(err) {
                     showToast('Gagal membaca JSON: ' + err.message, 'error');
                 }
@@ -1601,7 +1709,7 @@
             closeModal('modal-jimpitan');
             showToast(`Sukses! Jimpitan Rp${tx.nominal.toLocaleString('id-ID')} tersimpan.`);
             
-            if(APP_STATE.googleSheetUrl && navigator.onLine) pushDataToGSheet('addTransaksi', tx);
+            pushDataToGSheet('addTransaksi', tx);
         }
 
         function executePrintLaporan() {
@@ -1715,60 +1823,6 @@
             }, 600);
         }
 
-        function syncAllWithGSheet() {
-            const sts = document.getElementById('sync-status');
-            if(sts) sts.innerText = "Mengunduh data dari Server... Mohon tunggu.";
-            
-            fetch(APP_STATE.googleSheetUrl + '?op=getData')
-                .then(r => {
-                    if (!r.ok) throw new Error('Jaringan bermasalah.');
-                    return r.json();
-                })
-                .then(data => {
-                    if(data.warga && data.warga.length > 1) {
-                        APP_STATE.wargaList = data.warga.slice(1).map(r => ({ id: String(r[0]), nik: String(r[1]), nama: String(r[2]), rt: String(r[3]) }));
-                        localStorage.setItem(STORAGE_KEYS.WARGA, JSON.stringify(APP_STATE.wargaList));
-                    }
-                    if(data.transaksi && data.transaksi.length > 1) {
-                        APP_STATE.transaksiList = data.transaksi.slice(1).map(r => ({
-                            id: String(r[0]), date: String(r[1]), wargaId: String(r[2]), nama: String(r[3]), rt: String(r[4]), nominal: parseInt(r[5]), petugas: String(r[6])
-                        }));
-                        localStorage.setItem(STORAGE_KEYS.TX, JSON.stringify(APP_STATE.transaksiList));
-                    }
-                    if(data.petugas && data.petugas.length > 1) {
-                        APP_STATE.petugasList = data.petugas.slice(1).map(r => ({
-                            id: String(r[0]), nama: String(r[1]), username: String(r[2]), password: String(r[3]), role: String(r[4]), rt: String(r[5])
-                        }));
-                        localStorage.setItem(STORAGE_KEYS.PETUGAS, JSON.stringify(APP_STATE.petugasList));
-                    }
-
-                    if(sts) sts.innerText = `Terhubung & tersinkronisasi pada ${new Date().toLocaleTimeString('id-ID')}`;
-                    showToast('Status Online.');
-                    
-                    if(APP_STATE.currentUser && APP_STATE.currentUser.role === 'SUPERADMIN'){
-                        renderWargaTable(); renderPetugasTable();
-                    }
-                    renderDashboard();
-                }).catch(e => {
-                    if(sts) sts.innerText = "Menggunakan data lokal tersimpan.";
-                    console.log('GSheet Sync:', e);
-                });
-        }
-
-        function pushDataToGSheet(actionName, payload) {
-            if(!APP_STATE.googleSheetUrl || !navigator.onLine) return;
-            const sts = document.getElementById('sync-status');
-            if(sts) sts.innerText = "Sinkronisasi ke server...";
-            
-            fetch(APP_STATE.googleSheetUrl, {
-                method: 'POST', mode: 'no-cors',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ action: actionName, data: payload })
-            }).then(() => {
-                if(sts) sts.innerText = `Tersinkron pada ${new Date().toLocaleTimeString('id-ID')}`;
-            }).catch(e => console.log('Push background error:', e));
-        }
-
         function renderPetugasTable() {
             const tbody = document.getElementById('petugas-table-body');
             tbody.innerHTML = '';
@@ -1855,7 +1909,7 @@
             renderPetugasTable();
             showToast('Akun Pengguna berhasil disimpan!');
             
-            if(APP_STATE.googleSheetUrl && navigator.onLine) pushDataToGSheet('savePetugas', p);
+            pushDataToGSheet('savePetugas', p);
         }
 
         function promptDeletePetugas(id, nama) {
@@ -1864,9 +1918,8 @@
                 localStorage.setItem(STORAGE_KEYS.PETUGAS, JSON.stringify(APP_STATE.petugasList));
                 renderPetugasTable();
                 showToast(`Akun ${nama} dihapus.`);
-                if(APP_STATE.googleSheetUrl && navigator.onLine) {
-                    pushDataToGSheet('deletePetugas', { id: id });
-                }
+                
+                pushDataToGSheet('deletePetugas', { id: id });
             });
         }
 
@@ -1889,7 +1942,7 @@
         function exportDataJson() {
             const dataToExport = {
                 app: "E-Jimpitan Panggungrejo Utara",
-                version: "3.0",
+                version: "4.0",
                 exportedAt: new Date().toISOString(),
                 warga: APP_STATE.wargaList,
                 transaksi: APP_STATE.transaksiList,
@@ -1929,6 +1982,13 @@
                     renderDashboard();
                     renderWargaTable();
                     renderPetugasTable();
+                    
+                    // Dorong perubahan restore ke Google Sheets
+                    pushDataToGSheet('syncFullDatabase', {
+                        warga: APP_STATE.wargaList,
+                        transaksi: APP_STATE.transaksiList,
+                        petugas: APP_STATE.petugasList
+                    });
                 } catch(err) {
                     showToast('Gagal memuat file backup JSON.', 'error');
                 }
