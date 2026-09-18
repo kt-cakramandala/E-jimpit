@@ -249,10 +249,7 @@
             <div id="tab-scan" class="tab-content hidden space-y-4">
                 <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-4 md:p-6 text-center">
                     <h2 class="text-xl font-bold text-slate-800 mb-1">Scanner QR Code Jimpitan</h2>
-                    <p class="text-sm text-slate-500 mb-2">Arahkan kamera ke Kartu QR Warga <span id="scan-rt-label" class="font-bold text-brand-600"></span></p>
-                    <div class="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-50 border border-amber-200 text-amber-800 rounded-full text-xs font-medium mb-4">
-                        <i class="fa-solid fa-shield-halved"></i> Batas Scan: Maksimal 1x Scan per Warga / Hari
-                    </div>
+                    <p class="text-sm text-slate-500 mb-6">Arahkan kamera ke Kartu QR Warga <span id="scan-rt-label" class="font-bold text-brand-600"></span></p>
                     
                     <div class="max-w-sm mx-auto overflow-hidden rounded-2xl border-4 border-slate-200 relative bg-black aspect-square flex items-center justify-center shadow-inner">
                         <div id="qr-reader" class="w-full h-full"></div>
@@ -372,7 +369,7 @@
                         <h3 class="text-base font-bold text-slate-800 mb-2 flex items-center gap-2">
                             <i class="fa-brands fa-google-drive text-brand-600"></i> Server Cloud (Google Sheets)
                         </h3>
-                        <p class="text-sm text-slate-600 mb-3">Terhubung secara otomatis ke server Google Sheets terpusat Pekon Panggungrejo Utara.</p>
+                        <p class="text-sm text-slate-600 mb-3">Terhubung secara otomatis ke server Google Sheets terpusat Pekon Panggungrejo Utara. Anda dapat mengganti URL ini dengan URL Apps Script Anda sendiri.</p>
                         
                         <div class="space-y-3">
                             <label class="block text-xs font-bold text-slate-700">URL Server Web App (Apps Script)</label>
@@ -455,7 +452,7 @@
     <!-- Overlay Global Backdrop -->
     <div id="overlay" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 transition-opacity"></div>
 
-    <!-- Modal Upload Data Warga JSON -->
+    <!-- Modal Upload Data Warga JSON (Khusus Superadmin) -->
     <div id="modal-upload-json" class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-11/12 max-w-md bg-white rounded-2xl shadow-2xl p-6 hidden z-50 transform scale-95 transition-all max-h-[90vh] overflow-y-auto">
         <div class="flex justify-between items-center mb-4 border-b pb-2">
             <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
@@ -774,8 +771,7 @@
             TX: 'ejimpitan_tx_v4',
             PETUGAS: 'ejimpitan_petugas_v4',
             USER: 'ejimpitan_user_session',
-            GSHEET_URL: 'ejimpitan_gsheet_url_v4',
-            SYNC_QUEUE: 'ejimpitan_sync_queue_v4'
+            GSHEET_URL: 'ejimpitan_gsheet_url_v4'
         };
 
         const DEFAULT_GSHEET_URL = 'https://script.google.com/macros/s/AKfycbzlwIYdKj8MI74xgbUyBNYtNnBHO4Ezl0mkUc1DgEQ3LUILinfRWAluk0nRnWJyxj_tsg/exec';
@@ -786,9 +782,7 @@
             petugasList: [],
             currentUser: null,
             googleSheetUrl: DEFAULT_GSHEET_URL,
-            chartInstance: null,
-            syncQueue: [],
-            isSyncingQueue: false
+            chartInstance: null
         };
 
         let html5QrcodeScanner = null;
@@ -796,7 +790,7 @@
         let confirmActionCb = null;
         let deferredPrompt = null;
 
-        // Inisialisasi Web App Manifest & Service Worker PWA
+        // Inisialisasi Web App Manifest & Service Worker untuk PWA Offline
         function initPWA() {
             try {
                 const manifestData = {
@@ -817,7 +811,7 @@
                 document.getElementById('manifest-link').href = URL.createObjectURL(manifestBlob);
                 
                 const swCode = `
-                    const CACHE_NAME = 'ejimpitan-pwa-cache-v4';
+                    const CACHE_NAME = 'ejimpitan-pwa-cache-v3';
                     self.addEventListener('install', (e) => { self.skipWaiting(); });
                     self.addEventListener('activate', (e) => { e.waitUntil(clients.claim()); });
                     self.addEventListener('fetch', (e) => {
@@ -843,13 +837,12 @@
                     dot.className = "absolute -top-1 -right-1 w-3 h-3 bg-emerald-400 border-2 border-white rounded-full";
                     dot.title = "Mode Online";
                 }
-                processSyncQueue();
             } else {
                 if (dot) {
                     dot.className = "absolute -top-1 -right-1 w-3 h-3 bg-amber-400 border-2 border-white rounded-full";
                     dot.title = "Mode Offline (Data tersimpan di perangkat)";
                 }
-                showToast("Mode Offline aktif. Data tersimpan di perangkat lokal!", "error");
+                showToast("Mode Offline aktif. Data akan tersimpan di perangkat lokal!", "error");
             }
         }
 
@@ -909,20 +902,6 @@
             } catch (e) {}
             document.body.classList.add('flash-effect');
             setTimeout(() => document.body.classList.remove('flash-effect'), 400);
-        }
-
-        function triggerWarningIndicator() {
-            try {
-                const ctx = new (window.AudioContext || window.webkitAudioContext)();
-                const osc = ctx.createOscillator();
-                const gainNode = ctx.createGain();
-                osc.connect(gainNode); gainNode.connect(ctx.destination);
-                osc.type = 'sawtooth'; osc.frequency.setValueAtTime(220, ctx.currentTime);
-                gainNode.gain.setValueAtTime(0.6, ctx.currentTime);
-                osc.start();
-                gainNode.gain.exponentialRampToValueAtTime(0.00001, ctx.currentTime + 0.4);
-                osc.stop(ctx.currentTime + 0.4);
-            } catch (e) {}
         }
 
         function showToast(msg, type = 'success') {
@@ -1024,6 +1003,7 @@
         function initApp() {
             initPWA();
             
+            // Inisialisasi Settings URL
             const savedUrl = localStorage.getItem(STORAGE_KEYS.GSHEET_URL);
             if(savedUrl) {
                 APP_STATE.googleSheetUrl = savedUrl;
@@ -1034,9 +1014,9 @@
             const settingInput = document.getElementById('setting-gsheet-url');
             if(settingInput) settingInput.value = APP_STATE.googleSheetUrl;
 
+            // Load Data Lokal
             APP_STATE.wargaList = JSON.parse(localStorage.getItem(STORAGE_KEYS.WARGA) || '[]');
             APP_STATE.transaksiList = JSON.parse(localStorage.getItem(STORAGE_KEYS.TX) || '[]');
-            APP_STATE.syncQueue = JSON.parse(localStorage.getItem(STORAGE_KEYS.SYNC_QUEUE) || '[]');
 
             const savedPetugas = localStorage.getItem(STORAGE_KEYS.PETUGAS);
             if(savedPetugas) {
@@ -1052,70 +1032,60 @@
                 localStorage.setItem(STORAGE_KEYS.PETUGAS, JSON.stringify(APP_STATE.petugasList));
             }
 
+            // Cek status sesi login
             const savedUser = localStorage.getItem(STORAGE_KEYS.USER);
             if(savedUser) {
                 APP_STATE.currentUser = JSON.parse(savedUser);
                 applyUserRoleUI();
             }
 
+            // Sync awal ketika online
             if (navigator.onLine) {
                 syncAllWithGSheet(true);
-                processSyncQueue();
             }
 
+            // Polling Real-time Auto-Sync setiap 10 Detik
             setInterval(() => {
                 if (navigator.onLine && APP_STATE.currentUser && APP_STATE.googleSheetUrl && document.visibilityState === 'visible') {
                     syncAllWithGSheet(true);
-                    processSyncQueue();
                 }
             }, 10000);
         }
 
-        // --- SISTEM KOMUNIKASI & QUEUE SINKRONISASI SERVER --- //
+        // --- SISTEM KOMUNIKASI GOOGLE SHEETS TERBARU (MENGHINDARI CORS ERROR) --- //
         
-        function pushDataToGSheet(actionName, payload) {
-            APP_STATE.syncQueue.push({ action: actionName, data: payload, timestamp: Date.now() });
-            localStorage.setItem(STORAGE_KEYS.SYNC_QUEUE, JSON.stringify(APP_STATE.syncQueue));
-            processSyncQueue();
-        }
-
-        async function processSyncQueue() {
-            if (APP_STATE.isSyncingQueue || APP_STATE.syncQueue.length === 0 || !navigator.onLine || !APP_STATE.googleSheetUrl) return;
-            
-            APP_STATE.isSyncingQueue = true;
+        async function pushDataToGSheet(actionName, payload) {
+            if(!APP_STATE.googleSheetUrl || !navigator.onLine) return;
             const sts = document.getElementById('sync-status');
-            if (sts) sts.innerText = `Mengirim ${APP_STATE.syncQueue.length} data ke server...`;
-
-            while (APP_STATE.syncQueue.length > 0 && navigator.onLine) {
-                const item = APP_STATE.syncQueue[0];
+            if(sts) sts.innerText = "Menyimpan perubahan ke server...";
+            
+            try {
+                // Gunakan mode text/plain agar Apps Script tidak menolak permintaan dengan CORS Preflight
+                const response = await fetch(APP_STATE.googleSheetUrl, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'text/plain;charset=utf-8'},
+                    body: JSON.stringify({ action: actionName, data: payload })
+                });
+                
+                const text = await response.text();
+                let result;
                 try {
-                    const response = await fetch(APP_STATE.googleSheetUrl, {
-                        method: 'POST',
-                        headers: {'Content-Type': 'text/plain;charset=utf-8'},
-                        body: JSON.stringify({ action: item.action, data: item.data })
-                    });
-
-                    const text = await response.text();
-                    let res = JSON.parse(text);
-
-                    if (res.status === 'success' || res.status === 'duplicate') {
-                        if (res.status === 'duplicate') {
-                            showToast(`Peringatan Server: ${res.message}`, 'error');
-                        }
-                        APP_STATE.syncQueue.shift();
-                        localStorage.setItem(STORAGE_KEYS.SYNC_QUEUE, JSON.stringify(APP_STATE.syncQueue));
-                    } else {
-                        console.warn('Sync queue error response:', res);
-                        break;
-                    }
-                } catch (e) {
-                    console.error('Queue processing network exception:', e);
-                    break;
+                    result = JSON.parse(text);
+                } catch(err) {
+                    throw new Error('Respon server tidak valid.');
                 }
+                
+                if(result.status === 'success') {
+                    if(sts) sts.innerText = `Tersinkron pada ${new Date().toLocaleTimeString('id-ID')}`;
+                    syncAllWithGSheet(true); // Memastikan perangkat sinkron sepenuhnya paska input
+                } else {
+                    console.error('Push server error:', result.message);
+                    if(sts) sts.innerText = "Gagal memproses di server.";
+                }
+            } catch(e) {
+                console.error('Push background error:', e);
+                if(sts) sts.innerText = "Offline, data saat ini tersimpan di perangkat (lokal).";
             }
-
-            APP_STATE.isSyncingQueue = false;
-            if (sts) sts.innerText = `Terhubung & Tersinkronisasi ${new Date().toLocaleTimeString('id-ID')}`;
         }
 
         function syncAllWithGSheet(silent = false) {
@@ -1126,7 +1096,12 @@
             fetch(APP_STATE.googleSheetUrl + '?op=getData')
                 .then(r => r.text())
                 .then(text => {
-                    let data = JSON.parse(text);
+                    let data;
+                    try {
+                        data = JSON.parse(text);
+                    } catch(err) {
+                        throw new Error('Format JSON dari server salah.');
+                    }
                     let updated = false;
                     
                     if(data.warga && data.warga.length > 0) {
@@ -1163,6 +1138,7 @@
                     if(sts && !silent) sts.innerText = `Terhubung & tersinkronisasi pada ${new Date().toLocaleTimeString('id-ID')}`;
                     if(!silent) showToast('Sinkronisasi server berhasil.');
                     
+                    // Render ulang antarmuka jika ada pembaruan dari perangkat lain
                     if(updated) {
                         if(APP_STATE.currentUser && APP_STATE.currentUser.role === 'SUPERADMIN'){
                             renderWargaTable(); 
@@ -1173,20 +1149,11 @@
                     }
                 }).catch(e => {
                     if(sts && !silent) sts.innerText = "Gagal terhubung ke Server, menggunakan data lokal.";
+                    console.log('GSheet Sync Error:', e);
                 });
         }
 
-        // --- MANAJEMEN TRANSAKSI & CEK 1 SCAN PER HARI --- //
-
-        function isWargaScannedToday(wargaId) {
-            const todayStr = new Date().toLocaleDateString('sv'); // Format YYYY-MM-DD lokal
-            return APP_STATE.transaksiList.some(tx => {
-                if (tx.wargaId !== wargaId) return false;
-                if (!tx.date) return false;
-                const txDateStr = new Date(tx.date).toLocaleDateString('sv');
-                return txDateStr === todayStr && parseInt(tx.nominal) > 0;
-            });
-        }
+        // --- CORE UI FUNCTIONS --- //
 
         function handleLogin(e) {
             e.preventDefault();
@@ -1512,17 +1479,19 @@
             openModal('modal-warga');
         }
 
-        function handleSaveWarga(e) {
+function handleSaveWarga(e) {
             e.preventDefault();
             const id = document.getElementById('form-warga-id').value;
             const nikInput = document.getElementById('form-warga-nik').value.trim();
             const namaInput = document.getElementById('form-warga-nama').value.trim();
             const rtInput = document.getElementById('form-warga-rt').value;
 
+            // TAMBAHAN: Validasi NIK agar tidak duplikat dengan data yang sudah ada
+            // (Pengecekan w.id !== id memastikan jika sedang mode 'edit', NIK miliknya sendiri tidak dianggap duplikat)
             const isNikExists = APP_STATE.wargaList.some(w => w.nik === nikInput && w.id !== id);
             if (isNikExists) {
                 showToast('Gagal: NIK tersebut sudah terdaftar di database!', 'error');
-                return;
+                return; // Hentikan proses simpan
             }
 
             const w = {
@@ -1560,6 +1529,7 @@
             });
         }
 
+        /* --- FITUR UPLOAD DATA WARGA JSON (KHUSUS SUPERADMIN) --- */
         function openModalUploadJson() {
             document.getElementById('input-file-json-warga').value = '';
             openModal('modal-upload-json');
@@ -1591,12 +1561,20 @@
             reader.onload = function(evt) {
                 try {
                     const imported = JSON.parse(evt.target.result);
-                    let listToImport = Array.isArray(imported) ? imported : (imported.warga || []);
+                    let listToImport = [];
 
-                    if (listToImport.length === 0) throw new Error('File JSON tidak berisi data warga.');
+                    if (Array.isArray(imported)) {
+                        listToImport = imported;
+                    } else if (imported.warga && Array.isArray(imported.warga)) {
+                        listToImport = imported.warga;
+                    } else {
+                        throw new Error('Format JSON tidak valid. Harus berisi Array data warga.');
+                    }
 
                     const mode = document.getElementById('json-import-mode').value;
-                    if (mode === 'overwrite') APP_STATE.wargaList = [];
+                    if (mode === 'overwrite') {
+                        APP_STATE.wargaList = [];
+                    }
 
                     let addedCount = 0;
                     listToImport.forEach(item => {
@@ -1642,6 +1620,7 @@
                 (decodedText) => {
                     if(!scanThrottle) {
                         scanThrottle = true;
+                        triggerSuccessIndicator();
                         processScannedQR(decodedText);
                         setTimeout(() => scanThrottle = false, 2500); 
                     }
@@ -1682,31 +1661,38 @@
         function processManualInput() {
             const wId = document.getElementById('manual-warga-select').value;
             if(!wId) return showToast('Pilih nama warga terlebih dahulu!', 'error');
+            triggerSuccessIndicator();
             processScannedQR(wId);
         }
 
-        // --- PROSES SCAN QR CODE DENGAN BATAS 1 SCAN / HARI --- //
         function processScannedQR(qrId) {
             const u = APP_STATE.currentUser;
             const w = APP_STATE.wargaList.find(x => x.id === qrId);
             
-            if(!w) {
-                triggerWarningIndicator();
-                return showToast('Error: QR Code Warga tidak terdaftar.', 'error');
-            }
+            if(!w) return showToast('Error: QR Code Warga tidak terdaftar.', 'error');
             if(u.role === 'PETUGAS' && w.rt !== u.rt) {
-                triggerWarningIndicator();
                 return showToast(`Gagal: Wilayah tugas Anda adalah ${u.rt}`, 'error');
             }
-            
-            // CEK PENCEGAHAN DOUBLE SCAN
-            if (isWargaScannedToday(w.id)) {
-                triggerWarningIndicator();
-                showToast(`PERINGATAN: ${w.nama} (${w.rt}) SUDAH melakukan scan jimpitan hari ini!`, 'error');
-                return;
-            }
 
-            triggerSuccessIndicator();
+            // --- FITUR BARU: VALIDASI DOUBLE SCAN ---
+            // Cek apakah warga sudah melakukan jimpitan pada hari yang sama (nominal > 0)
+            const today = new Date();
+            const hasScannedToday = APP_STATE.transaksiList.some(tx => {
+                if(tx.wargaId === w.id && parseInt(tx.nominal) > 0) {
+                    const txDate = new Date(tx.date);
+                    // Bandingkan secara lokal Tahun, Bulan, dan Tanggal
+                    return txDate.getFullYear() === today.getFullYear() && 
+                           txDate.getMonth() === today.getMonth() && 
+                           txDate.getDate() === today.getDate();
+                }
+                return false;
+            });
+
+            if(hasScannedToday) {
+                return showToast(`Gagal: Warga ${w.nama} sudah scan jimpitan hari ini!`, 'error');
+            }
+            // ----------------------------------------
+            
             document.getElementById('input-warga-id').value = w.id;
             document.getElementById('input-warga-nama').innerText = w.nama;
             document.getElementById('input-warga-rt').innerText = w.rt;
@@ -1726,15 +1712,8 @@
             
             if(!w || !nom || parseInt(nom) <= 0) return showToast('Nominal iuran tidak valid!', 'error');
 
-            if (isWargaScannedToday(w.id)) {
-                triggerWarningIndicator();
-                showToast(`Gagal: Data jimpitan untuk ${w.nama} sudah tercatat hari ini.`, 'error');
-                closeModal('modal-jimpitan');
-                return;
-            }
-
             const tx = {
-                id: 'TX' + Date.now() + Math.floor(Math.random()*100),
+                id: 'TX' + Date.now(),
                 date: new Date().toISOString(),
                 wargaId: w.id,
                 nama: w.nama,
@@ -1747,112 +1726,11 @@
             localStorage.setItem(STORAGE_KEYS.TX, JSON.stringify(APP_STATE.transaksiList));
             
             closeModal('modal-jimpitan');
-            showToast(`Sukses! Jimpitan Rp${tx.nominal.toLocaleString('id-ID')} (${w.nama}) tersimpan.`);
-            renderDashboard();
+            showToast(`Sukses! Jimpitan Rp${tx.nominal.toLocaleString('id-ID')} tersimpan.`);
             
             pushDataToGSheet('addTransaksi', tx);
         }
 
-        // --- RENDER & EDIT HAK AKSES PETUGAS --- //
-        function renderPetugasTable() {
-            const tbody = document.getElementById('petugas-table-body');
-            if(!tbody) return;
-            tbody.innerHTML = '';
-            
-            APP_STATE.petugasList.forEach(p => {
-                const isBuiltin = p.id === 'ADM' || p.id === 'WRG';
-                tbody.innerHTML += `
-                <tr class="hover:bg-slate-50 transition border-b border-slate-50">
-                    <td class="p-3 pl-4 font-semibold text-slate-800">${p.nama}</td>
-                    <td class="p-3 text-slate-600 font-mono">${p.username}</td>
-                    <td class="p-3"><span class="px-2 py-1 ${p.role==='SUPERADMIN'?'bg-purple-100 text-purple-700':p.role==='WARGA'?'bg-blue-100 text-blue-700':'bg-amber-100 text-amber-700'} rounded text-xs font-bold">${p.role}</span></td>
-                    <td class="p-3 text-slate-600">${p.rt === 'ALL' ? 'Seluruh Wilayah' : p.rt}</td>
-                    <td class="p-3 text-right pr-4 space-x-1">
-                        <button onclick="openModalPetugas('${p.id}')" title="Edit Akun" class="text-brand-600 hover:text-brand-800 w-7 h-7 rounded-lg bg-brand-50 inline-flex items-center justify-center"><i class="fa-solid fa-pen text-xs"></i></button>
-                        ${!isBuiltin ? `<button onclick="promptDeletePetugas('${p.id}')" title="Hapus Akun" class="text-red-600 hover:text-red-800 w-7 h-7 rounded-lg bg-red-50 inline-flex items-center justify-center"><i class="fa-solid fa-trash text-xs"></i></button>` : ''}
-                    </td>
-                </tr>`;
-            });
-        }
-
-        function openModalPetugas(id = null) {
-            if(id) {
-                const p = APP_STATE.petugasList.find(x => x.id === id);
-                document.getElementById('form-petugas-id').value = p.id;
-                document.getElementById('form-petugas-nama').value = p.nama;
-                document.getElementById('form-petugas-username').value = p.username;
-                document.getElementById('form-petugas-password').value = '';
-                document.getElementById('form-petugas-rt').value = p.rt;
-                document.getElementById('modal-petugas-title').innerText = 'Edit Akun Petugas';
-                document.getElementById('form-petugas-pass-help').innerText = '*Kosongkan jika tidak ingin mengubah password lamanya.';
-            } else {
-                document.getElementById('form-petugas-id').value = '';
-                document.getElementById('form-petugas-nama').value = '';
-                document.getElementById('form-petugas-username').value = '';
-                document.getElementById('form-petugas-password').value = '123';
-                document.getElementById('form-petugas-rt').value = 'RT 01';
-                document.getElementById('modal-petugas-title').innerText = 'Tambah Akun Petugas Baru';
-                document.getElementById('form-petugas-pass-help').innerText = '*Password bawaan: 123 (dapat diganti)';
-            }
-            openModal('modal-petugas');
-        }
-
-        function handleSavePetugas(e) {
-            e.preventDefault();
-            const id = document.getElementById('form-petugas-id').value;
-            const nama = document.getElementById('form-petugas-nama').value.trim();
-            const username = document.getElementById('form-petugas-username').value.trim().toLowerCase();
-            const pass = document.getElementById('form-petugas-password').value;
-            const rtVal = document.getElementById('form-petugas-rt').value;
-
-            const exist = APP_STATE.petugasList.find(x => x.username.toLowerCase() === username && x.id !== id);
-            if(exist) return showToast('Username sudah dipakai oleh pengguna lain!', 'error');
-
-            let role = 'PETUGAS';
-            if(rtVal === 'ALL') role = 'SUPERADMIN';
-            if(rtVal === 'WARGA') role = 'WARGA';
-
-            let pet;
-            if(id) {
-                const idx = APP_STATE.petugasList.findIndex(x => x.id === id);
-                pet = APP_STATE.petugasList[idx];
-                pet.nama = nama;
-                pet.username = username;
-                pet.rt = rtVal;
-                pet.role = role;
-                if(pass) pet.password = pass;
-                APP_STATE.petugasList[idx] = pet;
-            } else {
-                pet = {
-                    id: 'PTG' + Date.now(),
-                    nama: nama,
-                    username: username,
-                    password: pass || '123',
-                    role: role,
-                    rt: rtVal
-                };
-                APP_STATE.petugasList.push(pet);
-            }
-
-            localStorage.setItem(STORAGE_KEYS.PETUGAS, JSON.stringify(APP_STATE.petugasList));
-            closeModal('modal-petugas');
-            renderPetugasTable();
-            showToast('Akun petugas berhasil disimpan!');
-            
-            pushDataToGSheet('savePetugas', pet);
-        }
-
-        function promptDeletePetugas(id) {
-            confirmAction("Hapus Akun", "Hapus akun petugas ini?", "Ya, Hapus", true, () => {
-                APP_STATE.petugasList = APP_STATE.petugasList.filter(x => x.id !== id);
-                localStorage.setItem(STORAGE_KEYS.PETUGAS, JSON.stringify(APP_STATE.petugasList));
-                renderPetugasTable();
-                showToast('Akun petugas berhasil dihapus.');
-                pushDataToGSheet('deletePetugas', { id: id });
-            });
-        }
-
-        // --- CETAK LAPORAN & CETAK QR CODE --- //
         function executePrintLaporan() {
             const rt = document.getElementById('lap-filter-rt').value;
             const bulan = document.getElementById('lap-filter-bulan').value;
@@ -1865,7 +1743,7 @@
             tbody.innerHTML = '';
             let total = 0;
             
-            const sorted = [...filtered].sort((a,b) => new Date(a.date) - new Date(b.date));
+            const sorted = filtered.sort((a,b) => new Date(a.date) - new Date(b.date));
 
             if(sorted.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="6" class="text-center p-3 border border-black italic">Tidak ada transaksi ditemukan pada periode ini.</td></tr>';
@@ -1874,148 +1752,267 @@
                     const isWithdrawal = parseInt(t.nominal) < 0;
                     total += parseInt(t.nominal);
                     const d = new Date(t.date);
-                    const nomStr = (isWithdrawal ? '- ' : '') + 'Rp ' + Math.abs(parseInt(t.nominal)).toLocaleString('id-ID');
+                    const nomStr = (isWithdrawal ? '- ' : '') + Math.abs(parseInt(t.nominal)).toLocaleString('id-ID');
                     tbody.innerHTML += `
                     <tr>
                         <td class="border border-black p-1 text-center">${i+1}</td>
                         <td class="border border-black p-1">${d.toLocaleDateString('id-ID')}</td>
                         <td class="border border-black p-1 uppercase font-semibold">${t.nama}</td>
                         <td class="border border-black p-1 text-center">${t.rt}</td>
-                        <td class="border border-black p-1">${t.petugas}</td>
-                        <td class="border border-black p-1 text-right font-mono">${nomStr}</td>
+                        <td class="border border-black p-1 capitalize">${t.petugas}</td>
+                        <td class="border border-black p-1 text-right font-medium ${isWithdrawal ? 'text-red-600' : ''}">${nomStr}</td>
                     </tr>`;
                 });
             }
 
-            document.getElementById('print-lap-total').innerText = 'Rp ' + total.toLocaleString('id-ID');
-            document.getElementById('print-lap-rt').innerText = rt === 'ALL' ? 'Semua RT' : rt;
-            document.getElementById('print-lap-periode').innerText = bulan ? bulan : 'Keseluruhan';
-            document.getElementById('print-lap-date').innerText = new Date().toLocaleDateString('id-ID', {day: 'numeric', month: 'long', year: 'numeric'});
-            document.getElementById('print-ttd-date').innerText = new Date().toLocaleDateString('id-ID', {day: 'numeric', month: 'long', year: 'numeric'});
-            document.getElementById('print-lap-user').innerText = APP_STATE.currentUser ? APP_STATE.currentUser.nama : 'Petugas';
+            document.getElementById('print-lap-rt').innerText = rt === 'ALL' ? 'Seluruh Keseluruhan RT (01 - 06)' : rt;
+            
+            let perLabel = 'Keseluruhan Waktu';
+            if(bulan) {
+                const [y, m] = bulan.split('-');
+                const dObj = new Date(y, m-1);
+                perLabel = dObj.toLocaleDateString('id-ID', {month:'long', year:'numeric'});
+            }
+            document.getElementById('print-lap-periode').innerText = perLabel;
+            
+            const n = new Date();
+            document.getElementById('print-lap-date').innerText = n.toLocaleDateString('id-ID', {day:'numeric',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'});
+            document.getElementById('print-lap-user').innerText = APP_STATE.currentUser ? APP_STATE.currentUser.nama : 'Petugas/Sistem';
+            document.getElementById('print-ttd-date').innerText = n.toLocaleDateString('id-ID', {day:'numeric',month:'long',year:'numeric'});
+            document.getElementById('print-lap-total').innerText = `Rp ${total.toLocaleString('id-ID')}`;
 
             closeModal('modal-laporan');
-            setTimeout(() => { window.print(); }, 300);
+            document.getElementById('sec-app').classList.add('hidden');
+            document.getElementById('printable-area-laporan').classList.remove('hidden');
+            
+            setTimeout(() => {
+                window.print();
+                document.getElementById('printable-area-laporan').classList.add('hidden');
+                document.getElementById('sec-app').classList.remove('hidden');
+            }, 600);
+        }
+
+        function printIndividualQR(id) {
+            const w = APP_STATE.wargaList.find(x => x.id === id);
+            if(w) generatePrintView([w]);
         }
 
         function openModalCetakQRMassal() {
-            const grid = document.getElementById('batch-qr-grid');
-            grid.innerHTML = '';
             const rt = document.getElementById('filter-warga-rt').value;
             let list = APP_STATE.wargaList;
-            if (rt !== 'ALL') list = list.filter(w => w.rt === rt);
+            if(rt !== 'ALL') list = list.filter(w => w.rt === rt);
             
-            if (list.length === 0) return showToast('Tidak ada data warga untuk dicetak!', 'error');
-
-            list.forEach(w => {
-                const card = document.createElement('div');
-                card.className = 'qr-card-print p-3 border-2 border-dashed border-slate-400 rounded-xl text-center bg-white';
-                const qrDivId = `qr-box-${w.id}`;
-                card.innerHTML = `
-                    <div id="${qrDivId}" class="flex justify-center mb-2"></div>
-                    <p class="font-bold text-sm uppercase text-slate-800">${w.nama}</p>
-                    <p class="text-xs text-slate-600 font-semibold">${w.rt} • ${w.nik}</p>
-                    <p class="text-[10px] text-slate-400 font-mono mt-1">${w.id}</p>
-                `;
-                grid.appendChild(card);
-                setTimeout(() => {
-                    new QRCode(document.getElementById(qrDivId), {
-                        text: w.id, width: 110, height: 110
-                    });
-                }, 50);
+            if(list.length === 0) return showToast('Tidak ada data warga di tabel.', 'error');
+            
+            confirmAction("Cetak Massal", `Cetak ${list.length} Kartu QR untuk area ${rt}?`, "Ya, Cetak QR", false, () => {
+                generatePrintView(list);
             });
-
-            setTimeout(() => { window.print(); }, 500);
         }
 
-        function printIndividualQR(wId) {
-            const w = APP_STATE.wargaList.find(x => x.id === wId);
-            if (!w) return;
+        function generatePrintView(list) {
+            document.getElementById('sec-app').classList.add('hidden');
+            const printArea = document.getElementById('printable-area');
+            printArea.classList.remove('hidden');
+
             const grid = document.getElementById('batch-qr-grid');
             grid.innerHTML = '';
-            const card = document.createElement('div');
-            card.className = 'qr-card-print p-4 border-2 border-dashed border-slate-800 rounded-xl text-center max-w-xs mx-auto bg-white';
-            const qrDivId = `qr-box-${w.id}`;
-            card.innerHTML = `
-                <div id="${qrDivId}" class="flex justify-center mb-3"></div>
-                <p class="font-bold text-base uppercase text-slate-900">${w.nama}</p>
-                <p class="text-xs text-slate-700 font-bold">${w.rt} • NIK: ${w.nik}</p>
-                <p class="text-[10px] text-slate-500 font-mono mt-1">ID: ${w.id}</p>
-            `;
-            grid.appendChild(card);
+            
+            list.forEach(w => {
+                const card = document.createElement('div');
+                card.className = 'qr-card-print';
+                card.innerHTML = `
+                    <div style="font-size:11px; font-weight:bold; margin-bottom:4px; border-bottom:1px solid #ccc; padding-bottom:2px;">E-JIMPITAN • ${w.rt}</div>
+                    <div id="qr-canvas-${w.id}" style="display:flex; justify-content:center; margin-bottom:4px;"></div>
+                    <div style="font-size:12px; font-weight:bold; text-transform:uppercase; line-height:1.2;">${w.nama}</div>
+                    <div style="font-size:10px; color:#444; margin-top:2px;">NIK: ${w.nik}</div>
+                `;
+                grid.appendChild(card);
+                
+                const qrContainer = document.getElementById(`qr-canvas-${w.id}`);
+                qrContainer.innerHTML = '';
+                new QRCode(qrContainer, {
+                    text: w.id, width: 95, height: 95, colorDark: "#000000", colorLight: "#ffffff"
+                });
+            });
+
             setTimeout(() => {
-                new QRCode(document.getElementById(qrDivId), { text: w.id, width: 140, height: 140 });
-                setTimeout(() => window.print(), 300);
-            }, 50);
+                window.print();
+                printArea.classList.add('hidden');
+                document.getElementById('sec-app').classList.remove('hidden');
+            }, 600);
         }
 
-        // --- BACKUP, RESTORE & BUNDLE DOWNLOAD --- //
+        function renderPetugasTable() {
+            const tbody = document.getElementById('petugas-table-body');
+            tbody.innerHTML = '';
+            
+            APP_STATE.petugasList.forEach(p => {
+                let roleColor = p.role === 'SUPERADMIN' ? 'bg-blue-100 text-blue-700' : (p.role === 'WARGA' ? 'bg-orange-100 text-orange-700' : 'bg-slate-100 text-slate-700');
+                
+                tbody.innerHTML += `
+                <tr class="hover:bg-slate-50 transition border-b border-slate-50">
+                    <td class="p-3 pl-4 font-semibold text-slate-800">${p.nama}</td>
+                    <td class="p-3 text-slate-600">${p.username}</td>
+                    <td class="p-3"><span class="px-2 py-1 ${roleColor} rounded text-[10px] font-bold tracking-wider">${p.role}</span></td>
+                    <td class="p-3 text-slate-600 font-medium">${p.rt}</td>
+                    <td class="p-3 text-right pr-4 space-x-1">
+                        <button onclick="openModalPetugas('${p.id}')" title="Edit Akun" class="text-brand-600 hover:text-brand-800 w-7 h-7 rounded-lg bg-brand-50 inline-flex items-center justify-center"><i class="fa-solid fa-pen text-xs"></i></button>
+                        ${(p.role !== 'SUPERADMIN' || p.id !== (APP_STATE.currentUser ? APP_STATE.currentUser.id : '')) ? `<button onclick="promptDeletePetugas('${p.id}', '${p.nama}')" title="Hapus Akun" class="text-red-600 hover:text-red-800 w-7 h-7 rounded-lg bg-red-50 inline-flex items-center justify-center"><i class="fa-solid fa-trash text-xs"></i></button>` : ''}
+                    </td>
+                </tr>`;
+            });
+        }
+
+        function openModalPetugas(id = null) {
+            if (id) {
+                const p = APP_STATE.petugasList.find(x => x.id === id);
+                document.getElementById('form-petugas-id').value = p.id;
+                document.getElementById('form-petugas-nama').value = p.nama;
+                document.getElementById('form-petugas-username').value = p.username;
+                document.getElementById('form-petugas-password').value = ''; 
+                
+                let selectedRole = p.rt;
+                if(p.role === 'SUPERADMIN') selectedRole = 'ALL';
+                if(p.role === 'WARGA') selectedRole = 'WARGA';
+                document.getElementById('form-petugas-rt').value = selectedRole;
+                
+                document.getElementById('form-petugas-pass-help').innerText = '*Kosongkan jika tidak ingin mengubah password lamanya.';
+                document.getElementById('modal-petugas-title').innerText = 'Edit Akun Pengguna';
+            } else {
+                document.getElementById('form-petugas-id').value = '';
+                document.getElementById('form-petugas-nama').value = '';
+                document.getElementById('form-petugas-username').value = '';
+                document.getElementById('form-petugas-password').value = '123';
+                document.getElementById('form-petugas-rt').value = 'RT 01';
+                document.getElementById('form-petugas-pass-help').innerText = '*Password bawaan disarankan: 123';
+                document.getElementById('modal-petugas-title').innerText = 'Tambah Pengguna Baru';
+            }
+            openModal('modal-petugas');
+        }
+
+        function handleSavePetugas(e) {
+            e.preventDefault();
+            const id = document.getElementById('form-petugas-id').value;
+            const uname = document.getElementById('form-petugas-username').value.trim();
+            const pass = document.getElementById('form-petugas-password').value;
+            const rtSelect = document.getElementById('form-petugas-rt').value;
+            
+            if(APP_STATE.petugasList.some(x => x.username.toLowerCase() === uname.toLowerCase() && x.id !== id)) {
+                return showToast('Username tersebut sudah digunakan!', 'error');
+            }
+
+            let finalRole = 'PETUGAS';
+            let finalRt = rtSelect;
+            if (rtSelect === 'ALL') { finalRole = 'SUPERADMIN'; }
+            else if (rtSelect === 'WARGA') { finalRole = 'WARGA'; finalRt = 'ALL'; }
+
+            const p = {
+                id: id || 'PTG' + Date.now(),
+                nama: document.getElementById('form-petugas-nama').value.trim(),
+                username: uname,
+                role: finalRole,
+                rt: finalRt
+            };
+
+            if (id) {
+                const idx = APP_STATE.petugasList.findIndex(x => x.id === id);
+                p.password = pass ? pass : APP_STATE.petugasList[idx].password; 
+                APP_STATE.petugasList[idx] = p;
+            } else {
+                p.password = pass || '123';
+                APP_STATE.petugasList.push(p);
+            }
+            
+            localStorage.setItem(STORAGE_KEYS.PETUGAS, JSON.stringify(APP_STATE.petugasList));
+            closeModal('modal-petugas');
+            renderPetugasTable();
+            showToast('Akun Pengguna berhasil disimpan!');
+            
+            pushDataToGSheet('savePetugas', p);
+        }
+
+        function promptDeletePetugas(id, nama) {
+            confirmAction("Hapus Hak Akses", `Hapus akun "${nama}" secara permanen?`, "Ya, Hapus", true, () => {
+                APP_STATE.petugasList = APP_STATE.petugasList.filter(x => x.id !== id);
+                localStorage.setItem(STORAGE_KEYS.PETUGAS, JSON.stringify(APP_STATE.petugasList));
+                renderPetugasTable();
+                showToast(`Akun ${nama} dihapus.`);
+                
+                pushDataToGSheet('deletePetugas', { id: id });
+            });
+        }
+
+        function downloadAppBundle() {
+            try {
+                const htmlContent = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+                const blob = new Blob([htmlContent], { type: 'text/html' });
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(blob);
+                a.download = 'E-Jimpitan-Panggungrejo-Utara.html';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                showToast('File Aplikasi HTML berhasil diunduh.');
+            } catch(e) {
+                showToast('Gagal mengunduh file aplikasi.', 'error');
+            }
+        }
+
         function exportDataJson() {
-            const backupData = {
-                app: "E-Jimpitan",
+            const dataToExport = {
+                app: "E-Jimpitan Panggungrejo Utara",
                 version: "4.0",
-                exportDate: new Date().toISOString(),
+                exportedAt: new Date().toISOString(),
                 warga: APP_STATE.wargaList,
                 transaksi: APP_STATE.transaksiList,
                 petugas: APP_STATE.petugasList
             };
-            const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
+            const str = JSON.stringify(dataToExport, null, 2);
+            const blob = new Blob([str], { type: 'application/json' });
             const a = document.createElement('a');
             a.href = URL.createObjectURL(blob);
-            a.download = `Backup_E-Jimpitan_${new Date().toISOString().slice(0,10)}.json`;
+            a.download = `Backup-E-Jimpitan-${new Date().toISOString().slice(0,10)}.json`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
-            showToast('File backup JSON berhasil diunduh.');
+            showToast('Backup data berhasil diunduh.');
         }
 
         function importDataJson(e) {
             const file = e.target.files[0];
-            if(!file) return;
+            if (!file) return;
             const reader = new FileReader();
             reader.onload = function(evt) {
                 try {
-                    const data = JSON.parse(evt.target.result);
-                    if(data.warga) {
-                        APP_STATE.wargaList = data.warga;
-                        localStorage.setItem(STORAGE_KEYS.WARGA, JSON.stringify(data.warga));
+                    const imported = JSON.parse(evt.target.result);
+                    if (imported.warga && Array.isArray(imported.warga)) {
+                        APP_STATE.wargaList = imported.warga;
+                        localStorage.setItem(STORAGE_KEYS.WARGA, JSON.stringify(imported.warga));
                     }
-                    if(data.transaksi) {
-                        APP_STATE.transaksiList = data.transaksi;
-                        localStorage.setItem(STORAGE_KEYS.TX, JSON.stringify(data.transaksi));
+                    if (imported.transaksi && Array.isArray(imported.transaksi)) {
+                        APP_STATE.transaksiList = imported.transaksi;
+                        localStorage.setItem(STORAGE_KEYS.TX, JSON.stringify(imported.transaksi));
                     }
-                    if(data.petugas) {
-                        APP_STATE.petugasList = data.petugas;
-                        localStorage.setItem(STORAGE_KEYS.PETUGAS, JSON.stringify(data.petugas));
+                    if (imported.petugas && Array.isArray(imported.petugas)) {
+                        APP_STATE.petugasList = imported.petugas;
+                        localStorage.setItem(STORAGE_KEYS.PETUGAS, JSON.stringify(imported.petugas));
                     }
+                    showToast('Data berhasil di-restore!');
                     renderDashboard();
                     renderWargaTable();
                     renderPetugasTable();
-                    populateManualSelect(APP_STATE.currentUser ? APP_STATE.currentUser.rt : 'ALL');
-                    showToast('Restore data berhasil dilakukan!');
                     
+                    // Dorong perubahan restore ke Google Sheets
                     pushDataToGSheet('syncFullDatabase', {
                         warga: APP_STATE.wargaList,
                         transaksi: APP_STATE.transaksiList,
                         petugas: APP_STATE.petugasList
                     });
                 } catch(err) {
-                    showToast('Gagal impor file JSON: ' + err.message, 'error');
+                    showToast('Gagal memuat file backup JSON.', 'error');
                 }
             };
             reader.readAsText(file);
-        }
-
-        function downloadAppBundle() {
-            const htmlContent = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
-            const blob = new Blob([htmlContent], { type: 'text/html' });
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(blob);
-            a.download = 'index.html';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            showToast('Master file HTML E-Jimpitan berhasil diunduh.');
         }
 
         window.onload = initApp;
